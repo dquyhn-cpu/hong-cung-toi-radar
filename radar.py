@@ -1,40 +1,48 @@
-import requests
-from bs4 import BeautifulSoup
-from datetime import datetime
+from playwright.sync_api import sync_playwright
+from datetime import datetime, timezone
 
-URL = "https://www.facebook.com/beatvn.network"
+TARGET = "https://www.facebook.com/beatvn.network"
 
-headers = {
-    "User-Agent": (
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-        "AppleWebKit/537.36 (KHTML, like Gecko) "
-        "Chrome/151.0.0.0 Safari/537.36"
-    ),
-    "Accept-Language": "vi-VN,vi;q=0.9,en;q=0.8",
-}
+print("=== HONG CUNG TOI RADAR - PLAYWRIGHT TEST ===")
+print("Time:", datetime.now(timezone.utc).isoformat())
+print("Target:", TARGET)
 
-print("=== HONG CUNG TOI RADAR TEST ===")
-print("Time:", datetime.utcnow().isoformat(), "UTC")
-print("Target:", URL)
+with sync_playwright() as p:
+    browser = p.chromium.launch(headless=True)
 
-try:
-    r = requests.get(URL, headers=headers, timeout=30)
+    context = browser.new_context(
+        viewport={"width": 1280, "height": 900},
+        locale="vi-VN",
+        user_agent=(
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/140.0.0.0 Safari/537.36"
+        ),
+    )
 
-    print("HTTP status:", r.status_code)
-    print("Downloaded:", len(r.content), "bytes")
-    print("Final URL:", r.url)
+    page = context.new_page()
 
-    soup = BeautifulSoup(r.text, "html.parser")
+    try:
+        response = page.goto(
+            TARGET,
+            wait_until="domcontentloaded",
+            timeout=60000,
+        )
 
-    title = soup.title.get_text(" ", strip=True) if soup.title else "NO TITLE"
-    print("Page title:", title)
+        page.wait_for_timeout(5000)
 
-    text = soup.get_text(" ", strip=True)
-    print("Text length:", len(text))
+        print("HTTP status:", response.status if response else "No response")
+        print("Final URL:", page.url)
+        print("Title:", page.title())
 
-    print("\n--- SAMPLE ---")
-    print(text[:2000])
+        text = page.locator("body").inner_text(timeout=10000)
 
-except Exception as e:
-    print("ERROR:", repr(e))
-    raise
+        print("Text length:", len(text))
+        print("\n--- PAGE SAMPLE ---")
+        print(text[:5000])
+
+    except Exception as e:
+        print("ERROR:", repr(e))
+
+    finally:
+        browser.close()
