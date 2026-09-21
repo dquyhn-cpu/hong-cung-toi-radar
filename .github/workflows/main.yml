@@ -18,6 +18,9 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
+      
+      - name: Install Playwright Chromium
+        run: python -m playwright install --with-deps chromium
 
       - name: Test BeatVN access
         run: python radar.py
