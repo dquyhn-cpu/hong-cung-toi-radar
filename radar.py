@@ -1,485 +1,385 @@
 from playwright.sync_api import sync_playwright
 from datetime import datetime, timezone
-from urllib.parse import urlsplit, urlunsplit
-import re
 import json
 import os
-import hashlib
+import re
+import time
+from urllib.parse import urljoin, urlparse, parse_qs
 
-# ============================================================
-# HONG CUNG TOI - SOCIAL RADAR V3
-# 5 newest posts/source + dedup + event-ready output
-# ============================================================
+# =========================================================
+# HONG CUNG TOI - SOCIAL RADAR V4
+# =========================================================
 
 SOURCES = {
     "BeatVN": "https://www.facebook.com/beatvn.network",
-    "Theanh28": "https://www.facebook.com/theanh28",
+    "Theanh28": "https://www.facebook.com/Theanh28",
     "Top Comments": "https://www.facebook.com/topcomments.vn",
 }
 
 MAX_POSTS_PER_PAGE = 5
-MAX_ARTICLES_TO_SCAN = 20
+SCROLL_ROUNDS = 8
+SCROLL_WAIT_MS = 1800
 
 RESULT_FILE = "radar_results.json"
 HISTORY_FILE = "radar_history.json"
 
-IGNORE_EXACT = {
-    "Đăng nhập",
-    "Bạn quên tài khoản ư?",
-    "Xem thêm",
-    "Xem thêm bình luận",
-    "Thích",
-    "Bình luận",
-    "Chia sẻ",
-    "Tất cả cảm xúc:",
-    "Ảnh",
-    "Video",
-    "Reels",
-    "Bài viết",
-    "Giới thiệu",
-    "Đang hoạt động",
-    "Chỉ báo trạng thái online",
+POST_PATTERNS = [
+    r"/posts/",
+    r"/videos/",
+    r"/reel/",
+    r"/photo/",
+    r"/permalink/",
+]
+
+IGNORE_TEXT = {
+    "đăng nhập",
+    "quên tài khoản",
+    "xem thêm",
+    "bình luận",
+    "chia sẻ",
+    "thích",
 }
-
-
-def clean_line(line):
-    return re.sub(r"\s+", " ", line or "").strip()
-
-
-def clean_text(text, source_name=""):
-    if not text:
-        return ""
-
-    output = []
-    previous = None
-
-    for raw in text.splitlines():
-        line = clean_line(raw)
-
-        if not line:
-            continue
-
-        if line in IGNORE_EXACT:
-            continue
-
-        if source_name and line.lower() == source_name.lower():
-            continue
-
-        # Loại các dòng chỉ chứa số/tương tác đơn lẻ
-        if re.fullmatch(r"[\d,.]+\s*[KkMm]?", line):
-            continue
-
-        # Loại dòng thời gian đơn lẻ
-        if re.fullmatch(
-            r"(Vừa xong|Hôm qua|\d+\s*(phút|giờ|ngày))",
-            line,
-            re.IGNORECASE,
-        ):
-            continue
-
-        if line == previous:
-            continue
-
-        output.append(line)
-        previous = line
-
-    return "\n".join(output)
-
-
-def normalize_url(url):
-    if not url:
-        return ""
-
-    url = url.replace("&amp;", "&")
-
-    if url.startswith("/"):
-        url = "https://www.facebook.com" + url
-
-    # Với URL dạng /posts/... query tracking không cần thiết
-    if "/posts/" in url or "/videos/" in url or "/reel/" in url:
-        parts = urlsplit(url)
-        url = urlunsplit(
-            (parts.scheme, parts.netloc, parts.path, "", "")
-        )
-
-    return url
-
-
-def post_id_from_url(url):
-    if not url:
-        return ""
-
-    patterns = [
-        r"/posts/([^/?#]+)",
-        r"/videos/([^/?#]+)",
-        r"/reel/([^/?#]+)",
-        r"[?&]story_fbid=([^&#]+)",
-        r"[?&]fbid=([^&#]+)",
-    ]
-
-    for pattern in patterns:
-        match = re.search(pattern, url)
-        if match:
-            return match.group(1)
-
-    return hashlib.sha1(
-        url.encode("utf-8")
-    ).hexdigest()[:20]
-
-
-def find_post_url(article):
-    candidates = []
-
-    try:
-        links = article.locator("a")
-
-        for i in range(links.count()):
-            try:
-                href = links.nth(i).get_attribute("href")
-
-                if not href:
-                    continue
-
-                href = normalize_url(href)
-
-                if (
-                    "/posts/" in href
-                    or "/videos/" in href
-                    or "/reel/" in href
-                    or "story_fbid=" in href
-                    or "fbid=" in href
-                ):
-                    candidates.append(href)
-
-            except Exception:
-                pass
-
-    except Exception:
-        pass
-
-    if not candidates:
-        return ""
-
-    # Ưu tiên URL posts
-    for url in candidates:
-        if "/posts/" in url:
-            return url
-
-    return candidates[0]
-
-
-def find_time(text):
-    patterns = [
-        r"\bVừa xong\b",
-        r"\b\d+\s*phút\b",
-        r"\b\d+\s*giờ\b",
-        r"\b\d+\s*ngày\b",
-        r"\bHôm qua\b",
-    ]
-
-    for pattern in patterns:
-        match = re.search(pattern, text, re.IGNORECASE)
-
-        if match:
-            return match.group(0)
-
-    return ""
-
-
-def parse_number(value):
-    if not value:
-        return None
-
-    value = value.strip().replace(",", ".")
-
-    match = re.search(
-        r"([\d.]+)\s*([KkMm]?)",
-        value
-    )
-
-    if not match:
-        return None
-
-    try:
-        number = float(match.group(1))
-    except ValueError:
-        return None
-
-    suffix = match.group(2).lower()
-
-    if suffix == "k":
-        number *= 1000
-    elif suffix == "m":
-        number *= 1000000
-
-    return int(number)
-
-
-def extract_engagement(raw_text):
-    result = {
-        "reactions": None,
-        "comments": None,
-        "shares": None,
-    }
-
-    patterns = {
-        "comments": [
-            r"([\d.,]+\s*[KkMm]?)\s*(?:bình luận|comments?)",
-        ],
-        "shares": [
-            r"([\d.,]+\s*[KkMm]?)\s*(?:lượt chia sẻ|chia sẻ|shares?)",
-        ],
-        "reactions": [
-            r"Tất cả cảm xúc:\s*([\d.,]+\s*[KkMm]?)",
-        ],
-    }
-
-    for key, regexes in patterns.items():
-        for regex in regexes:
-            match = re.search(
-                regex,
-                raw_text,
-                re.IGNORECASE
-            )
-
-            if match:
-                result[key] = parse_number(
-                    match.group(1)
-                )
-                break
-
-    return result
 
 
 def load_history():
     if not os.path.exists(HISTORY_FILE):
-        return {
-            "seen_post_ids": {},
-            "updated_at": None,
-        }
+        return set()
 
     try:
-        with open(
-            HISTORY_FILE,
-            "r",
-            encoding="utf-8"
-        ) as f:
+        with open(HISTORY_FILE, "r", encoding="utf-8") as f:
             data = json.load(f)
 
-        if "seen_post_ids" not in data:
-            data["seen_post_ids"] = {}
+        if isinstance(data, list):
+            return set(data)
 
-        return data
-
+        return set()
     except Exception:
-        return {
-            "seen_post_ids": {},
-            "updated_at": None,
-        }
+        return set()
 
 
 def save_history(history):
-    history["updated_at"] = (
-        datetime.now(timezone.utc).isoformat()
-    )
-
-    with open(
-        HISTORY_FILE,
-        "w",
-        encoding="utf-8"
-    ) as f:
+    with open(HISTORY_FILE, "w", encoding="utf-8") as f:
         json.dump(
-            history,
+            sorted(list(history)),
             f,
             ensure_ascii=False,
             indent=2
         )
 
 
-def looks_like_post(text, url):
+def clean_url(url):
+    if not url:
+        return None
+
+    url = url.strip()
+
+    if url.startswith("/"):
+        url = urljoin("https://www.facebook.com", url)
+
+    if not url.startswith("http"):
+        return None
+
+    # Decode Facebook redirect links if encountered
+    try:
+        parsed = urlparse(url)
+
+        if "l.facebook.com" in parsed.netloc:
+            qs = parse_qs(parsed.query)
+            if "u" in qs and qs["u"]:
+                url = qs["u"][0]
+    except Exception:
+        pass
+
+    # Remove tracking/query/fragment
+    url = url.split("?")[0]
+    url = url.split("#")[0]
+
+    return url.rstrip("/")
+
+
+def looks_like_post_url(url):
     if not url:
         return False
 
-    if len(text.strip()) < 5:
+    low = url.lower()
+
+    if "facebook.com" not in low:
         return False
 
-    return True
+    for pattern in POST_PATTERNS:
+        if re.search(pattern, low):
+            return True
+
+    # Story permalink form
+    if "story.php" in low:
+        return True
+
+    # photo.php / watch links
+    if "photo.php" in low or "/watch" in low:
+        return True
+
+    return False
 
 
-def collect_source(page, source_name, source_url):
-    print()
-    print("=" * 90)
-    print("SOURCE:", source_name)
-    print("URL:", source_url)
-    print("=" * 90)
+def extract_post_id(url):
+    if not url:
+        return None
 
-    results = []
+    patterns = [
+        r"/posts/([^/?#]+)",
+        r"/videos/([^/?#]+)",
+        r"/reel/([^/?#]+)",
+        r"/photo/([^/?#]+)",
+        r"/permalink/([^/?#]+)",
+    ]
 
-    try:
-        response = page.goto(
-            source_url,
-            wait_until="domcontentloaded",
-            timeout=60000
-        )
+    for pattern in patterns:
+        match = re.search(pattern, url, re.I)
+        if match:
+            return match.group(1)
 
-        page.wait_for_timeout(4500)
+    return url
+
+
+def clean_text(text):
+    if not text:
+        return ""
+
+    lines = []
+
+    for line in text.splitlines():
+        line = line.strip()
+
+        if not line:
+            continue
+
+        if line.lower() in IGNORE_TEXT:
+            continue
+
+        lines.append(line)
+
+    text = "\n".join(lines)
+
+    # Avoid gigantic Facebook blocks
+    return text[:4000]
+
+
+def get_engagement(text):
+    reactions = None
+    comments = None
+    shares = None
+
+    if not text:
+        return {
+            "reactions": reactions,
+            "comments": comments,
+            "shares": shares,
+        }
+
+    patterns = [
+        (r"([\d.,KkMm]+)\s*(?:lượt\s*)?(?:thích|cảm xúc)", "reactions"),
+        (r"([\d.,KkMm]+)\s*bình luận", "comments"),
+        (r"([\d.,KkMm]+)\s*(?:lượt\s*)?chia sẻ", "shares"),
+    ]
+
+    values = {
+        "reactions": None,
+        "comments": None,
+        "shares": None,
+    }
+
+    for pattern, key in patterns:
+        m = re.search(pattern, text, re.I)
+        if m:
+            values[key] = m.group(1)
+
+    return values
+
+
+def get_time_text(article_text):
+    if not article_text:
+        return None
+
+    patterns = [
+        r"\b\d+\s*phút\b",
+        r"\b\d+\s*giờ\b",
+        r"\b\d+\s*ngày\b",
+        r"\b\d+\s*tuần\b",
+        r"\bvừa xong\b",
+        r"\bhôm qua\b",
+    ]
+
+    for pattern in patterns:
+        m = re.search(pattern, article_text, re.I)
+        if m:
+            return m.group(0)
+
+    return None
+
+
+def collect_articles(page):
+    collected = {}
+
+    # Facebook dynamically loads feed.
+    # Scan current DOM + scroll several rounds.
+    for round_no in range(SCROLL_ROUNDS + 1):
+
+        articles = page.locator('div[role="article"]')
+
+        try:
+            article_count = articles.count()
+        except Exception:
+            article_count = 0
 
         print(
-            "HTTP:",
-            response.status if response else "NO RESPONSE"
-        )
-        print("TITLE:", page.title())
-        print("FINAL URL:", page.url)
-
-        # Nạp thêm feed
-        for _ in range(6):
-            page.mouse.wheel(0, 1400)
-            page.wait_for_timeout(1200)
-
-        articles = page.locator('[role="article"]')
-        article_count = articles.count()
-
-        print("ARTICLES FOUND:", article_count)
-
-        seen_this_source = set()
-
-        scan_count = min(
-            article_count,
-            MAX_ARTICLES_TO_SCAN
+            f"  Scan round {round_no + 1}: "
+            f"{article_count} article containers"
         )
 
-        for i in range(scan_count):
-            if len(results) >= MAX_POSTS_PER_PAGE:
+        for i in range(article_count):
+            if len(collected) >= MAX_POSTS_PER_PAGE:
                 break
 
             try:
                 article = articles.nth(i)
 
-                raw_text = article.inner_text(
-                    timeout=5000
-                )
+                text = clean_text(article.inner_text(timeout=3000))
 
-                url = find_post_url(article)
+                links = article.locator("a")
+                link_count = links.count()
 
-                if not url:
-                    print(
-                        f"Article {i + 1}: "
-                        "no post URL"
-                    )
+                candidate_urls = []
+
+                for j in range(link_count):
+                    try:
+                        href = links.nth(j).get_attribute("href")
+
+                        if not href:
+                            continue
+
+                        href = clean_url(href)
+
+                        if looks_like_post_url(href):
+                            candidate_urls.append(href)
+
+                    except Exception:
+                        continue
+
+                # Prefer first valid unique permalink
+                post_url = None
+
+                for candidate in candidate_urls:
+                    if candidate not in collected:
+                        post_url = candidate
+                        break
+
+                if not post_url:
                     continue
 
-                post_id = post_id_from_url(url)
-
-                if post_id in seen_this_source:
+                # Skip empty/near-empty blocks
+                if len(text) < 10:
                     continue
 
-                text = clean_text(
-                    raw_text,
-                    source_name
-                )
+                post_id = extract_post_id(post_url)
 
-                if not looks_like_post(text, url):
-                    continue
-
-                seen_this_source.add(post_id)
-
-                post = {
-                    "source": source_name,
-                    "source_url": source_url,
+                collected[post_url] = {
                     "post_id": post_id,
-                    "url": url,
-                    "time_text": find_time(raw_text),
-                    "text": text[:4000],
-                    "engagement":
-                        extract_engagement(raw_text),
+                    "url": post_url,
+                    "time": get_time_text(text),
+                    "engagement": get_engagement(text),
+                    "text": text,
                 }
 
-                results.append(post)
-
-                print()
-                print("-" * 75)
                 print(
-                    f"POST #{len(results)}"
-                )
-                print("POST ID:", post_id)
-                print("URL:", url)
-                print(
-                    "TIME:",
-                    post["time_text"]
-                    or "unknown"
-                )
-                print(
-                    "ENGAGEMENT:",
-                    json.dumps(
-                        post["engagement"],
-                        ensure_ascii=False
-                    )
-                )
-                print("TEXT:")
-                print(text[:1000])
-
-            except Exception as exc:
-                print(
-                    f"Article {i + 1} "
-                    f"skipped: {exc}"
+                    f"    + Captured {len(collected)}: "
+                    f"{post_url[:100]}"
                 )
 
-        print()
-        print(
-            f">>> {source_name}: "
-            f"{len(results)} POSTS EXTRACTED"
+            except Exception:
+                continue
+
+        if len(collected) >= MAX_POSTS_PER_PAGE:
+            break
+
+        # Scroll feed to trigger more articles
+        page.mouse.wheel(0, 3500)
+        page.wait_for_timeout(SCROLL_WAIT_MS)
+
+    return list(collected.values())[:MAX_POSTS_PER_PAGE]
+
+
+def collect_source(page, source_name, source_url):
+    print("\n" + "=" * 75)
+    print("SOURCE:", source_name)
+    print("URL:", source_url)
+    print("=" * 75)
+
+    try:
+        response = page.goto(
+            source_url,
+            wait_until="domcontentloaded",
+            timeout=60000,
         )
 
-    except Exception as exc:
-        print(
-            f"ERROR collecting "
-            f"{source_name}: {exc}"
-        )
+        page.wait_for_timeout(4000)
 
-    return results
+        status = response.status if response else None
+
+        print("HTTP:", status)
+        print("TITLE:", page.title())
+        print("FINAL URL:", page.url)
+
+        posts = collect_articles(page)
+
+        print(f"\n>>> {source_name}: {len(posts)} POSTS EXTRACTED")
+
+        for index, post in enumerate(posts, start=1):
+            print("\n" + "-" * 65)
+            print("POST #" + str(index))
+            print("POST ID:", post["post_id"])
+            print("URL:", post["url"])
+            print("TIME:", post["time"])
+            print("ENGAGEMENT:", post["engagement"])
+            print("TEXT:")
+            print(post["text"][:1200])
+
+        return posts
+
+    except Exception as e:
+        print(f"ERROR {source_name}: {e}")
+        return []
 
 
 def main():
-    now = datetime.now(timezone.utc)
+    print("=" * 75)
+    print("HONG CUNG TOI - SOCIAL RADAR V4")
+    print("MULTI-POST + SCROLL + DEDUP")
+    print("TIME:", datetime.now(timezone.utc).isoformat())
+    print("=" * 75)
 
-    print("=" * 90)
-    print("HONG CUNG TOI - SOCIAL RADAR V3")
-    print("5 POSTS/SOURCE + DEDUP")
-    print("TIME:", now.isoformat())
-    print("=" * 90)
+    old_history = load_history()
 
-    history = load_history()
-    previously_seen = history[
-        "seen_post_ids"
-    ]
-
-    collected = []
+    results = {}
+    all_posts = []
 
     with sync_playwright() as p:
         browser = p.chromium.launch(
             headless=True,
             args=[
-                "--disable-blink-features="
-                "AutomationControlled",
+                "--disable-blink-features=AutomationControlled",
                 "--no-sandbox",
                 "--disable-dev-shm-usage",
-            ]
+            ],
         )
 
         context = browser.new_context(
-            viewport={
-                "width": 1280,
-                "height": 900
-            },
+            viewport={"width": 1280, "height": 1000},
             locale="vi-VN",
-            timezone_id="Asia/Ho_Chi_Minh",
             user_agent=(
-                "Mozilla/5.0 "
-                "(Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 "
-                "(KHTML, like Gecko) "
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) "
                 "Chrome/140.0.0.0 Safari/537.36"
-            )
+            ),
         )
 
         page = context.new_page()
@@ -488,160 +388,107 @@ def main():
             posts = collect_source(
                 page,
                 source_name,
-                source_url
+                source_url,
             )
 
-            collected.extend(posts)
+            results[source_name] = posts
 
-            page.wait_for_timeout(1800)
+            for post in posts:
+                item = dict(post)
+                item["source"] = source_name
+                all_posts.append(item)
 
         browser.close()
 
-    # ----------------------------------------
-    # Chống trùng giữa các source trong lượt
-    # ----------------------------------------
+    # -----------------------------------------
+    # Cross-source deduplication
+    # -----------------------------------------
 
     unique_posts = []
-    run_seen = set()
+    current_seen = set()
 
-    for post in collected:
-        pid = post["post_id"]
+    for post in all_posts:
+        key = post["url"]
 
-        if pid in run_seen:
+        if key in current_seen:
             continue
 
-        run_seen.add(pid)
+        current_seen.add(key)
         unique_posts.append(post)
 
-    # ----------------------------------------
-    # Phân loại NEW / SEEN
-    # ----------------------------------------
+    # -----------------------------------------
+    # Compare with previous radar runs
+    # -----------------------------------------
 
     new_posts = []
-    seen_posts = []
+    already_seen = []
 
     for post in unique_posts:
-        pid = post["post_id"]
-
-        if pid in previously_seen:
-            post["radar_status"] = "SEEN"
-            seen_posts.append(post)
-
+        if post["url"] in old_history:
+            already_seen.append(post)
         else:
-            post["radar_status"] = "NEW"
             new_posts.append(post)
 
-            previously_seen[pid] = {
-                "source": post["source"],
-                "url": post["url"],
-                "first_seen":
-                    now.isoformat()
-            }
+    updated_history = old_history | current_seen
 
-    # Giới hạn history để file không phình mãi
-    if len(previously_seen) > 1000:
-        items = list(
-            previously_seen.items()
-        )
+    # Prevent history file from growing forever
+    history_list = list(updated_history)
 
-        previously_seen = dict(
-            items[-1000:]
-        )
+    if len(history_list) > 2000:
+        history_list = history_list[-2000:]
 
-    history["seen_post_ids"] = (
-        previously_seen
-    )
-
-    save_history(history)
+    save_history(set(history_list))
 
     output = {
-        "generated_at": now.isoformat(),
-        "sources": list(SOURCES.keys()),
-        "collected_count":
-            len(collected),
-        "unique_count":
-            len(unique_posts),
-        "new_count":
-            len(new_posts),
-        "seen_count":
-            len(seen_posts),
-        "new_posts":
-            new_posts,
-        "all_posts":
-            unique_posts,
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "source_stats": {
+            source: len(posts)
+            for source, posts in results.items()
+        },
+        "collected": len(all_posts),
+        "unique": len(unique_posts),
+        "new": len(new_posts),
+        "already_seen": len(already_seen),
+        "posts": new_posts,
     }
 
-    with open(
-        RESULT_FILE,
-        "w",
-        encoding="utf-8"
-    ) as f:
+    with open(RESULT_FILE, "w", encoding="utf-8") as f:
         json.dump(
             output,
             f,
             ensure_ascii=False,
-            indent=2
+            indent=2,
         )
 
-    print()
-    print("=" * 90)
+    print("\n" + "=" * 75)
     print("FINAL RADAR RESULT")
-    print("=" * 90)
-
-    source_stats = {}
-
-    for post in collected:
-        source = post["source"]
-
-        source_stats[source] = (
-            source_stats.get(source, 0) + 1
-        )
+    print("=" * 75)
 
     print(
         "SOURCE STATS:",
-        json.dumps(
-            source_stats,
-            ensure_ascii=False
-        )
+        output["source_stats"]
     )
 
-    print(
-        "COLLECTED:",
-        len(collected)
-    )
-    print(
-        "UNIQUE:",
-        len(unique_posts)
-    )
-    print(
-        "NEW:",
-        len(new_posts)
-    )
-    print(
-        "ALREADY SEEN:",
-        len(seen_posts)
-    )
+    print("COLLECTED:", output["collected"])
+    print("UNIQUE:", output["unique"])
+    print("NEW:", output["new"])
+    print("ALREADY SEEN:", output["already_seen"])
 
-    print()
-    print("NEW POSTS:")
+    if new_posts:
+        print("\nNEW POSTS:")
 
-    for post in new_posts:
-        print(
-            f"- [{post['source']}] "
-            f"{post['time_text']} | "
-            f"{post['url']}"
-        )
+        for post in new_posts:
+            print(
+                f'- [{post["source"]}] '
+                f'{post["time"] or "unknown time"} | '
+                f'{post["url"]}'
+            )
+    else:
+        print("\nNO NEW POSTS THIS RUN")
 
-    print()
-    print(
-        "Saved:",
-        RESULT_FILE
-    )
-    print(
-        "History:",
-        HISTORY_FILE
-    )
-    print("=== RADAR V3 FINISHED ===")
+    print("\nSaved:", RESULT_FILE)
+    print("History:", HISTORY_FILE)
+    print("=== RADAR V4 FINISHED ===")
 
 
 if __name__ == "__main__":
