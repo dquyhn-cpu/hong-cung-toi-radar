@@ -1,14 +1,16 @@
 from playwright.sync_api import sync_playwright
 from datetime import datetime, timezone
 from urllib.parse import urljoin, urlparse, parse_qs
+from difflib import SequenceMatcher
+import hashlib
 import json
 import os
 import re
-import hashlib
 
 # ============================================================
-# HONG CUNG TOI - SOCIAL RADAR V5
-# Multi-entry discovery + persistent dedup
+# HONG CUNG TOI - SOCIAL RADAR V6
+# Less but better:
+# Social signal -> Dedup -> Event clustering -> Radar output
 # ============================================================
 
 SOURCES = {
@@ -26,13 +28,19 @@ SOURCES = {
     },
 }
 
-MAX_POSTS_PER_SOURCE = 8
-SCROLL_ROUNDS = 5
-SCROLL_WAIT_MS = 1400
+# We intentionally do NOT aggressively scrape Facebook.
+MAX_POSTS_PER_SOURCE = 3
+SCROLL_ROUNDS = 3
+SCROLL_WAIT_MS = 1200
 
 RESULT_FILE = "radar_results.json"
+EVENT_FILE = "radar_events.json"
 HISTORY_FILE = "radar_history.json"
+
 MAX_HISTORY = 3000
+
+# Similarity threshold for grouping posts into same event.
+EVENT_SIMILARITY_THRESHOLD = 0.42
 
 POST_MARKERS = (
     "/posts/",
@@ -44,10 +52,19 @@ POST_MARKERS = (
     "photo.php",
 )
 
+STOPWORDS = {
+    "và", "là", "của", "có", "cho", "với", "một", "những",
+    "các", "được", "đang", "đã", "sẽ", "khi", "thì", "mà",
+    "tại", "trong", "sau", "trước", "này", "đó", "về",
+    "theo", "từ", "đến", "trên", "dưới", "lại", "ra",
+    "vào", "ở", "vẫn", "cũng", "rất", "không", "người",
+    "facebook", "ảnh", "video",
+}
 
-# ------------------------------------------------------------
+
+# ============================================================
 # HISTORY
-# ------------------------------------------------------------
+# ============================================================
 
 def load_history():
     if not os.path.exists(HISTORY_FILE):
@@ -60,23 +77,22 @@ def load_history():
         if isinstance(data, dict):
             return data
 
-        # compatibility with old list format
         if isinstance(data, list):
             return {
-                str(x): {
-                    "first_seen": None
+                str(item): {
+                    "first_seen": None,
+                    "last_seen": None,
                 }
-                for x in data
+                for item in data
             }
 
-    except Exception as e:
-        print("History load warning:", e)
+    except Exception as exc:
+        print("History load warning:", exc)
 
     return {}
 
 
 def save_history(history):
-    # Keep newest records only
     items = list(history.items())
 
     if len(items) > MAX_HISTORY:
@@ -87,13 +103,13 @@ def save_history(history):
             dict(items),
             f,
             ensure_ascii=False,
-            indent=2
+            indent=2,
         )
 
 
-# ------------------------------------------------------------
-# URL NORMALIZATION
-# ------------------------------------------------------------
+# ============================================================
+# URL
+# ============================================================
 
 def normalize_url(url):
     if not url:
@@ -102,7 +118,10 @@ def normalize_url(url):
     url = url.strip()
 
     if url.startswith("/"):
-        url = urljoin("https://www.facebook.com", url)
+        url = urljoin(
+            "https://www.facebook.com",
+            url,
+        )
 
     if not url.startswith("http"):
         return None
@@ -110,29 +129,28 @@ def normalize_url(url):
     try:
         parsed = urlparse(url)
 
-        # Facebook redirect URL
         if "l.facebook.com" in parsed.netloc:
-            qs = parse_qs(parsed.query)
+            query = parse_qs(parsed.query)
 
-            if qs.get("u"):
-                url = qs["u"][0]
+            if query.get("u"):
+                url = query["u"][0]
 
     except Exception:
         pass
 
     url = url.replace(
         "https://m.facebook.com/",
-        "https://www.facebook.com/"
+        "https://www.facebook.com/",
     )
 
     url = url.replace(
         "http://m.facebook.com/",
-        "https://www.facebook.com/"
+        "https://www.facebook.com/",
     )
 
-    # Preserve query for story.php/photo.php because ID can live there
     low = url.lower()
 
+    # story.php/photo.php may store ID in query
     if "story.php" not in low and "photo.php" not in low:
         url = url.split("?")[0]
 
@@ -150,14 +168,13 @@ def is_post_url(url):
     if "facebook.com" not in low:
         return False
 
-    return any(marker in low for marker in POST_MARKERS)
+    return any(
+        marker in low
+        for marker in POST_MARKERS
+    )
 
 
 def post_key(url):
-    """
-    Generate stable key for deduplication.
-    """
-
     if not url:
         return None
 
@@ -169,18 +186,25 @@ def post_key(url):
     ]
 
     for pattern in patterns:
-        m = re.search(pattern, url, re.I)
+        match = re.search(
+            pattern,
+            url,
+            re.I,
+        )
 
-        if m:
-            return m.group(1)
+        if match:
+            return match.group(1)
 
     try:
         parsed = urlparse(url)
-        qs = parse_qs(parsed.query)
+        query = parse_qs(parsed.query)
 
-        for key in ("story_fbid", "fbid", "id"):
-            if qs.get(key):
-                return f"{key}:{qs[key][0]}"
+        for key in (
+            "story_fbid",
+            "fbid",
+        ):
+            if query.get(key):
+                return f"{key}:{query[key][0]}"
 
     except Exception:
         pass
@@ -190,15 +214,13 @@ def post_key(url):
     ).hexdigest()
 
 
-# ------------------------------------------------------------
-# TEXT
-# ------------------------------------------------------------
+# ============================================================
+# TEXT CLEANING
+# ============================================================
 
 def clean_text(text):
     if not text:
         return ""
-
-    lines = []
 
     blacklist = {
         "xem thêm",
@@ -209,8 +231,15 @@ def clean_text(text):
         "tạo tài khoản mới",
     }
 
+    output = []
+    previous = None
+
     for raw in text.splitlines():
-        line = raw.strip()
+        line = re.sub(
+            r"\s+",
+            " ",
+            raw,
+        ).strip()
 
         if not line:
             continue
@@ -218,127 +247,69 @@ def clean_text(text):
         if line.lower() in blacklist:
             continue
 
-        lines.append(line)
+        if line == previous:
+            continue
 
-    return "\n".join(lines)[:5000]
+        output.append(line)
+        previous = line
+
+    return "\n".join(output)[:5000]
 
 
-def get_time(text):
+def get_time_text(text):
     if not text:
         return None
 
     patterns = [
+        r"\bvừa xong\b",
         r"\b\d+\s*phút\b",
         r"\b\d+\s*giờ\b",
         r"\b\d+\s*ngày\b",
-        r"\b\d+\s*tuần\b",
-        r"\bvừa xong\b",
         r"\bhôm qua\b",
     ]
 
     for pattern in patterns:
-        m = re.search(pattern, text, re.I)
+        match = re.search(
+            pattern,
+            text,
+            re.I,
+        )
 
-        if m:
-            return m.group(0)
+        if match:
+            return match.group(0)
 
     return None
 
 
-def get_engagement(text):
-    result = {
-        "reactions": None,
-        "comments": None,
-        "shares": None,
-    }
+# ============================================================
+# ARTICLE EXTRACTION
+# ============================================================
 
-    if not text:
-        return result
-
-    patterns = {
-        "comments": r"([\d.,KkMm]+)\s*bình luận",
-        "shares": r"([\d.,KkMm]+)\s*(?:lượt\s*)?chia sẻ",
-    }
-
-    for key, pattern in patterns.items():
-        m = re.search(pattern, text, re.I)
-
-        if m:
-            result[key] = m.group(1)
-
-    return result
-
-
-# ------------------------------------------------------------
-# COLLECT LINKS FROM PAGE
-# ------------------------------------------------------------
-
-def collect_links_from_dom(page):
+def extract_articles(page):
     found = {}
 
-    links = page.locator("a")
-
-    try:
-        count = links.count()
-    except Exception:
-        return found
-
-    for i in range(count):
-        try:
-            link = links.nth(i)
-
-            href = link.get_attribute("href")
-
-            if not href:
-                continue
-
-            url = normalize_url(href)
-
-            if not is_post_url(url):
-                continue
-
-            key = post_key(url)
-
-            if not key:
-                continue
-
-            # Try link text first
-            try:
-                text = clean_text(
-                    link.inner_text(timeout=1000)
-                )
-            except Exception:
-                text = ""
-
-            found[key] = {
-                "post_id": key,
-                "url": url,
-                "text": text,
-            }
-
-        except Exception:
-            continue
-
-    return found
-
-
-def collect_articles(page):
-    found = {}
-
-    articles = page.locator('div[role="article"]')
+    articles = page.locator(
+        'div[role="article"]'
+    )
 
     try:
         count = articles.count()
     except Exception:
-        count = 0
+        return found
 
-    for i in range(count):
+    for index in range(count):
+
         try:
-            article = articles.nth(i)
+            article = articles.nth(index)
 
-            text = clean_text(
-                article.inner_text(timeout=2500)
+            raw_text = article.inner_text(
+                timeout=2500
             )
+
+            text = clean_text(raw_text)
+
+            if len(text) < 10:
+                continue
 
             links = article.locator("a")
 
@@ -350,13 +321,16 @@ def collect_articles(page):
             post_url = None
 
             for j in range(link_count):
+
                 try:
-                    href = links.nth(j).get_attribute("href")
+                    href = links.nth(j).get_attribute(
+                        "href"
+                    )
 
-                    url = normalize_url(href)
+                    href = normalize_url(href)
 
-                    if is_post_url(url):
-                        post_url = url
+                    if is_post_url(href):
+                        post_url = href
                         break
 
                 except Exception:
@@ -373,8 +347,7 @@ def collect_articles(page):
             found[key] = {
                 "post_id": key,
                 "url": post_url,
-                "time": get_time(text),
-                "engagement": get_engagement(text),
+                "time": get_time_text(raw_text),
                 "text": text,
             }
 
@@ -384,12 +357,14 @@ def collect_articles(page):
     return found
 
 
-# ------------------------------------------------------------
-# DISCOVERY
-# ------------------------------------------------------------
+# ============================================================
+# SOURCE DISCOVERY
+# ============================================================
 
-def discover(page, url, label):
-    print("\nENTRY:", label)
+def discover_entry(page, url, label):
+
+    print()
+    print("ENTRY:", label)
     print("URL:", url)
 
     discovered = {}
@@ -398,128 +373,447 @@ def discover(page, url, label):
         response = page.goto(
             url,
             wait_until="domcontentloaded",
-            timeout=60000
+            timeout=60000,
         )
 
         page.wait_for_timeout(3500)
 
         print(
             "HTTP:",
-            response.status if response else None
+            response.status if response else None,
         )
 
         print("TITLE:", page.title())
         print("FINAL:", page.url)
 
-        for round_no in range(SCROLL_ROUNDS + 1):
+        for round_no in range(
+            SCROLL_ROUNDS + 1
+        ):
 
-            # Strategy A: article containers
-            articles = collect_articles(page)
+            batch = extract_articles(page)
 
-            for key, item in articles.items():
-                discovered[key] = item
-
-            # Strategy B: every post-looking hyperlink
-            links = collect_links_from_dom(page)
-
-            for key, item in links.items():
+            for key, post in batch.items():
 
                 if key not in discovered:
-                    discovered[key] = item
+                    discovered[key] = post
 
-                elif (
-                    not discovered[key].get("text")
-                    and item.get("text")
-                ):
-                    discovered[key]["text"] = item["text"]
+                else:
+                    old_text = discovered[key].get(
+                        "text",
+                        "",
+                    )
+
+                    new_text = post.get(
+                        "text",
+                        "",
+                    )
+
+                    if len(new_text) > len(old_text):
+                        discovered[key] = post
 
             print(
                 f"  round {round_no + 1}: "
                 f"{len(discovered)} candidate posts"
             )
 
-            if len(discovered) >= MAX_POSTS_PER_SOURCE:
+            if (
+                len(discovered)
+                >= MAX_POSTS_PER_SOURCE
+            ):
                 break
 
-            page.mouse.wheel(0, 4000)
-            page.wait_for_timeout(SCROLL_WAIT_MS)
+            page.mouse.wheel(
+                0,
+                3500,
+            )
 
-    except Exception as e:
-        print("ENTRY ERROR:", e)
+            page.wait_for_timeout(
+                SCROLL_WAIT_MS
+            )
+
+    except Exception as exc:
+        print(
+            "ENTRY ERROR:",
+            exc,
+        )
 
     return discovered
 
 
-# ------------------------------------------------------------
-# SOURCE COLLECTION
-# ------------------------------------------------------------
+def collect_source(
+    page,
+    source_name,
+    config,
+):
 
-def collect_source(page, name, config):
-
-    print("\n" + "=" * 78)
-    print("SOURCE:", name)
+    print()
+    print("=" * 78)
+    print("SOURCE:", source_name)
     print("=" * 78)
 
     combined = {}
 
     entries = [
-        ("desktop", config["page"]),
-        ("mobile", config["mobile"]),
+        (
+            "desktop",
+            config["page"],
+        ),
+        (
+            "mobile",
+            config["mobile"],
+        ),
     ]
 
     for label, url in entries:
 
-        batch = discover(
+        batch = discover_entry(
             page,
             url,
-            label
+            label,
         )
 
-        for key, item in batch.items():
+        for key, post in batch.items():
 
             if key not in combined:
-                combined[key] = item
+                combined[key] = post
 
             else:
-                # Prefer version containing more text
-                old_text = combined[key].get("text", "")
-                new_text = item.get("text", "")
+                old_text = combined[key].get(
+                    "text",
+                    "",
+                )
+
+                new_text = post.get(
+                    "text",
+                    "",
+                )
 
                 if len(new_text) > len(old_text):
-                    combined[key] = item
+                    combined[key] = post
 
-        if len(combined) >= MAX_POSTS_PER_SOURCE:
-            break
-
-    posts = list(combined.values())
-
-    # Prefer posts with useful text
-    posts.sort(
-        key=lambda x: len(x.get("text", "")),
-        reverse=True
+    posts = list(
+        combined.values()
     )
 
-    posts = posts[:MAX_POSTS_PER_SOURCE]
+    posts = posts[
+        :MAX_POSTS_PER_SOURCE
+    ]
 
     print(
-        f">>> {name}: "
-        f"{len(posts)} UNIQUE POSTS DISCOVERED"
+        f">>> {source_name}: "
+        f"{len(posts)} POSTS"
     )
 
     return posts
 
 
-# ------------------------------------------------------------
+# ============================================================
+# EVENT CLUSTERING
+# ============================================================
+
+def normalize_for_matching(text):
+    if not text:
+        return ""
+
+    text = text.lower()
+
+    text = re.sub(
+        r"https?://\S+",
+        " ",
+        text,
+    )
+
+    text = re.sub(
+        r"[^\w\sÀ-ỹ]",
+        " ",
+        text,
+    )
+
+    text = re.sub(
+        r"\s+",
+        " ",
+        text,
+    )
+
+    return text.strip()
+
+
+def keyword_set(text):
+    normalized = normalize_for_matching(
+        text
+    )
+
+    words = normalized.split()
+
+    result = set()
+
+    for word in words:
+
+        if len(word) < 3:
+            continue
+
+        if word in STOPWORDS:
+            continue
+
+        if word.isdigit():
+            continue
+
+        result.add(word)
+
+    return result
+
+
+def event_similarity(
+    text_a,
+    text_b,
+):
+
+    a = normalize_for_matching(
+        text_a
+    )
+
+    b = normalize_for_matching(
+        text_b
+    )
+
+    if not a or not b:
+        return 0.0
+
+    # Character/string similarity
+    sequence_score = SequenceMatcher(
+        None,
+        a[:1500],
+        b[:1500],
+    ).ratio()
+
+    # Keyword overlap
+    words_a = keyword_set(a)
+    words_b = keyword_set(b)
+
+    if words_a and words_b:
+
+        intersection = len(
+            words_a & words_b
+        )
+
+        union = len(
+            words_a | words_b
+        )
+
+        keyword_score = (
+            intersection / union
+            if union
+            else 0
+        )
+
+    else:
+        keyword_score = 0
+
+    # Keyword overlap matters more
+    final_score = (
+        sequence_score * 0.35
+        + keyword_score * 0.65
+    )
+
+    return final_score
+
+
+def choose_event_title(text):
+    if not text:
+        return "Chưa xác định"
+
+    lines = [
+        line.strip()
+        for line in text.splitlines()
+        if line.strip()
+    ]
+
+    # Skip source/time/UI looking lines
+    for line in lines:
+
+        low = line.lower()
+
+        if len(line) < 15:
+            continue
+
+        if re.fullmatch(
+            r"\d+\s*(phút|giờ|ngày)",
+            low,
+        ):
+            continue
+
+        if low in {
+            "beatvn",
+            "theanh28",
+            "top comments",
+        }:
+            continue
+
+        return line[:220]
+
+    return (
+        lines[0][:220]
+        if lines
+        else "Chưa xác định"
+    )
+
+
+def cluster_events(posts):
+
+    events = []
+
+    for post in posts:
+
+        best_event = None
+        best_score = 0.0
+
+        for event in events:
+
+            # Compare with every post already
+            # belonging to the event
+            event_best = 0.0
+
+            for existing in event["posts"]:
+
+                score = event_similarity(
+                    post.get("text", ""),
+                    existing.get("text", ""),
+                )
+
+                event_best = max(
+                    event_best,
+                    score,
+                )
+
+            if event_best > best_score:
+
+                best_score = event_best
+                best_event = event
+
+        if (
+            best_event is not None
+            and best_score
+            >= EVENT_SIMILARITY_THRESHOLD
+        ):
+
+            best_event["posts"].append(
+                post
+            )
+
+            if (
+                post["source"]
+                not in best_event["sources"]
+            ):
+                best_event["sources"].append(
+                    post["source"]
+                )
+
+            best_event[
+                "match_scores"
+            ].append(
+                round(best_score, 3)
+            )
+
+        else:
+
+            events.append({
+                "event_id": (
+                    "event_"
+                    + hashlib.sha1(
+                        (
+                            post.get(
+                                "text",
+                                "",
+                            )
+                            + post.get(
+                                "url",
+                                "",
+                            )
+                        ).encode(
+                            "utf-8"
+                        )
+                    ).hexdigest()[:12]
+                ),
+
+                "title": choose_event_title(
+                    post.get(
+                        "text",
+                        "",
+                    )
+                ),
+
+                "sources": [
+                    post["source"]
+                ],
+
+                "posts": [
+                    post
+                ],
+
+                "match_scores": [],
+            })
+
+    return events
+
+
+# ============================================================
+# EVENT SIGNAL
+# ============================================================
+
+def classify_event(event):
+
+    source_count = len(
+        event["sources"]
+    )
+
+    post_count = len(
+        event["posts"]
+    )
+
+    if source_count >= 2:
+
+        signal = "CROSS_SOURCE"
+        priority = "HIGH"
+        action = "VERIFY_NOW"
+
+    else:
+
+        signal = "SINGLE_SOURCE"
+        priority = "WATCH"
+        action = "VERIFY_IF_IMPORTANT"
+
+    # Verification is NOT performed by this script yet.
+    verification = "CHUA_XAC_MINH"
+
+    event["source_count"] = source_count
+    event["post_count"] = post_count
+    event["signal"] = signal
+    event["priority"] = priority
+    event["verification"] = verification
+    event["suggested_action"] = action
+
+    return event
+
+
+# ============================================================
 # MAIN
-# ------------------------------------------------------------
+# ============================================================
 
 def main():
 
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(
+        timezone.utc
+    ).isoformat()
 
     print("=" * 78)
-    print("HONG CUNG TOI - SOCIAL RADAR V5")
-    print("MULTI ENTRY + PERMALINK DISCOVERY + PERSISTENT DEDUP")
+    print(
+        "HONG CUNG TOI - "
+        "SOCIAL RADAR V6"
+    )
+    print(
+        "SOCIAL SIGNAL -> "
+        "DEDUP -> EVENT CLUSTERING"
+    )
     print("TIME:", now)
     print("=" * 78)
 
@@ -528,11 +822,10 @@ def main():
     print(
         "HISTORY LOADED:",
         len(history),
-        "posts"
     )
 
-    source_results = {}
     all_posts = []
+    source_results = {}
 
     with sync_playwright() as p:
 
@@ -548,7 +841,7 @@ def main():
         context = browser.new_context(
             viewport={
                 "width": 1280,
-                "height": 1000
+                "height": 1000,
             },
             locale="vi-VN",
             user_agent=(
@@ -556,162 +849,370 @@ def main():
                 "(Windows NT 10.0; Win64; x64) "
                 "AppleWebKit/537.36 "
                 "(KHTML, like Gecko) "
-                "Chrome/140.0.0.0 Safari/537.36"
+                "Chrome/140.0.0.0 "
+                "Safari/537.36"
             ),
         )
 
         page = context.new_page()
 
-        for name, config in SOURCES.items():
+        for (
+            source_name,
+            config,
+        ) in SOURCES.items():
 
             posts = collect_source(
                 page,
-                name,
-                config
+                source_name,
+                config,
             )
 
-            source_results[name] = posts
+            source_results[
+                source_name
+            ] = posts
 
             for post in posts:
 
-                post["source"] = name
+                post["source"] = (
+                    source_name
+                )
 
-                all_posts.append(post)
+                all_posts.append(
+                    post
+                )
 
         browser.close()
 
     # --------------------------------------------------------
-    # Global dedup
+    # Post-level dedup
     # --------------------------------------------------------
 
-    unique = {}
+    unique_posts = {}
 
     for post in all_posts:
 
-        key = post.get("post_id")
+        key = post.get(
+            "post_id"
+        )
 
         if not key:
             continue
 
-        if key not in unique:
-            unique[key] = post
+        if key not in unique_posts:
+            unique_posts[key] = post
 
         else:
-            old_text = unique[key].get("text", "")
-            new_text = post.get("text", "")
 
-            if len(new_text) > len(old_text):
-                unique[key] = post
+            old_text = unique_posts[
+                key
+            ].get(
+                "text",
+                "",
+            )
+
+            new_text = post.get(
+                "text",
+                "",
+            )
+
+            if len(new_text) > len(
+                old_text
+            ):
+                unique_posts[
+                    key
+                ] = post
 
     # --------------------------------------------------------
-    # Compare against persistent history
+    # History / NEW
     # --------------------------------------------------------
 
     new_posts = []
-    old_posts = []
+    seen_posts = []
 
-    for key, post in unique.items():
+    for (
+        key,
+        post,
+    ) in unique_posts.items():
 
         if key in history:
 
-            old_posts.append(post)
+            seen_posts.append(
+                post
+            )
 
-            history[key]["last_seen"] = now
+            history[key][
+                "last_seen"
+            ] = now
 
         else:
 
-            new_posts.append(post)
+            new_posts.append(
+                post
+            )
 
             history[key] = {
-                "source": post.get("source"),
-                "url": post.get("url"),
+                "source": post.get(
+                    "source"
+                ),
+                "url": post.get(
+                    "url"
+                ),
                 "first_seen": now,
                 "last_seen": now,
             }
 
-    save_history(history)
+    save_history(
+        history
+    )
 
-    output = {
+    # --------------------------------------------------------
+    # IMPORTANT:
+    # Cluster ALL currently visible posts,
+    # not just NEW ones.
+    #
+    # This allows:
+    # BeatVN old post +
+    # Theanh28 new post
+    # => same event / cross-source signal.
+    # --------------------------------------------------------
+
+    current_posts = list(
+        unique_posts.values()
+    )
+
+    events = cluster_events(
+        current_posts
+    )
+
+    events = [
+        classify_event(event)
+        for event in events
+    ]
+
+    # Cross-source events first
+    events.sort(
+        key=lambda e: (
+            e["source_count"],
+            e["post_count"],
+        ),
+        reverse=True,
+    )
+
+    # --------------------------------------------------------
+    # Save results
+    # --------------------------------------------------------
+
+    result_output = {
         "generated_at": now,
 
         "source_stats": {
-            name: len(posts)
-            for name, posts in source_results.items()
+            source: len(posts)
+            for source, posts
+            in source_results.items()
         },
 
-        "collected": len(all_posts),
+        "collected": len(
+            all_posts
+        ),
 
-        "unique": len(unique),
+        "unique": len(
+            unique_posts
+        ),
 
-        "new": len(new_posts),
+        "new": len(
+            new_posts
+        ),
 
-        "already_seen": len(old_posts),
+        "already_seen": len(
+            seen_posts
+        ),
 
-        "posts": new_posts,
+        "new_posts": new_posts,
     }
 
     with open(
         RESULT_FILE,
         "w",
-        encoding="utf-8"
+        encoding="utf-8",
     ) as f:
 
         json.dump(
-            output,
+            result_output,
             f,
             ensure_ascii=False,
-            indent=2
+            indent=2,
         )
 
-    print("\n" + "=" * 78)
+    event_output = {
+        "generated_at": now,
+        "event_count": len(
+            events
+        ),
+        "events": events,
+    }
+
+    with open(
+        EVENT_FILE,
+        "w",
+        encoding="utf-8",
+    ) as f:
+
+        json.dump(
+            event_output,
+            f,
+            ensure_ascii=False,
+            indent=2,
+        )
+
+    # --------------------------------------------------------
+    # Console output
+    # --------------------------------------------------------
+
+    print()
+    print("=" * 78)
     print("FINAL RADAR RESULT")
     print("=" * 78)
 
     print(
         "SOURCE STATS:",
-        output["source_stats"]
+        result_output[
+            "source_stats"
+        ],
     )
 
     print(
         "COLLECTED:",
-        output["collected"]
+        result_output[
+            "collected"
+        ],
     )
 
     print(
         "UNIQUE:",
-        output["unique"]
+        result_output[
+            "unique"
+        ],
     )
 
     print(
         "NEW:",
-        output["new"]
+        result_output[
+            "new"
+        ],
     )
 
     print(
         "ALREADY SEEN:",
-        output["already_seen"]
+        result_output[
+            "already_seen"
+        ],
     )
 
-    print("\nNEW POSTS:")
+    print(
+        "EVENTS:",
+        len(events),
+    )
 
-    for post in new_posts:
+    print()
+    print("=" * 78)
+    print("EVENT RADAR")
+    print("=" * 78)
 
+    for index, event in enumerate(
+        events,
+        start=1,
+    ):
+
+        print()
         print(
-            f'- [{post["source"]}] '
-            f'{post.get("time") or "?"} | '
-            f'{post["url"]}'
+            f"EVENT #{index}"
         )
 
-    print("\nSaved:", RESULT_FILE)
-    print("History:", HISTORY_FILE)
+        print(
+            "TOPIC:",
+            event["title"],
+        )
+
+        print(
+            "SOURCES:",
+            " + ".join(
+                event["sources"]
+            ),
+        )
+
+        print(
+            "SOURCE COUNT:",
+            event[
+                "source_count"
+            ],
+        )
+
+        print(
+            "SIGNAL:",
+            event["signal"],
+        )
+
+        print(
+            "PRIORITY:",
+            event["priority"],
+        )
+
+        print(
+            "VERIFICATION:",
+            event[
+                "verification"
+            ],
+        )
+
+        print(
+            "ACTION:",
+            event[
+                "suggested_action"
+            ],
+        )
+
+        print("EVIDENCE:")
+
+        for post in event[
+            "posts"
+        ]:
+
+            print(
+                " -",
+                f'[{post["source"]}]',
+                post.get(
+                    "time"
+                )
+                or "?",
+                "|",
+                post.get(
+                    "url"
+                ),
+            )
+
+    print()
+    print(
+        "Saved:",
+        RESULT_FILE,
+    )
+
+    print(
+        "Events:",
+        EVENT_FILE,
+    )
+
+    print(
+        "History:",
+        HISTORY_FILE,
+    )
 
     print(
         "HISTORY SIZE:",
-        len(history)
+        len(history),
     )
 
     print(
-        "=== RADAR V5 FINISHED ==="
+        "=== RADAR V6 FINISHED ==="
     )
 
 
