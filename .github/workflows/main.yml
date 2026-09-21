@@ -18,9 +18,26 @@ jobs:
 
       - name: Install dependencies
         run: pip install -r requirements.txt
-      
+
       - name: Install Playwright Chromium
         run: python -m playwright install --with-deps chromium
 
-      - name: Test BeatVN access
+      - name: Restore radar history
+        uses: actions/cache@v4
+        with:
+          path: radar_history.json
+          key: radar-history-${{ github.run_id }}
+          restore-keys: |
+            radar-history-
+
+      - name: Run Hong Cung Toi Radar V5
         run: python radar.py
+
+      - name: Upload radar result
+        uses: actions/upload-artifact@v4
+        with:
+          name: radar-result-${{ github.run_id }}
+          path: |
+            radar_results.json
+            radar_history.json
+          retention-days: 7
