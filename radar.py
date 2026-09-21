@@ -1,10 +1,14 @@
 from playwright.sync_api import sync_playwright
 from datetime import datetime, timezone
+from urllib.parse import urlsplit, urlunsplit
 import re
 import json
+import os
+import hashlib
 
 # ============================================================
-# HONG CUNG TOI - SOCIAL RADAR COLLECTOR
+# HONG CUNG TOI - SOCIAL RADAR V3
+# 5 newest posts/source + dedup + event-ready output
 # ============================================================
 
 SOURCES = {
@@ -13,12 +17,17 @@ SOURCES = {
     "Top Comments": "https://www.facebook.com/topcomments.vn",
 }
 
-MAX_POSTS_PER_PAGE = 8
+MAX_POSTS_PER_PAGE = 5
+MAX_ARTICLES_TO_SCAN = 20
 
-IGNORE_LINES = {
+RESULT_FILE = "radar_results.json"
+HISTORY_FILE = "radar_history.json"
+
+IGNORE_EXACT = {
     "Đăng nhập",
     "Bạn quên tài khoản ư?",
     "Xem thêm",
+    "Xem thêm bình luận",
     "Thích",
     "Bình luận",
     "Chia sẻ",
@@ -28,244 +37,392 @@ IGNORE_LINES = {
     "Reels",
     "Bài viết",
     "Giới thiệu",
+    "Đang hoạt động",
+    "Chỉ báo trạng thái online",
 }
 
 
-def clean_text(text):
+def clean_line(line):
+    return re.sub(r"\s+", " ", line or "").strip()
+
+
+def clean_text(text, source_name=""):
     if not text:
         return ""
 
-    lines = []
+    output = []
+    previous = None
 
-    for line in text.splitlines():
-        line = re.sub(r"\s+", " ", line).strip()
+    for raw in text.splitlines():
+        line = clean_line(raw)
 
         if not line:
             continue
 
-        if line in IGNORE_LINES:
+        if line in IGNORE_EXACT:
             continue
 
-        lines.append(line)
+        if source_name and line.lower() == source_name.lower():
+            continue
 
-    return "\n".join(lines)
+        # Loại các dòng chỉ chứa số/tương tác đơn lẻ
+        if re.fullmatch(r"[\d,.]+\s*[KkMm]?", line):
+            continue
+
+        # Loại dòng thời gian đơn lẻ
+        if re.fullmatch(
+            r"(Vừa xong|Hôm qua|\d+\s*(phút|giờ|ngày))",
+            line,
+            re.IGNORECASE,
+        ):
+            continue
+
+        if line == previous:
+            continue
+
+        output.append(line)
+        previous = line
+
+    return "\n".join(output)
+
+
+def normalize_url(url):
+    if not url:
+        return ""
+
+    url = url.replace("&amp;", "&")
+
+    if url.startswith("/"):
+        url = "https://www.facebook.com" + url
+
+    # Với URL dạng /posts/... query tracking không cần thiết
+    if "/posts/" in url or "/videos/" in url or "/reel/" in url:
+        parts = urlsplit(url)
+        url = urlunsplit(
+            (parts.scheme, parts.netloc, parts.path, "", "")
+        )
+
+    return url
+
+
+def post_id_from_url(url):
+    if not url:
+        return ""
+
+    patterns = [
+        r"/posts/([^/?#]+)",
+        r"/videos/([^/?#]+)",
+        r"/reel/([^/?#]+)",
+        r"[?&]story_fbid=([^&#]+)",
+        r"[?&]fbid=([^&#]+)",
+    ]
+
+    for pattern in patterns:
+        match = re.search(pattern, url)
+        if match:
+            return match.group(1)
+
+    return hashlib.sha1(
+        url.encode("utf-8")
+    ).hexdigest()[:20]
+
+
+def find_post_url(article):
+    candidates = []
+
+    try:
+        links = article.locator("a")
+
+        for i in range(links.count()):
+            try:
+                href = links.nth(i).get_attribute("href")
+
+                if not href:
+                    continue
+
+                href = normalize_url(href)
+
+                if (
+                    "/posts/" in href
+                    or "/videos/" in href
+                    or "/reel/" in href
+                    or "story_fbid=" in href
+                    or "fbid=" in href
+                ):
+                    candidates.append(href)
+
+            except Exception:
+                pass
+
+    except Exception:
+        pass
+
+    if not candidates:
+        return ""
+
+    # Ưu tiên URL posts
+    for url in candidates:
+        if "/posts/" in url:
+            return url
+
+    return candidates[0]
 
 
 def find_time(text):
     patterns = [
+        r"\bVừa xong\b",
         r"\b\d+\s*phút\b",
         r"\b\d+\s*giờ\b",
         r"\b\d+\s*ngày\b",
-        r"\b\d+\s*phút trước\b",
-        r"\b\d+\s*giờ trước\b",
-        r"\b\d+\s*ngày trước\b",
-        r"\bVừa xong\b",
         r"\bHôm qua\b",
     ]
 
     for pattern in patterns:
         match = re.search(pattern, text, re.IGNORECASE)
+
         if match:
             return match.group(0)
 
     return ""
 
 
-def find_engagement(text):
+def parse_number(value):
+    if not value:
+        return None
+
+    value = value.strip().replace(",", ".")
+
+    match = re.search(
+        r"([\d.]+)\s*([KkMm]?)",
+        value
+    )
+
+    if not match:
+        return None
+
+    try:
+        number = float(match.group(1))
+    except ValueError:
+        return None
+
+    suffix = match.group(2).lower()
+
+    if suffix == "k":
+        number *= 1000
+    elif suffix == "m":
+        number *= 1000000
+
+    return int(number)
+
+
+def extract_engagement(raw_text):
     result = {
         "reactions": None,
         "comments": None,
         "shares": None,
     }
 
-    # Facebook thay đổi HTML khá thường xuyên.
-    # Phần này cố lấy tín hiệu nếu chúng xuất hiện trong text.
-    comment_patterns = [
-        r"([\d,.KkMm]+)\s*(?:bình luận|comments?)",
-    ]
+    patterns = {
+        "comments": [
+            r"([\d.,]+\s*[KkMm]?)\s*(?:bình luận|comments?)",
+        ],
+        "shares": [
+            r"([\d.,]+\s*[KkMm]?)\s*(?:lượt chia sẻ|chia sẻ|shares?)",
+        ],
+        "reactions": [
+            r"Tất cả cảm xúc:\s*([\d.,]+\s*[KkMm]?)",
+        ],
+    }
 
-    share_patterns = [
-        r"([\d,.KkMm]+)\s*(?:lượt chia sẻ|chia sẻ|shares?)",
-    ]
+    for key, regexes in patterns.items():
+        for regex in regexes:
+            match = re.search(
+                regex,
+                raw_text,
+                re.IGNORECASE
+            )
 
-    reaction_patterns = [
-        r"Tất cả cảm xúc:\s*([\d,.KkMm]+)",
-    ]
-
-    for pattern in comment_patterns:
-        m = re.search(pattern, text, re.IGNORECASE)
-        if m:
-            result["comments"] = m.group(1)
-            break
-
-    for pattern in share_patterns:
-        m = re.search(pattern, text, re.IGNORECASE)
-        if m:
-            result["shares"] = m.group(1)
-            break
-
-    for pattern in reaction_patterns:
-        m = re.search(pattern, text, re.IGNORECASE)
-        if m:
-            result["reactions"] = m.group(1)
-            break
+            if match:
+                result[key] = parse_number(
+                    match.group(1)
+                )
+                break
 
     return result
 
 
-def extract_post_url(article):
-    links = article.locator("a").all()
+def load_history():
+    if not os.path.exists(HISTORY_FILE):
+        return {
+            "seen_post_ids": {},
+            "updated_at": None,
+        }
 
-    candidates = []
+    try:
+        with open(
+            HISTORY_FILE,
+            "r",
+            encoding="utf-8"
+        ) as f:
+            data = json.load(f)
 
-    for link in links:
-        try:
-            href = link.get_attribute("href")
+        if "seen_post_ids" not in data:
+            data["seen_post_ids"] = {}
 
-            if not href:
-                continue
+        return data
 
-            if href.startswith("/"):
-                href = "https://www.facebook.com" + href
-
-            if (
-                "/posts/" in href
-                or "/videos/" in href
-                or "/reel/" in href
-                or "story_fbid=" in href
-                or "/photo/" in href
-            ):
-                candidates.append(href)
-
-        except Exception:
-            continue
-
-    if not candidates:
-        return ""
-
-    url = candidates[0]
-
-    # Bỏ tracking query không cần thiết nếu có
-    if "?" in url and "story_fbid=" not in url:
-        url = url.split("?")[0]
-
-    return url
+    except Exception:
+        return {
+            "seen_post_ids": {},
+            "updated_at": None,
+        }
 
 
-def looks_like_real_post(text, url):
+def save_history(history):
+    history["updated_at"] = (
+        datetime.now(timezone.utc).isoformat()
+    )
+
+    with open(
+        HISTORY_FILE,
+        "w",
+        encoding="utf-8"
+    ) as f:
+        json.dump(
+            history,
+            f,
+            ensure_ascii=False,
+            indent=2
+        )
+
+
+def looks_like_post(text, url):
     if not url:
         return False
 
-    if len(text) < 20:
-        return False
-
-    bad_markers = [
-        "Đăng nhập",
-        "Bạn quên tài khoản",
-        "Tạo tài khoản mới",
-    ]
-
-    if all(marker in text for marker in bad_markers):
+    if len(text.strip()) < 5:
         return False
 
     return True
 
 
-def extract_page_posts(page, source_name, source_url):
+def collect_source(page, source_name, source_url):
     print()
     print("=" * 90)
-    print(f"SOURCE: {source_name}")
-    print(f"URL: {source_url}")
+    print("SOURCE:", source_name)
+    print("URL:", source_url)
     print("=" * 90)
+
+    results = []
 
     try:
         response = page.goto(
             source_url,
             wait_until="domcontentloaded",
-            timeout=60000,
+            timeout=60000
         )
 
-        page.wait_for_timeout(5000)
+        page.wait_for_timeout(4500)
 
         print(
             "HTTP:",
             response.status if response else "NO RESPONSE"
         )
-
         print("TITLE:", page.title())
         print("FINAL URL:", page.url)
 
-        # Scroll vài lần để Facebook nạp thêm bài
-        for i in range(4):
-            page.mouse.wheel(0, 1600)
-            page.wait_for_timeout(1800)
+        # Nạp thêm feed
+        for _ in range(6):
+            page.mouse.wheel(0, 1400)
+            page.wait_for_timeout(1200)
 
         articles = page.locator('[role="article"]')
+        article_count = articles.count()
 
-        count = articles.count()
+        print("ARTICLES FOUND:", article_count)
 
-        print("ARTICLES FOUND:", count)
+        seen_this_source = set()
 
-        results = []
-        seen_urls = set()
+        scan_count = min(
+            article_count,
+            MAX_ARTICLES_TO_SCAN
+        )
 
-        limit = min(count, 20)
+        for i in range(scan_count):
+            if len(results) >= MAX_POSTS_PER_PAGE:
+                break
 
-        for i in range(limit):
             try:
                 article = articles.nth(i)
 
-                raw_text = article.inner_text(timeout=5000)
-                text = clean_text(raw_text)
+                raw_text = article.inner_text(
+                    timeout=5000
+                )
 
-                url = extract_post_url(article)
+                url = find_post_url(article)
 
-                if not looks_like_real_post(text, url):
+                if not url:
+                    print(
+                        f"Article {i + 1}: "
+                        "no post URL"
+                    )
                     continue
 
-                if url in seen_urls:
+                post_id = post_id_from_url(url)
+
+                if post_id in seen_this_source:
                     continue
 
-                seen_urls.add(url)
+                text = clean_text(
+                    raw_text,
+                    source_name
+                )
 
-                time_text = find_time(text)
-                engagement = find_engagement(raw_text)
+                if not looks_like_post(text, url):
+                    continue
 
-                # Giới hạn text để log không quá dài
-                if len(text) > 2500:
-                    text = text[:2500] + "..."
+                seen_this_source.add(post_id)
 
                 post = {
                     "source": source_name,
-                    "page": source_url,
+                    "source_url": source_url,
+                    "post_id": post_id,
                     "url": url,
-                    "time": time_text,
-                    "text": text,
-                    "engagement": engagement,
+                    "time_text": find_time(raw_text),
+                    "text": text[:4000],
+                    "engagement":
+                        extract_engagement(raw_text),
                 }
 
                 results.append(post)
 
                 print()
-                print("-" * 80)
-                print(f"POST #{len(results)}")
+                print("-" * 75)
+                print(
+                    f"POST #{len(results)}"
+                )
+                print("POST ID:", post_id)
                 print("URL:", url)
-                print("TIME:", time_text or "unknown")
+                print(
+                    "TIME:",
+                    post["time_text"]
+                    or "unknown"
+                )
                 print(
                     "ENGAGEMENT:",
                     json.dumps(
-                        engagement,
+                        post["engagement"],
                         ensure_ascii=False
                     )
                 )
                 print("TEXT:")
-                print(text[:1200])
-
-                if len(results) >= MAX_POSTS_PER_PAGE:
-                    break
+                print(text[:1000])
 
             except Exception as exc:
-                print(f"Skip article {i + 1}: {exc}")
+                print(
+                    f"Article {i + 1} "
+                    f"skipped: {exc}"
+                )
 
         print()
         print(
@@ -273,39 +430,46 @@ def extract_page_posts(page, source_name, source_url):
             f"{len(results)} POSTS EXTRACTED"
         )
 
-        return results
-
     except Exception as exc:
-        print(f"ERROR {source_name}: {exc}")
-        return []
+        print(
+            f"ERROR collecting "
+            f"{source_name}: {exc}"
+        )
+
+    return results
 
 
 def main():
+    now = datetime.now(timezone.utc)
+
     print("=" * 90)
-    print("HONG CUNG TOI - SOCIAL RADAR")
-    print("MULTI-PAGE COLLECTOR")
-    print(
-        "TIME:",
-        datetime.now(timezone.utc).isoformat()
-    )
+    print("HONG CUNG TOI - SOCIAL RADAR V3")
+    print("5 POSTS/SOURCE + DEDUP")
+    print("TIME:", now.isoformat())
     print("=" * 90)
 
-    all_posts = []
+    history = load_history()
+    previously_seen = history[
+        "seen_post_ids"
+    ]
+
+    collected = []
 
     with sync_playwright() as p:
         browser = p.chromium.launch(
             headless=True,
             args=[
-                "--disable-blink-features=AutomationControlled",
+                "--disable-blink-features="
+                "AutomationControlled",
                 "--no-sandbox",
                 "--disable-dev-shm-usage",
-            ],
+            ]
         )
 
         context = browser.new_context(
             viewport={
                 "width": 1280,
-                "height": 900,
+                "height": 900
             },
             locale="vi-VN",
             timezone_id="Asia/Ho_Chi_Minh",
@@ -315,35 +479,118 @@ def main():
                 "AppleWebKit/537.36 "
                 "(KHTML, like Gecko) "
                 "Chrome/140.0.0.0 Safari/537.36"
-            ),
+            )
         )
 
         page = context.new_page()
 
         for source_name, source_url in SOURCES.items():
-            posts = extract_page_posts(
+            posts = collect_source(
                 page,
                 source_name,
-                source_url,
+                source_url
             )
 
-            all_posts.extend(posts)
+            collected.extend(posts)
 
-            # Nghỉ một chút giữa các page
-            page.wait_for_timeout(2500)
+            page.wait_for_timeout(1800)
 
         browser.close()
+
+    # ----------------------------------------
+    # Chống trùng giữa các source trong lượt
+    # ----------------------------------------
+
+    unique_posts = []
+    run_seen = set()
+
+    for post in collected:
+        pid = post["post_id"]
+
+        if pid in run_seen:
+            continue
+
+        run_seen.add(pid)
+        unique_posts.append(post)
+
+    # ----------------------------------------
+    # Phân loại NEW / SEEN
+    # ----------------------------------------
+
+    new_posts = []
+    seen_posts = []
+
+    for post in unique_posts:
+        pid = post["post_id"]
+
+        if pid in previously_seen:
+            post["radar_status"] = "SEEN"
+            seen_posts.append(post)
+
+        else:
+            post["radar_status"] = "NEW"
+            new_posts.append(post)
+
+            previously_seen[pid] = {
+                "source": post["source"],
+                "url": post["url"],
+                "first_seen":
+                    now.isoformat()
+            }
+
+    # Giới hạn history để file không phình mãi
+    if len(previously_seen) > 1000:
+        items = list(
+            previously_seen.items()
+        )
+
+        previously_seen = dict(
+            items[-1000:]
+        )
+
+    history["seen_post_ids"] = (
+        previously_seen
+    )
+
+    save_history(history)
+
+    output = {
+        "generated_at": now.isoformat(),
+        "sources": list(SOURCES.keys()),
+        "collected_count":
+            len(collected),
+        "unique_count":
+            len(unique_posts),
+        "new_count":
+            len(new_posts),
+        "seen_count":
+            len(seen_posts),
+        "new_posts":
+            new_posts,
+        "all_posts":
+            unique_posts,
+    }
+
+    with open(
+        RESULT_FILE,
+        "w",
+        encoding="utf-8"
+    ) as f:
+        json.dump(
+            output,
+            f,
+            ensure_ascii=False,
+            indent=2
+        )
 
     print()
     print("=" * 90)
     print("FINAL RADAR RESULT")
     print("=" * 90)
 
-    print("TOTAL POSTS:", len(all_posts))
-
     source_stats = {}
 
-    for post in all_posts:
+    for post in collected:
         source = post["source"]
 
         source_stats[source] = (
@@ -354,33 +601,47 @@ def main():
         "SOURCE STATS:",
         json.dumps(
             source_stats,
-            ensure_ascii=False,
+            ensure_ascii=False
         )
     )
 
-    # Xuất JSON để bước sau dùng cho bộ lọc tin hot
-    with open(
-        "radar_results.json",
-        "w",
-        encoding="utf-8",
-    ) as f:
-        json.dump(
-            {
-                "generated_at": datetime.now(
-                    timezone.utc
-                ).isoformat(),
-                "total_posts": len(all_posts),
-                "posts": all_posts,
-            },
-            f,
-            ensure_ascii=False,
-            indent=2,
-        )
-
-    print("Saved: radar_results.json")
+    print(
+        "COLLECTED:",
+        len(collected)
+    )
+    print(
+        "UNIQUE:",
+        len(unique_posts)
+    )
+    print(
+        "NEW:",
+        len(new_posts)
+    )
+    print(
+        "ALREADY SEEN:",
+        len(seen_posts)
+    )
 
     print()
-    print("=== RADAR FINISHED ===")
+    print("NEW POSTS:")
+
+    for post in new_posts:
+        print(
+            f"- [{post['source']}] "
+            f"{post['time_text']} | "
+            f"{post['url']}"
+        )
+
+    print()
+    print(
+        "Saved:",
+        RESULT_FILE
+    )
+    print(
+        "History:",
+        HISTORY_FILE
+    )
+    print("=== RADAR V3 FINISHED ===")
 
 
 if __name__ == "__main__":
