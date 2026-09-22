@@ -39,8 +39,8 @@ jobs:
           name: radar-result-${{ github.run_id }}
           path: |
            radar_results.json
-  radar_events.json
-  radar_verified.json
-  radar_editor_queue.json
-  radar_history.json
+            radar_events.json
+            radar_verified.json
+            radar_editor_queue.json
+            radar_history.json
           retention-days: 7
