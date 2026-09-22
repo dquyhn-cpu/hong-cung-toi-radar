@@ -1,1 +1,4 @@
-playwright==1.55.0
+requests
+beautifulsoup4
+playwright
+feedparser
