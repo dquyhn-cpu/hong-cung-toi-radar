@@ -9,35 +9,71 @@ import os
 import re
 import requests
 
+
 # ============================================================
-# HONG CUNG TOI - RADAR V7
+# HONG CUNG TOI - RADAR V7.2
 #
-# SOCIAL
-#   -> POST DEDUP
-#   -> EVENT CLUSTER
-#   -> GOOGLE NEWS DISCOVERY
-#   -> TRUSTED / OFFICIAL VERIFICATION
-#   -> EDITORIAL DECISION
+# OFFICIAL FACEBOOK SIGNALS
+# + SOCIAL RADAR
+# -> DEDUP
+# -> EVENT CLUSTER
+# -> STRICT NEWS VERIFICATION
+# -> ORIGINAL ARTICLE
+# -> EDITOR QUEUE
 #
 # IMPORTANT:
-# Social sources are SIGNALS only.
-# They are NOT treated as factual confirmation.
+# SOCIAL_RADAR = trend signal only.
+# OFFICIAL = official signal, but downstream editor still reads
+# the original source before publication.
 # ============================================================
 
+
+PAGE_NAME = "Hóng Cùng Tôi"
+
 SOURCES = {
+    # --------------------------------------------------------
+    # OFFICIAL SIGNALS
+    # --------------------------------------------------------
+    "Thông tin Chính phủ": {
+        "page": "https://www.facebook.com/thongtinchinhphu",
+        "mobile": "https://m.facebook.com/thongtinchinhphu",
+        "tier": "OFFICIAL",
+    },
+
+    "Bộ Công an": {
+        "page": "https://www.facebook.com/mps.gov",
+        "mobile": "https://m.facebook.com/mps.gov",
+        "tier": "OFFICIAL",
+    },
+
+    # --------------------------------------------------------
+    # SOCIAL RADAR
+    # --------------------------------------------------------
     "BeatVN": {
         "page": "https://www.facebook.com/beatvn.network",
         "mobile": "https://m.facebook.com/beatvn.network",
+        "tier": "SOCIAL_RADAR",
     },
+
     "Theanh28": {
         "page": "https://www.facebook.com/Theanh28",
         "mobile": "https://m.facebook.com/Theanh28",
+        "tier": "SOCIAL_RADAR",
     },
+
     "Top Comments": {
         "page": "https://www.facebook.com/topcomments.vn",
         "mobile": "https://m.facebook.com/topcomments.vn",
+        "tier": "SOCIAL_RADAR",
+    },
+
+    "Bí Mật Showbiz": {
+        "page": "https://www.facebook.com/bmsb.vnn",
+        "mobile": "https://m.facebook.com/bmsb.vnn",
+        "tier": "SOCIAL_RADAR",
     },
 }
+
 
 MAX_POSTS_PER_SOURCE = 3
 SCROLL_ROUNDS = 3
@@ -46,29 +82,28 @@ SCROLL_WAIT_MS = 1200
 RESULT_FILE = "radar_results.json"
 EVENT_FILE = "radar_events.json"
 VERIFIED_FILE = "radar_verified.json"
+EDITOR_QUEUE_FILE = "radar_editor_queue.json"
 HISTORY_FILE = "radar_history.json"
 
 MAX_HISTORY = 3000
-
 EVENT_SIMILARITY_THRESHOLD = 0.42
-VERIFY_SIMILARITY_THRESHOLD = 0.18
 
-# ------------------------------------------------------------
-# SOURCE TRUST LEVELS
-# ------------------------------------------------------------
+
+# ============================================================
+# SOURCE TRUST
+# ============================================================
 
 OFFICIAL_DOMAINS = {
     "chinhphu.vn",
+    "baochinhphu.vn",
+    "xaydungchinhsach.chinhphu.vn",
     "mps.gov.vn",
     "moh.gov.vn",
     "moet.gov.vn",
     "mod.gov.vn",
     "mof.gov.vn",
     "moit.gov.vn",
-    "mt.gov.vn",
-    "mic.gov.vn",
     "mofa.gov.vn",
-    "xaydungchinhsach.chinhphu.vn",
 }
 
 TRUSTED_NEWS_DOMAINS = {
@@ -84,8 +119,8 @@ TRUSTED_NEWS_DOMAINS = {
     "vietnamplus.vn",
     "plo.vn",
     "tienphong.vn",
-    "baochinhphu.vn",
 }
+
 
 POST_MARKERS = (
     "/posts/",
@@ -97,14 +132,17 @@ POST_MARKERS = (
     "photo.php",
 )
 
+
 STOPWORDS = {
-    "và", "là", "của", "có", "cho", "với", "một", "những",
-    "các", "được", "đang", "đã", "sẽ", "khi", "thì", "mà",
-    "tại", "trong", "sau", "trước", "này", "đó", "về",
-    "theo", "từ", "đến", "trên", "dưới", "lại", "ra",
-    "vào", "ở", "vẫn", "cũng", "rất", "không", "người",
+    "và", "là", "của", "có", "cho", "với", "một",
+    "những", "các", "được", "đang", "đã", "sẽ",
+    "khi", "thì", "mà", "tại", "trong", "sau",
+    "trước", "này", "đó", "về", "theo", "từ",
+    "đến", "trên", "dưới", "lại", "ra", "vào",
+    "ở", "vẫn", "cũng", "rất", "không", "người",
     "facebook", "ảnh", "video", "clip", "xem", "thêm",
 }
+
 
 # ============================================================
 # HISTORY
@@ -194,7 +232,10 @@ def normalize_url(url):
 
     low = url.lower()
 
-    if "story.php" not in low and "photo.php" not in low:
+    if (
+        "story.php" not in low
+        and "photo.php" not in low
+    ):
         url = url.split("?")[0]
 
     url = url.split("#")[0]
@@ -229,7 +270,11 @@ def post_key(url):
     ]
 
     for pattern in patterns:
-        match = re.search(pattern, url, re.I)
+        match = re.search(
+            pattern,
+            url,
+            re.I,
+        )
 
         if match:
             return match.group(1)
@@ -238,7 +283,10 @@ def post_key(url):
         parsed = urlparse(url)
         query = parse_qs(parsed.query)
 
-        for key in ("story_fbid", "fbid"):
+        for key in (
+            "story_fbid",
+            "fbid",
+        ):
             if query.get(key):
                 return f"{key}:{query[key][0]}"
 
@@ -305,7 +353,11 @@ def get_time_text(text):
     ]
 
     for pattern in patterns:
-        match = re.search(pattern, text, re.I)
+        match = re.search(
+            pattern,
+            text,
+            re.I,
+        )
 
         if match:
             return match.group(0)
@@ -353,11 +405,14 @@ def extract_articles(page):
 
             for j in range(link_count):
                 try:
-                    href = links.nth(j).get_attribute(
-                        "href"
+                    href = (
+                        links.nth(j)
+                        .get_attribute("href")
                     )
 
-                    href = normalize_url(href)
+                    href = normalize_url(
+                        href
+                    )
 
                     if is_post_url(href):
                         post_url = href
@@ -369,7 +424,9 @@ def extract_articles(page):
             if not post_url:
                 continue
 
-            key = post_key(post_url)
+            key = post_key(
+                post_url
+            )
 
             if not key:
                 continue
@@ -377,7 +434,9 @@ def extract_articles(page):
             found[key] = {
                 "post_id": key,
                 "url": post_url,
-                "time": get_time_text(raw_text),
+                "time": get_time_text(
+                    raw_text
+                ),
                 "text": text,
             }
 
@@ -387,7 +446,11 @@ def extract_articles(page):
     return found
 
 
-def discover_entry(page, url, label):
+def discover_entry(
+    page,
+    url,
+    label,
+):
     print()
     print("ENTRY:", label)
     print("URL:", url)
@@ -401,28 +464,42 @@ def discover_entry(page, url, label):
             timeout=60000,
         )
 
-        page.wait_for_timeout(3500)
+        page.wait_for_timeout(
+            3500
+        )
 
         print(
             "HTTP:",
-            response.status if response else None,
+            response.status
+            if response
+            else None,
         )
 
-        print("TITLE:", page.title())
-        print("FINAL:", page.url)
+        print(
+            "TITLE:",
+            page.title(),
+        )
+
+        print(
+            "FINAL:",
+            page.url,
+        )
 
         for round_no in range(
             SCROLL_ROUNDS + 1
         ):
-            batch = extract_articles(page)
+            batch = extract_articles(
+                page
+            )
 
             for key, post in batch.items():
                 if key not in discovered:
                     discovered[key] = post
+
                 else:
-                    old_text = discovered[key].get(
-                        "text",
-                        "",
+                    old_text = (
+                        discovered[key]
+                        .get("text", "")
                     )
 
                     new_text = post.get(
@@ -430,7 +507,10 @@ def discover_entry(page, url, label):
                         "",
                     )
 
-                    if len(new_text) > len(old_text):
+                    if (
+                        len(new_text)
+                        > len(old_text)
+                    ):
                         discovered[key] = post
 
             print(
@@ -438,7 +518,10 @@ def discover_entry(page, url, label):
                 f"{len(discovered)} candidate posts"
             )
 
-            if len(discovered) >= MAX_POSTS_PER_SOURCE:
+            if (
+                len(discovered)
+                >= MAX_POSTS_PER_SOURCE
+            ):
                 break
 
             page.mouse.wheel(
@@ -451,7 +534,10 @@ def discover_entry(page, url, label):
             )
 
     except Exception as exc:
-        print("ENTRY ERROR:", exc)
+        print(
+            "ENTRY ERROR:",
+            exc,
+        )
 
     return discovered
 
@@ -463,14 +549,27 @@ def collect_source(
 ):
     print()
     print("=" * 78)
-    print("SOURCE:", source_name)
+    print(
+        "SOURCE:",
+        source_name,
+    )
+    print(
+        "TIER:",
+        config["tier"],
+    )
     print("=" * 78)
 
     combined = {}
 
     entries = [
-        ("desktop", config["page"]),
-        ("mobile", config["mobile"]),
+        (
+            "desktop",
+            config["page"],
+        ),
+        (
+            "mobile",
+            config["mobile"],
+        ),
     ]
 
     for label, url in entries:
@@ -483,10 +582,11 @@ def collect_source(
         for key, post in batch.items():
             if key not in combined:
                 combined[key] = post
+
             else:
-                old_text = combined[key].get(
-                    "text",
-                    "",
+                old_text = (
+                    combined[key]
+                    .get("text", "")
                 )
 
                 new_text = post.get(
@@ -494,11 +594,25 @@ def collect_source(
                     "",
                 )
 
-                if len(new_text) > len(old_text):
+                if (
+                    len(new_text)
+                    > len(old_text)
+                ):
                     combined[key] = post
 
-    posts = list(combined.values())
-    posts = posts[:MAX_POSTS_PER_SOURCE]
+    posts = list(
+        combined.values()
+    )
+
+    posts = posts[
+        :MAX_POSTS_PER_SOURCE
+    ]
+
+    for post in posts:
+        post["source"] = source_name
+        post["source_tier"] = (
+            config["tier"]
+        )
 
     print(
         f">>> {source_name}: "
@@ -509,7 +623,7 @@ def collect_source(
 
 
 # ============================================================
-# EVENT CLUSTERING
+# MATCHING
 # ============================================================
 
 def normalize_for_matching(text):
@@ -539,13 +653,14 @@ def normalize_for_matching(text):
     return text.strip()
 
 
-def keyword_set(text):
-    normalized = normalize_for_matching(text)
-    words = normalized.split()
+def significant_words(text):
+    normalized = normalize_for_matching(
+        text
+    )
 
-    result = set()
+    words = []
 
-    for word in words:
+    for word in normalized.split():
         if len(word) < 3:
             continue
 
@@ -555,23 +670,49 @@ def keyword_set(text):
         if word.isdigit():
             continue
 
-        result.add(word)
+        words.append(word)
+
+    return words
+
+
+def ordered_unique(items):
+    result = []
+
+    for item in items:
+        if item not in result:
+            result.append(item)
 
     return result
 
 
-def similarity(text_a, text_b):
-    a = normalize_for_matching(text_a)
-    b = normalize_for_matching(text_b)
+def keyword_set(text):
+    return set(
+        significant_words(text)
+    )
+
+
+def similarity(
+    text_a,
+    text_b,
+):
+    a = normalize_for_matching(
+        text_a
+    )
+
+    b = normalize_for_matching(
+        text_b
+    )
 
     if not a or not b:
         return 0.0
 
-    sequence_score = SequenceMatcher(
-        None,
-        a[:1500],
-        b[:1500],
-    ).ratio()
+    sequence_score = (
+        SequenceMatcher(
+            None,
+            a[:1500],
+            b[:1500],
+        ).ratio()
+    )
 
     words_a = keyword_set(a)
     words_b = keyword_set(b)
@@ -590,6 +731,7 @@ def similarity(text_a, text_b):
             if union
             else 0
         )
+
     else:
         keyword_score = 0
 
@@ -598,6 +740,10 @@ def similarity(text_a, text_b):
         + keyword_score * 0.65
     )
 
+
+# ============================================================
+# EVENT CLUSTERING
+# ============================================================
 
 def choose_event_title(text):
     if not text:
@@ -625,6 +771,9 @@ def choose_event_title(text):
             "beatvn",
             "theanh28",
             "top comments",
+            "bí mật showbiz",
+            "thông tin chính phủ",
+            "bộ công an",
         }:
             continue
 
@@ -649,8 +798,14 @@ def cluster_events(posts):
 
             for existing in event["posts"]:
                 score = similarity(
-                    post.get("text", ""),
-                    existing.get("text", ""),
+                    post.get(
+                        "text",
+                        "",
+                    ),
+                    existing.get(
+                        "text",
+                        "",
+                    ),
                 )
 
                 event_best = max(
@@ -667,36 +822,71 @@ def cluster_events(posts):
             and best_score
             >= EVENT_SIMILARITY_THRESHOLD
         ):
-            best_event["posts"].append(
-                post
-            )
+            best_event[
+                "posts"
+            ].append(post)
 
             if (
                 post["source"]
-                not in best_event["sources"]
+                not in best_event[
+                    "sources"
+                ]
             ):
-                best_event["sources"].append(
+                best_event[
+                    "sources"
+                ].append(
                     post["source"]
                 )
 
-        else:
-            events.append({
-                "event_id": (
-                    "event_"
-                    + hashlib.sha1(
-                        (
-                            post.get("text", "")
-                            + post.get("url", "")
-                        ).encode("utf-8")
-                    ).hexdigest()[:12]
-                ),
+            if (
+                post["source_tier"]
+                not in best_event[
+                    "source_tiers"
+                ]
+            ):
+                best_event[
+                    "source_tiers"
+                ].append(
+                    post["source_tier"]
+                )
 
-                "title": choose_event_title(
-                    post.get("text", "")
-                ),
+        else:
+            event_hash = hashlib.sha1(
+                (
+                    post.get(
+                        "text",
+                        "",
+                    )
+                    + post.get(
+                        "url",
+                        "",
+                    )
+                ).encode(
+                    "utf-8"
+                )
+            ).hexdigest()[:12]
+
+            events.append({
+                "event_id":
+                    "event_"
+                    + event_hash,
+
+                "title":
+                    choose_event_title(
+                        post.get(
+                            "text",
+                            "",
+                        )
+                    ),
 
                 "sources": [
                     post["source"]
+                ],
+
+                "source_tiers": [
+                    post[
+                        "source_tier"
+                    ]
                 ],
 
                 "posts": [
@@ -708,25 +898,30 @@ def cluster_events(posts):
 
 
 # ============================================================
-# VERIFICATION SEARCH
+# NEWS SEARCH
 # ============================================================
 
 def build_search_query(event):
-    """
-    Use event title plus useful keywords.
-    Avoid sending the whole noisy Facebook caption.
-    """
+    title = clean_text(
+        event.get(
+            "title",
+            "",
+        )
+    )
 
-    title = event.get("title", "")
-    words = list(keyword_set(title))
+    words = ordered_unique(
+        significant_words(
+            title
+        )
+    )
 
-    # Keep query short enough for news search
-    words = words[:10]
+    useful = words[:12]
 
-    if len(words) >= 3:
-        return " ".join(words)
+    if len(useful) >= 3:
+        return " ".join(
+            useful
+        )
 
-    # Fallback to beginning of title
     return title[:180]
 
 
@@ -735,8 +930,8 @@ def google_news_search(query):
         return []
 
     rss_url = (
-        "https://news.google.com/rss/search"
-        "?q="
+        "https://news.google.com/"
+        "rss/search?q="
         + quote(query)
         + "&hl=vi&gl=VN&ceid=VN:vi"
     )
@@ -773,26 +968,34 @@ def google_news_search(query):
 
     results = []
 
-    for entry in feed.entries[:15]:
+    for entry in feed.entries[:20]:
         title = clean_text(
-            entry.get("title", "")
+            entry.get(
+                "title",
+                "",
+            )
         )
 
-        url = entry.get(
+        google_url = entry.get(
             "link",
             "",
         )
 
         source_name = ""
 
-        if hasattr(entry, "source"):
-            try:
-                source_name = entry.source.get(
-                    "title",
-                    "",
+        try:
+            if hasattr(
+                entry,
+                "source",
+            ):
+                source_name = (
+                    entry.source.get(
+                        "title",
+                        "",
+                    )
                 )
-            except Exception:
-                pass
+        except Exception:
+            pass
 
         published = entry.get(
             "published",
@@ -801,16 +1004,72 @@ def google_news_search(query):
 
         results.append({
             "title": title,
-            "url": url,
-            "source_name": source_name,
-            "published": published,
+            "google_news_url":
+                google_url,
+            "source_name":
+                source_name,
+            "published":
+                published,
         })
 
     return results
 
 
 # ============================================================
-# TRUST CLASSIFICATION
+# ORIGINAL ARTICLE RESOLUTION
+# ============================================================
+
+def resolve_original_article_url(
+    google_url,
+):
+    if not google_url:
+        return None
+
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 "
+            "(Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 "
+            "(KHTML, like Gecko) "
+            "Chrome/140.0 Safari/537.36"
+        )
+    }
+
+    try:
+        response = requests.get(
+            google_url,
+            headers=headers,
+            timeout=20,
+            allow_redirects=True,
+        )
+
+        final_url = response.url
+
+        if not final_url:
+            return None
+
+        host = (
+            urlparse(
+                final_url
+            )
+            .netloc
+            .lower()
+        )
+
+        if (
+            "google.com" in host
+            or "news.google" in host
+        ):
+            return None
+
+        return final_url
+
+    except Exception:
+        return None
+
+
+# ============================================================
+# SOURCE CLASSIFICATION
 # ============================================================
 
 def source_level_from_name(name):
@@ -826,7 +1085,6 @@ def source_level_from_name(name):
         "bộ giáo dục",
         "bộ quốc phòng",
         "bộ ngoại giao",
-        "nhân dân",
     )
 
     trusted_names = (
@@ -838,6 +1096,7 @@ def source_level_from_name(name):
         "vtv",
         "vov",
         "lao động",
+        "nhân dân",
         "vietnamplus",
         "tiền phong",
         "pháp luật",
@@ -863,8 +1122,15 @@ def source_level_from_url(url):
         return "OTHER"
 
     try:
-        host = urlparse(url).netloc.lower()
-        host = host.replace("www.", "")
+        host = (
+            urlparse(url)
+            .netloc
+            .lower()
+            .replace(
+                "www.",
+                "",
+            )
+        )
 
         for domain in OFFICIAL_DOMAINS:
             if (
@@ -891,11 +1157,165 @@ def source_level_from_url(url):
 
 
 # ============================================================
-# EVENT VERIFICATION
+# STRICT MATCH V7.2
+# ============================================================
+
+def verification_match(
+    event,
+    article_title,
+):
+    event_title = event.get(
+        "title",
+        "",
+    )
+
+    event_words = ordered_unique(
+        significant_words(
+            event_title
+        )
+    )
+
+    article_words = set(
+        significant_words(
+            article_title
+        )
+    )
+
+    if (
+        not event_words
+        or not article_words
+    ):
+        return {
+            "accepted": False,
+            "score": 0,
+            "matched_words": [],
+            "coverage": 0,
+        }
+
+    matched = [
+        word
+        for word in event_words
+        if word in article_words
+    ]
+
+    coverage = (
+        len(matched)
+        / len(event_words)
+    )
+
+    text_score = similarity(
+        event_title,
+        article_title,
+    )
+
+    event_word_count = len(
+        event_words
+    )
+
+    accepted = False
+
+    if event_word_count <= 3:
+        accepted = (
+            len(matched) >= 2
+            and coverage >= 0.67
+            and text_score >= 0.28
+        )
+
+    elif event_word_count <= 7:
+        accepted = (
+            len(matched) >= 3
+            and coverage >= 0.40
+            and text_score >= 0.22
+        )
+
+    else:
+        accepted = (
+            len(matched) >= 4
+            and coverage >= 0.30
+            and text_score >= 0.18
+        )
+
+    return {
+        "accepted":
+            accepted,
+
+        "score":
+            round(
+                text_score,
+                3,
+            ),
+
+        "matched_words":
+            matched,
+
+        "coverage":
+            round(
+                coverage,
+                3,
+            ),
+    }
+
+
+# ============================================================
+# OFFICIAL FACEBOOK SIGNAL
+# ============================================================
+
+def get_official_signal(event):
+    official_posts = [
+        post
+        for post in event[
+            "posts"
+        ]
+        if (
+            post.get(
+                "source_tier"
+            )
+            == "OFFICIAL"
+        )
+    ]
+
+    if not official_posts:
+        return None
+
+    best = official_posts[0]
+
+    return {
+        "source":
+            best.get(
+                "source"
+            ),
+
+        "facebook_url":
+            best.get(
+                "url"
+            ),
+
+        "text":
+            best.get(
+                "text"
+            ),
+
+        "time":
+            best.get(
+                "time"
+            ),
+    }
+
+
+# ============================================================
+# VERIFY EVENT
 # ============================================================
 
 def verify_event(event):
-    query = build_search_query(event)
+    query = build_search_query(
+        event
+    )
+
+    official_signal = (
+        get_official_signal(
+            event
+        )
+    )
 
     print()
     print(
@@ -903,57 +1323,103 @@ def verify_event(event):
         query,
     )
 
+    if official_signal:
+        print(
+            "OFFICIAL FB SIGNAL:",
+            official_signal[
+                "source"
+            ],
+        )
+
     results = google_news_search(
         query
     )
 
     evidence = []
 
-    event_text = " ".join(
-        [
-            event.get("title", ""),
-            *[
-                post.get("text", "")
-                for post in event["posts"]
-            ],
-        ]
-    )
-
     for result in results:
-        score = similarity(
-            event_text,
+        match = verification_match(
+            event,
             result["title"],
         )
 
-        if score < VERIFY_SIMILARITY_THRESHOLD:
+        if not match[
+            "accepted"
+        ]:
             continue
 
-        level = source_level_from_name(
-            result["source_name"]
+        level = (
+            source_level_from_name(
+                result[
+                    "source_name"
+                ]
+            )
         )
 
-        # Google News RSS normally points to a Google
-        # redirect URL, so source name is also used.
-        if level == "OTHER":
-            url_level = source_level_from_url(
-                result["url"]
+        original_url = (
+            resolve_original_article_url(
+                result[
+                    "google_news_url"
+                ]
+            )
+        )
+
+        if original_url:
+            url_level = (
+                source_level_from_url(
+                    original_url
+                )
             )
 
-            if url_level != "OTHER":
-                level = url_level
+            if (
+                url_level
+                != "OTHER"
+            ):
+                level = (
+                    url_level
+                )
 
-        result["match_score"] = round(
-            score,
-            3,
-        )
+        evidence.append({
+            "title":
+                result["title"],
 
-        result["trust_level"] = level
+            "source_name":
+                result[
+                    "source_name"
+                ],
 
-        evidence.append(
-            result
-        )
+            "published":
+                result[
+                    "published"
+                ],
 
-    # Best evidence first
+            "google_news_url":
+                result[
+                    "google_news_url"
+                ],
+
+            "original_article_url":
+                original_url,
+
+            "trust_level":
+                level,
+
+            "match_score":
+                match[
+                    "score"
+                ],
+
+            "keyword_coverage":
+                match[
+                    "coverage"
+                ],
+
+            "matched_words":
+                match[
+                    "matched_words"
+                ],
+        })
+
     trust_order = {
         "OFFICIAL_OR_PRIMARY": 3,
         "TRUSTED_NEWS": 2,
@@ -963,53 +1429,181 @@ def verify_event(event):
     evidence.sort(
         key=lambda item: (
             trust_order.get(
-                item["trust_level"],
+                item[
+                    "trust_level"
+                ],
                 0,
             ),
-            item["match_score"],
+            item[
+                "keyword_coverage"
+            ],
+            item[
+                "match_score"
+            ],
         ),
         reverse=True,
     )
 
-    official = [
+    editorial_candidates = [
         item
         for item in evidence
-        if item["trust_level"]
-        == "OFFICIAL_OR_PRIMARY"
+        if (
+            item.get(
+                "original_article_url"
+            )
+            and item[
+                "trust_level"
+            ] in {
+                "OFFICIAL_OR_PRIMARY",
+                "TRUSTED_NEWS",
+            }
+        )
     ]
 
-    trusted = [
+    official_articles = [
         item
-        for item in evidence
-        if item["trust_level"]
-        == "TRUSTED_NEWS"
+        for item
+        in editorial_candidates
+        if (
+            item[
+                "trust_level"
+            ]
+            == "OFFICIAL_OR_PRIMARY"
+        )
+    ]
+
+    trusted_articles = [
+        item
+        for item
+        in editorial_candidates
+        if (
+            item[
+                "trust_level"
+            ]
+            == "TRUSTED_NEWS"
+        )
     ]
 
     # --------------------------------------------------------
-    # Verification classification
+    # VERIFICATION STATUS
     #
-    # IMPORTANT:
-    # Search-title similarity is supporting evidence,
-    # not proof that every detail in a social caption is true.
+    # An official Facebook post is strong evidence that the
+    # official account published the statement, but it does
+    # not automatically create an article URL for the editor.
     # --------------------------------------------------------
 
-    if official:
-        status = "CO_NGUON_CHINH_THONG_DOI_CHIEU"
+    if official_articles:
+        status = (
+            "CO_NGUON_CHINH_THONG_DOI_CHIEU"
+        )
 
-    elif len(trusted) >= 2:
-        status = "CO_NHIEU_BAO_UY_TIN_DOI_CHIEU"
+    elif (
+        official_signal
+        and len(
+            trusted_articles
+        ) >= 1
+    ):
+        status = (
+            "CO_TIN_HIEU_CHINH_THUC_VA_BAO_DOI_CHIEU"
+        )
 
-    elif len(trusted) == 1:
-        status = "CO_MOT_NGUON_BAO_DOI_CHIEU"
+    elif len(
+        trusted_articles
+    ) >= 2:
+        status = (
+            "CO_NHIEU_BAO_UY_TIN_DOI_CHIEU"
+        )
+
+    elif len(
+        trusted_articles
+    ) == 1:
+        status = (
+            "CO_MOT_NGUON_BAO_DOI_CHIEU"
+        )
+
+    elif official_signal:
+        status = (
+            "CO_TIN_HIEU_CHINH_THUC"
+        )
 
     else:
-        status = "CHUA_XAC_MINH"
+        status = (
+            "CHUA_XAC_MINH"
+        )
 
-    event["search_query"] = query
-    event["verification"] = status
+    # --------------------------------------------------------
+    # EDITORIAL SOURCE
+    #
+    # bao-chi-tu-link needs a real article URL.
+    # Prefer official-domain article, then trusted press.
+    # --------------------------------------------------------
 
-    event["verification_evidence"] = (
-        evidence[:5]
+    editorial_source = None
+
+    if editorial_candidates:
+        best = (
+            editorial_candidates[0]
+        )
+
+        editorial_source = {
+            "source_name":
+                best[
+                    "source_name"
+                ],
+
+            "title":
+                best[
+                    "title"
+                ],
+
+            "url":
+                best[
+                    "original_article_url"
+                ],
+
+            "trust_level":
+                best[
+                    "trust_level"
+                ],
+
+            "match_score":
+                best[
+                    "match_score"
+                ],
+
+            "keyword_coverage":
+                best[
+                    "keyword_coverage"
+                ],
+        }
+
+    event[
+        "search_query"
+    ] = query
+
+    event[
+        "official_signal"
+    ] = official_signal
+
+    event[
+        "verification"
+    ] = status
+
+    event[
+        "verification_evidence"
+    ] = evidence[:5]
+
+    event[
+        "editorial_source"
+    ] = editorial_source
+
+    # Only send automatically to bao-chi-tu-link if
+    # we actually have an original article URL.
+    event[
+        "send_to_editor"
+    ] = (
+        editorial_source
+        is not None
     )
 
     return event
@@ -1024,57 +1618,225 @@ def classify_event(event):
         event["sources"]
     )
 
-    verification = event.get(
-        "verification",
-        "CHUA_XAC_MINH",
+    verification = (
+        event.get(
+            "verification",
+            "CHUA_XAC_MINH",
+        )
     )
 
-    if verification == "CO_NGUON_CHINH_THONG_DOI_CHIEU":
-        decision = "CO_THE_LAM_BAI"
-        reason = (
-            "Có nguồn chính thống/nguồn sơ cấp "
-            "liên quan để đối chiếu. Vẫn cần viết "
-            "đúng phạm vi thông tin nguồn xác nhận."
+    send_to_editor = (
+        event.get(
+            "send_to_editor",
+            False,
+        )
+    )
+
+    if (
+        verification
+        in {
+            "CO_NGUON_CHINH_THONG_DOI_CHIEU",
+            "CO_TIN_HIEU_CHINH_THUC_VA_BAO_DOI_CHIEU",
+            "CO_NHIEU_BAO_UY_TIN_DOI_CHIEU",
+        }
+        and send_to_editor
+    ):
+        decision = (
+            "CHUYEN_BAN_BIEN_TAP"
         )
 
-    elif verification == "CO_NHIEU_BAO_UY_TIN_DOI_CHIEU":
-        decision = "CO_THE_LAM_BAI"
         reason = (
-            "Có ít nhất hai nguồn báo chí uy tín "
-            "đưa nội dung liên quan."
+            "Có bằng chứng nguồn đủ mạnh "
+            "và đã lấy được URL bài báo gốc."
         )
 
     elif (
         verification
         == "CO_MOT_NGUON_BAO_DOI_CHIEU"
+        and send_to_editor
     ):
-        decision = "THEO_DOI"
+        decision = (
+            "THEO_DOI"
+        )
+
         reason = (
-            "Mới tìm được một nguồn báo chí "
-            "liên quan; nên tiếp tục đối chiếu."
+            "Có một nguồn báo uy tín phù hợp "
+            "và URL bài gốc; tiếp tục theo dõi."
+        )
+
+    elif (
+        verification
+        == "CO_TIN_HIEU_CHINH_THUC"
+    ):
+        decision = (
+            "TIM_NGUON_GOC"
+        )
+
+        reason = (
+            "Radar đã bắt được bài từ nguồn "
+            "Facebook chính thức nhưng chưa "
+            "lấy được bài báo/website gốc để "
+            "giao cho bàn biên tập."
         )
 
     elif source_count >= 2:
-        decision = "CAN_XAC_MINH_GAP"
+        decision = (
+            "CAN_XAC_MINH_GAP"
+        )
+
         reason = (
-            "Cùng sự kiện đang xuất hiện ở nhiều "
-            "nguồn social nhưng chưa đủ nguồn "
-            "xác minh."
+            "Nhiều nguồn social cùng nhắc "
+            "đến sự kiện nhưng chưa đủ "
+            "nguồn xác minh."
         )
 
     else:
-        decision = "BO_QUA_TAM_THOI"
-        reason = (
-            "Chỉ có một tín hiệu social và chưa "
-            "tìm được nguồn đáng tin cậy để "
-            "đối chiếu."
+        decision = (
+            "BO_QUA_TAM_THOI"
         )
 
-    event["source_count"] = source_count
-    event["decision"] = decision
-    event["decision_reason"] = reason
+        reason = (
+            "Chưa có đủ bằng chứng nguồn "
+            "đáng tin cậy."
+        )
+
+    event[
+        "source_count"
+    ] = source_count
+
+    event[
+        "decision"
+    ] = decision
+
+    event[
+        "decision_reason"
+    ] = reason
 
     return event
+
+
+# ============================================================
+# EDITOR QUEUE
+# ============================================================
+
+def build_editor_queue(events):
+    queue = []
+
+    for event in events:
+        source = event.get(
+            "editorial_source"
+        )
+
+        if not source:
+            continue
+
+        if not event.get(
+            "send_to_editor",
+            False,
+        ):
+            continue
+
+        queue.append({
+            "event_id":
+                event[
+                    "event_id"
+                ],
+
+            "page":
+                PAGE_NAME,
+
+            "article_url":
+                source[
+                    "url"
+                ],
+
+            "article_source":
+                source[
+                    "source_name"
+                ],
+
+            "article_title":
+                source[
+                    "title"
+                ],
+
+            "article_trust":
+                source[
+                    "trust_level"
+                ],
+
+            "verification":
+                event[
+                    "verification"
+                ],
+
+            "decision":
+                event[
+                    "decision"
+                ],
+
+            "official_signal":
+                event.get(
+                    "official_signal"
+                ),
+
+            "social_sources": [
+                post[
+                    "source"
+                ]
+                for post
+                in event[
+                    "posts"
+                ]
+                if (
+                    post.get(
+                        "source_tier"
+                    )
+                    == "SOCIAL_RADAR"
+                )
+            ],
+
+            "trend_context": [
+                {
+                    "source":
+                        post[
+                            "source"
+                        ],
+
+                    "tier":
+                        post[
+                            "source_tier"
+                        ],
+
+                    "url":
+                        post.get(
+                            "url"
+                        ),
+
+                    "time":
+                        post.get(
+                            "time"
+                        ),
+                }
+                for post
+                in event[
+                    "posts"
+                ]
+            ],
+
+            "editor_skill":
+                "bao-chi-tu-link",
+
+            "editorial_rule": (
+                "Read the original article in full "
+                "before writing. Social posts are "
+                "trend signals only and must not be "
+                "used to add factual details that "
+                "are absent from the original article."
+            ),
+        })
+
+    return queue
 
 
 # ============================================================
@@ -1082,17 +1844,24 @@ def classify_event(event):
 # ============================================================
 
 def main():
-    now = datetime.now(
-        timezone.utc
-    ).isoformat()
+    now = (
+        datetime.now(
+            timezone.utc
+        ).isoformat()
+    )
 
     print("=" * 78)
-    print("HONG CUNG TOI - RADAR V7")
     print(
-        "SOCIAL -> EVENT -> "
-        "VERIFY -> FILTER"
+        "HONG CUNG TOI - RADAR V7.2"
     )
-    print("TIME:", now)
+    print(
+        "OFFICIAL + SOCIAL -> EVENT -> "
+        "VERIFY -> ORIGINAL ARTICLE -> EDITOR"
+    )
+    print(
+        "TIME:",
+        now,
+    )
     print("=" * 78)
 
     history = load_history()
@@ -1106,38 +1875,49 @@ def main():
     source_results = {}
 
     # --------------------------------------------------------
-    # SOCIAL COLLECTION
+    # COLLECT FACEBOOK
     # --------------------------------------------------------
 
     with sync_playwright() as p:
-        browser = p.chromium.launch(
-            headless=True,
-            args=[
-                "--no-sandbox",
-                "--disable-dev-shm-usage",
-                "--disable-blink-features=AutomationControlled",
-            ],
+        browser = (
+            p.chromium.launch(
+                headless=True,
+                args=[
+                    "--no-sandbox",
+                    "--disable-dev-shm-usage",
+                ],
+            )
         )
 
-        context = browser.new_context(
-            viewport={
-                "width": 1280,
-                "height": 1000,
-            },
-            locale="vi-VN",
-            user_agent=(
-                "Mozilla/5.0 "
-                "(Windows NT 10.0; Win64; x64) "
-                "AppleWebKit/537.36 "
-                "(KHTML, like Gecko) "
-                "Chrome/140.0.0.0 "
-                "Safari/537.36"
-            ),
+        context = (
+            browser.new_context(
+                viewport={
+                    "width": 1280,
+                    "height": 1000,
+                },
+
+                locale="vi-VN",
+
+                user_agent=(
+                    "Mozilla/5.0 "
+                    "(Windows NT 10.0; Win64; x64) "
+                    "AppleWebKit/537.36 "
+                    "(KHTML, like Gecko) "
+                    "Chrome/140.0.0.0 "
+                    "Safari/537.36"
+                ),
+            )
         )
 
-        page = context.new_page()
+        page = (
+            context.new_page()
+        )
 
-        for source_name, config in SOURCES.items():
+        for (
+            source_name,
+            config,
+        ) in SOURCES.items():
+
             posts = collect_source(
                 page,
                 source_name,
@@ -1148,19 +1928,14 @@ def main():
                 source_name
             ] = posts
 
-            for post in posts:
-                post["source"] = (
-                    source_name
-                )
-
-                all_posts.append(
-                    post
-                )
+            all_posts.extend(
+                posts
+            )
 
         browser.close()
 
     # --------------------------------------------------------
-    # POST DEDUP
+    # DEDUP
     # --------------------------------------------------------
 
     unique_posts = {}
@@ -1174,14 +1949,17 @@ def main():
             continue
 
         if key not in unique_posts:
-            unique_posts[key] = post
+            unique_posts[
+                key
+            ] = post
 
         else:
-            old_text = unique_posts[
-                key
-            ].get(
-                "text",
-                "",
+            old_text = (
+                unique_posts[key]
+                .get(
+                    "text",
+                    "",
+                )
             )
 
             new_text = post.get(
@@ -1189,7 +1967,10 @@ def main():
                 "",
             )
 
-            if len(new_text) > len(old_text):
+            if (
+                len(new_text)
+                > len(old_text)
+            ):
                 unique_posts[
                     key
                 ] = post
@@ -1201,13 +1982,19 @@ def main():
     new_posts = []
     seen_posts = []
 
-    for key, post in unique_posts.items():
+    for (
+        key,
+        post,
+    ) in unique_posts.items():
+
         if key in history:
             seen_posts.append(
                 post
             )
 
-            history[key][
+            history[
+                key
+            ][
                 "last_seen"
             ] = now
 
@@ -1216,15 +2003,29 @@ def main():
                 post
             )
 
-            history[key] = {
-                "source": post.get(
-                    "source"
-                ),
-                "url": post.get(
-                    "url"
-                ),
-                "first_seen": now,
-                "last_seen": now,
+            history[
+                key
+            ] = {
+                "source":
+                    post.get(
+                        "source"
+                    ),
+
+                "source_tier":
+                    post.get(
+                        "source_tier"
+                    ),
+
+                "url":
+                    post.get(
+                        "url"
+                    ),
+
+                "first_seen":
+                    now,
+
+                "last_seen":
+                    now,
             }
 
     save_history(
@@ -1232,7 +2033,7 @@ def main():
     )
 
     # --------------------------------------------------------
-    # EVENT CLUSTER
+    # EVENTS
     # --------------------------------------------------------
 
     current_posts = list(
@@ -1255,19 +2056,25 @@ def main():
 
     verified_events = []
 
-    for index, event in enumerate(
+    for (
+        index,
+        event,
+    ) in enumerate(
         events,
         start=1,
     ):
+
         print()
         print(
-            f"VERIFY EVENT {index}/"
-            f"{len(events)}"
+            f"VERIFY EVENT "
+            f"{index}/{len(events)}"
         )
 
         print(
             "TOPIC:",
-            event["title"],
+            event[
+                "title"
+            ],
         )
 
         event = verify_event(
@@ -1282,55 +2089,87 @@ def main():
             event
         )
 
-    # Most actionable first
+    # --------------------------------------------------------
+    # SORT
+    # --------------------------------------------------------
+
     decision_order = {
-        "CO_THE_LAM_BAI": 4,
-        "CAN_XAC_MINH_GAP": 3,
-        "THEO_DOI": 2,
+        "CHUYEN_BAN_BIEN_TAP": 6,
+        "TIM_NGUON_GOC": 5,
+        "CAN_XAC_MINH_GAP": 4,
+        "THEO_DOI": 3,
         "BO_QUA_TAM_THOI": 1,
     }
 
     verified_events.sort(
         key=lambda event: (
             decision_order.get(
-                event["decision"],
+                event[
+                    "decision"
+                ],
                 0,
             ),
-            event["source_count"],
+            event[
+                "source_count"
+            ],
         ),
         reverse=True,
     )
 
+    editor_queue = (
+        build_editor_queue(
+            verified_events
+        )
+    )
+
     # --------------------------------------------------------
-    # OUTPUT FILES
+    # RESULT JSON
     # --------------------------------------------------------
 
     result_output = {
-        "generated_at": now,
+        "generated_at":
+            now,
+
+        "version":
+            "7.2",
 
         "source_stats": {
-            source: len(posts)
+            source: {
+                "tier":
+                    SOURCES[
+                        source
+                    ][
+                        "tier"
+                    ],
+
+                "posts":
+                    len(posts),
+            }
+
             for source, posts
             in source_results.items()
         },
 
-        "collected": len(
-            all_posts
-        ),
+        "collected":
+            len(all_posts),
 
-        "unique": len(
-            unique_posts
-        ),
+        "unique":
+            len(
+                unique_posts
+            ),
 
-        "new": len(
-            new_posts
-        ),
+        "new":
+            len(
+                new_posts
+            ),
 
-        "already_seen": len(
-            seen_posts
-        ),
+        "already_seen":
+            len(
+                seen_posts
+            ),
 
-        "new_posts": new_posts,
+        "new_posts":
+            new_posts,
     }
 
     with open(
@@ -1345,12 +2184,24 @@ def main():
             indent=2,
         )
 
+    # --------------------------------------------------------
+    # EVENT JSON
+    # --------------------------------------------------------
+
     event_output = {
-        "generated_at": now,
-        "event_count": len(
-            verified_events
-        ),
-        "events": verified_events,
+        "generated_at":
+            now,
+
+        "version":
+            "7.2",
+
+        "event_count":
+            len(
+                verified_events
+            ),
+
+        "events":
+            verified_events,
     }
 
     with open(
@@ -1365,23 +2216,38 @@ def main():
             indent=2,
         )
 
+    # --------------------------------------------------------
+    # VERIFIED JSON
+    # --------------------------------------------------------
+
     actionable = [
         event
-        for event in verified_events
-        if event["decision"]
-        in {
-            "CO_THE_LAM_BAI",
+        for event
+        in verified_events
+        if event[
+            "decision"
+        ] in {
+            "CHUYEN_BAN_BIEN_TAP",
+            "TIM_NGUON_GOC",
             "CAN_XAC_MINH_GAP",
             "THEO_DOI",
         }
     ]
 
     verified_output = {
-        "generated_at": now,
-        "actionable_count": len(
-            actionable
-        ),
-        "events": actionable,
+        "generated_at":
+            now,
+
+        "version":
+            "7.2",
+
+        "actionable_count":
+            len(
+                actionable
+            ),
+
+        "events":
+            actionable,
     }
 
     with open(
@@ -1397,20 +2263,78 @@ def main():
         )
 
     # --------------------------------------------------------
-    # CONSOLE
+    # EDITOR QUEUE JSON
+    # --------------------------------------------------------
+
+    queue_output = {
+        "generated_at":
+            now,
+
+        "version":
+            "7.2",
+
+        "page":
+            PAGE_NAME,
+
+        "editor_skill":
+            "bao-chi-tu-link",
+
+        "queue_count":
+            len(
+                editor_queue
+            ),
+
+        "items":
+            editor_queue,
+    }
+
+    with open(
+        EDITOR_QUEUE_FILE,
+        "w",
+        encoding="utf-8",
+    ) as f:
+        json.dump(
+            queue_output,
+            f,
+            ensure_ascii=False,
+            indent=2,
+        )
+
+    # --------------------------------------------------------
+    # CONSOLE SUMMARY
     # --------------------------------------------------------
 
     print()
     print("=" * 78)
-    print("FINAL RADAR RESULT")
+    print(
+        "FINAL RADAR RESULT"
+    )
     print("=" * 78)
 
     print(
-        "SOURCE STATS:",
-        result_output[
-            "source_stats"
-        ],
+        "SOURCE STATS:"
     )
+
+    for (
+        source,
+        data,
+    ) in result_output[
+        "source_stats"
+    ].items():
+
+        print(
+            " -",
+            source,
+            "["
+            + data[
+                "tier"
+            ]
+            + "]",
+            ":",
+            data[
+                "posts"
+            ],
+        )
 
     print(
         "COLLECTED:",
@@ -1454,15 +2378,32 @@ def main():
         ),
     )
 
+    print(
+        "EDITOR QUEUE:",
+        len(
+            editor_queue
+        ),
+    )
+
+    # --------------------------------------------------------
+    # VERIFICATION REPORT
+    # --------------------------------------------------------
+
     print()
     print("=" * 78)
-    print("VERIFICATION RADAR")
+    print(
+        "VERIFICATION RADAR V7.2"
+    )
     print("=" * 78)
 
-    for index, event in enumerate(
+    for (
+        index,
+        event,
+    ) in enumerate(
         verified_events,
         start=1,
     ):
+
         print()
         print(
             f"EVENT #{index}"
@@ -1470,15 +2411,49 @@ def main():
 
         print(
             "TOPIC:",
-            event["title"],
+            event[
+                "title"
+            ],
         )
 
         print(
-            "SOCIAL SOURCES:",
+            "SOURCES:",
             " + ".join(
-                event["sources"]
+                event[
+                    "sources"
+                ]
             ),
         )
+
+        print(
+            "TIERS:",
+            " + ".join(
+                event[
+                    "source_tiers"
+                ]
+            ),
+        )
+
+        official_signal = (
+            event.get(
+                "official_signal"
+            )
+        )
+
+        if official_signal:
+            print(
+                "OFFICIAL SIGNAL:",
+                official_signal[
+                    "source"
+                ],
+            )
+
+            print(
+                "OFFICIAL FB URL:",
+                official_signal[
+                    "facebook_url"
+                ],
+            )
 
         print(
             "VERIFICATION:",
@@ -1508,34 +2483,193 @@ def main():
             ],
         )
 
-        evidence = event.get(
-            "verification_evidence",
-            [],
+        evidence = (
+            event.get(
+                "verification_evidence",
+                [],
+            )
         )
 
         print(
-            "CONFIRMING SOURCES:",
-            len(evidence),
+            "MATCHED NEWS:",
+            len(
+                evidence
+            ),
         )
 
-        for item in evidence[:5]:
+        for item in evidence:
             print(
                 " -",
-                f'[{item["trust_level"]}]',
-                item["source_name"],
+                "["
+                + item[
+                    "trust_level"
+                ]
+                + "]",
+                item[
+                    "source_name"
+                ],
+                "| coverage:",
+                item[
+                    "keyword_coverage"
+                ],
                 "|",
-                item["title"][:180],
+                item[
+                    "title"
+                ][:160],
+            )
+
+        editorial_source = (
+            event.get(
+                "editorial_source"
+            )
+        )
+
+        print(
+            "SEND TO EDITOR:",
+            event.get(
+                "send_to_editor",
+                False,
+            ),
+        )
+
+        if editorial_source:
+            print(
+                "EDITORIAL SOURCE:",
+                editorial_source[
+                    "source_name"
+                ],
+            )
+
+            print(
+                "ORIGINAL ARTICLE:",
+                editorial_source[
+                    "url"
+                ],
+            )
+
+        else:
+            print(
+                "EDITORIAL SOURCE: NONE"
+            )
+
+    # --------------------------------------------------------
+    # EDITOR QUEUE REPORT
+    # --------------------------------------------------------
+
+    print()
+    print("=" * 78)
+    print(
+        "EDITOR QUEUE -> bao-chi-tu-link"
+    )
+    print("=" * 78)
+
+    if not editor_queue:
+        print(
+            "No event currently has "
+            "an original article URL "
+            "ready for the editor."
+        )
+
+    for (
+        index,
+        item,
+    ) in enumerate(
+        editor_queue,
+        start=1,
+    ):
+
+        print()
+        print(
+            f"QUEUE #{index}"
+        )
+
+        print(
+            "PAGE:",
+            item[
+                "page"
+            ],
+        )
+
+        print(
+            "SOURCE:",
+            item[
+                "article_source"
+            ],
+        )
+
+        print(
+            "TITLE:",
+            item[
+                "article_title"
+            ],
+        )
+
+        print(
+            "ARTICLE URL:",
+            item[
+                "article_url"
+            ],
+        )
+
+        if item[
+            "official_signal"
+        ]:
+            print(
+                "OFFICIAL SIGNAL:",
+                item[
+                    "official_signal"
+                ][
+                    "source"
+                ],
+            )
+
+        if item[
+            "social_sources"
+        ]:
+            print(
+                "SOCIAL SIGNAL:",
+                " + ".join(
+                    item[
+                        "social_sources"
+                    ]
+                ),
             )
 
     print()
-    print("Saved:", RESULT_FILE)
-    print("Events:", EVENT_FILE)
-    print("Verified:", VERIFIED_FILE)
-    print("History:", HISTORY_FILE)
-    print("HISTORY SIZE:", len(history))
+    print(
+        "Saved:",
+        RESULT_FILE,
+    )
 
     print(
-        "=== RADAR V7 FINISHED ==="
+        "Events:",
+        EVENT_FILE,
+    )
+
+    print(
+        "Verified:",
+        VERIFIED_FILE,
+    )
+
+    print(
+        "Editor queue:",
+        EDITOR_QUEUE_FILE,
+    )
+
+    print(
+        "History:",
+        HISTORY_FILE,
+    )
+
+    print(
+        "HISTORY SIZE:",
+        len(
+            history
+        ),
+    )
+
+    print(
+        "=== RADAR V7.2 FINISHED ==="
     )
 
 
