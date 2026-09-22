@@ -40,5 +40,6 @@ jobs:
           path: |
            radar_results.json
             radar_events.json
+            radar_verified.json
             radar_history.json
           retention-days: 7
