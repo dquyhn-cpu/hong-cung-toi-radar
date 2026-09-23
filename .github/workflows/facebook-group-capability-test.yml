@@ -1,6 +1,10 @@
 name: Facebook Group Capability Test
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".facebook-group-test-trigger"
   workflow_dispatch:
 
 jobs:
@@ -18,5 +22,5 @@ jobs:
         env:
           FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
           FB_GRAPH_VERSION: v26.0
-          FB_GROUP_IDS: ${{ secrets.FB_GROUP_IDS }}
+          FB_GROUP_IDS: "782708824657028,700642536995337,869991821428137,487949724720461"
         run: python facebook_group_capability_test.py
