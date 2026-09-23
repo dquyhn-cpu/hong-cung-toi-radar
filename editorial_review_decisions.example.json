@@ -1,0 +1,17 @@
+{
+  "version": "8.3",
+  "decisions": [
+    {
+      "event_id": "example-event-id",
+      "approve": true,
+      "selected_variant": "A",
+      "note": "Duyệt phương án A sau khi kiểm tra nguồn và ngữ cảnh."
+    },
+    {
+      "event_id": "another-event-id",
+      "approve": false,
+      "selected_variant": "",
+      "note": "Không đăng vì rủi ro/thiếu ngữ cảnh."
+    }
+  ]
+}
