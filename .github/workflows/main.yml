@@ -75,3 +75,4 @@ jobs:
             radar_draft_packets_v82.json
             radar_history.json
           retention-days: 7
+
