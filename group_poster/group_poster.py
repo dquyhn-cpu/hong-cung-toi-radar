@@ -137,15 +137,19 @@ def open_composer(page):
     candidates = [
         ("role", ("button", "Write something")),
         ("role", ("button", "Viết gì đó")),
+        ("role", ("button", "Bạn viết gì đi")),
+        ("role", ("button", "Tạo bài viết")),
         ("text", "Write something"),
         ("text", "Viết gì đó"),
-        ("css", "div[role='button']"),
+        ("text", "Bạn viết gì đi"),
+        ("text", "Hãy viết gì đó"),
+        ("text", "Tạo bài viết"),
     ]
     try:
         return click_first(page, candidates, timeout=2200)
     except Exception:
         # Fallback: click the visible composer prompt text.
-        for needle in ["Write something", "Viết gì đó", "Create post", "Tạo bài viết"]:
+        for needle in ["Write something", "Viết gì đó", "Bạn viết gì đi", "Hãy viết gì đó", "Create post", "Tạo bài viết"]:
             try:
                 page.get_by_text(needle, exact=False).first.click(timeout=2000)
                 return True
@@ -237,6 +241,16 @@ def post_mode(context, page, group_url, message, image_path, do_post, screenshot
         raise RuntimeError("Facebook session is not logged in. Run with --login first.")
 
     switch_to_page_identity(page, page_name)
+    print(f"URL_AFTER_IDENTITY_SWITCH={page.url}")
+
+    # Global profile switching may navigate away from the group.
+    # Always return to the target group after Page identity is active.
+    page.goto(group_url, wait_until="domcontentloaded", timeout=60000)
+    page.wait_for_timeout(3500)
+    print(f"URL_AFTER_RETURN_TO_GROUP={page.url}")
+
+    if "/groups/" not in page.url:
+        raise RuntimeError("Could not return to the target Facebook group after switching to Page identity.")
 
     if not open_composer(page):
         raise RuntimeError("Could not open group post composer. You may not have permission to post in this group.")
