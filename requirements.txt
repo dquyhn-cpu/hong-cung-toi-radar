@@ -3,3 +3,4 @@ beautifulsoup4
 playwright
 feedparser
 Pillow>=10.0
+CairoSVG>=2.7
