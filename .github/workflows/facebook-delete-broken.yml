@@ -15,9 +15,10 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install requests
-      - name: Delete broken PUBG post
+      - name: Delete broken Quang Ngai copyright post
         env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
           FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
-          FB_POST_ID: "${{ secrets.FB_PAGE_ID }}_122126227545380231"
+          FB_MESSAGE_CONTAINS: "LẤY NỘI DUNG BÁO CHÍ LÀM VIDEO CỦA MÌNH"
           FB_GRAPH_VERSION: v26.0
         run: python facebook_delete_post.py
