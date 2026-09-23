@@ -141,7 +141,7 @@ def monetization_preflight(event):
     publish_mode = "POST"
     if "SOURCE_INTEGRITY_BLOCK" in flags:
         publish_mode = "SKIP"
-    elif monetization_risk == "HIGH":
+    elif monetization_risk in {"MEDIUM", "HIGH"}:
         publish_mode = "POST_WITH_CAUTION"
 
     checklist = {
