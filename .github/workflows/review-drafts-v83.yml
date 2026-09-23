@@ -1,0 +1,61 @@
+name: Review Editorial Drafts V8.3
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: "Run ID from Generate Editorial Drafts V8.3"
+        required: true
+        type: string
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download generated review package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p review_package
+          gh run download "${{ inputs.source_run_id }}" \
+            --repo "${{ github.repository }}" \
+            --name "editorial-review-package-${{ inputs.source_run_id }}" \
+            --dir review_package
+
+      - name: Apply review decisions
+        run: |
+          python apply_review_v83.py \
+            --context review_package/radar_editorial_context_v82.json \
+            --drafts review_package/radar_drafts_v83.json \
+            --decisions editorial_review_decisions.json \
+            --output radar_reviewed_v83.json
+
+      - name: Build approved Facebook queue
+        run: |
+          python prepare_facebook_queue.py \
+            --input radar_reviewed_v83.json \
+            --output facebook_publish_queue.json
+
+      - name: Upload reviewed package
+        uses: actions/upload-artifact@v4
+        with:
+          name: editorial-approved-package-${{ github.run_id }}
+          path: |
+            radar_reviewed_v83.json
+            facebook_publish_queue.json
+          retention-days: 7
