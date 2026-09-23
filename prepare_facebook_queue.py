@@ -32,6 +32,16 @@ def main():
         if draft.get("approved") is not True:
             continue
 
+        preflight = item.get("monetization_preflight") or {}
+        publish_mode = preflight.get("recommended_publish_mode")
+        if publish_mode not in {"POST", "POST_WITH_CAUTION"}:
+            rejected.append({
+                "event_id": item.get("event_id"),
+                "errors": ["PREFLIGHT_NOT_PUBLISHABLE"],
+                "warnings": [],
+            })
+            continue
+
         validation = validate_editorial_output(item)
         if not validation["ok"]:
             rejected.append({
@@ -69,6 +79,7 @@ def main():
             "editorial_score": item.get("editorial_score", {}),
             "recommended_angle": item.get("recommended_angle"),
             "draft_validation": validation,
+            "monetization_preflight": preflight,
         })
 
     save_json(
