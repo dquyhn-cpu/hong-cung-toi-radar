@@ -190,7 +190,7 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
 
 
 def add_comment(page, message):
-    # Facebook post comment box under the newly submitted post.
+    # Top-level comment on the current post.
     selectors = [
         "[contenteditable='true'][aria-label*='Bình luận dưới tên']",
         "[contenteditable='true'][aria-label*='Viết bình luận']",
@@ -206,12 +206,68 @@ def add_comment(page, message):
                 box.click(force=True)
                 page.keyboard.insert_text(message)
                 page.keyboard.press("Enter")
-                page.wait_for_timeout(1200)
+                page.wait_for_timeout(1400)
                 print("COMMENT_POSTED")
                 return True
             except Exception:
                 pass
     raise RuntimeError("Could not find comment box for the submitted post")
+
+
+def add_reply_to_comment(page, parent_message, reply_message):
+    # Find the visible parent comment by a stable text prefix, then click its
+    # "Trả lời / Reply" action and type into the reply editor that appears.
+    prefix = parent_message.strip()[:80]
+    parent = page.get_by_text(prefix, exact=False).first
+    try:
+        parent.wait_for(state="visible", timeout=5000)
+    except Exception:
+        raise RuntimeError("Parent comment not found for reply")
+
+    # Use the nearest comment container that also contains the reply action.
+    container = parent.locator("xpath=ancestor::div[.//span[contains(normalize-space(.),'Trả lời') or contains(normalize-space(.),'Reply')]][1]")
+    if container.count() == 0:
+        container = parent.locator("xpath=ancestor::div[1]")
+
+    clicked = False
+    for label in ["Trả lời", "Reply"]:
+        try:
+            btn = container.get_by_text(label, exact=True)
+            btn.first.click(timeout=2500)
+            clicked = True
+            break
+        except Exception:
+            pass
+    if not clicked:
+        raise RuntimeError("Reply action not found under parent comment")
+
+    page.wait_for_timeout(600)
+
+    # The reply editor usually appears near the parent comment. Prefer a textbox
+    # whose aria-label mentions reply; otherwise use the newest visible comment editor.
+    reply_selectors = [
+        "[contenteditable='true'][aria-label*='Trả lời']",
+        "[contenteditable='true'][aria-label*='Reply']",
+        "[contenteditable='true'][aria-label*='Bình luận dưới tên']",
+        "[contenteditable='true'][aria-label*='Viết bình luận']",
+    ]
+    for sel in reply_selectors:
+        loc = page.locator(sel)
+        for i in range(loc.count() - 1, -1, -1):
+            box = loc.nth(i)
+            try:
+                if not box.is_visible():
+                    continue
+                box.click(force=True)
+                page.keyboard.insert_text(reply_message)
+                page.keyboard.press("Enter")
+                page.wait_for_timeout(1400)
+                print("REPLY_POSTED")
+                return True
+            except Exception:
+                pass
+
+    raise RuntimeError("Could not find reply editor")
 
 
 
@@ -236,8 +292,17 @@ def comment_only_mode(page, post_url, comments, confirm_comments, output_dir):
         print("COMMENT_DRY_RUN_OK")
         return 0
 
-    for idx, comment in enumerate(comments, 1):
-        add_comment(page, comment)
+    posted_comment_messages = {}
+    for idx, spec in enumerate(comments, 1):
+        if spec.get("reply_to"):
+            parent_idx = int(spec["reply_to"])
+            parent_message = posted_comment_messages.get(parent_idx)
+            if not parent_message:
+                raise RuntimeError(f"Parent comment #{parent_idx} was not posted in this run")
+            add_reply_to_comment(page, parent_message, spec["message"])
+        else:
+            add_comment(page, spec["message"])
+        posted_comment_messages[idx] = spec["message"]
         print(f"COMMENT_DONE={idx}/{len(comments)}")
 
     final = out / "comment_only_after.png"
@@ -248,7 +313,14 @@ def comment_only_mode(page, post_url, comments, confirm_comments, output_dir):
 
 def load_package_comments(package_path):
     pkg = json.loads(Path(package_path).read_text(encoding="utf-8-sig"))
-    return [x.get("message", "").strip() for x in pkg.get("comments", []) if x.get("message", "").strip()]
+    return [
+        {
+            "message": x.get("message", "").strip(),
+            "reply_to": x.get("reply_to"),
+        }
+        for x in pkg.get("comments", [])
+        if x.get("message", "").strip()
+    ]
 
 def run_package(page, package_path, confirm_post, output_dir):
     pkg_path = Path(package_path)
@@ -268,7 +340,14 @@ def run_package(page, package_path, confirm_post, output_dir):
         if alt.exists():
             image_path = str(alt)
 
-    comments = [x.get("message", "").strip() for x in pkg.get("comments", []) if x.get("message", "").strip()]
+    comments = [
+        {
+            "message": x.get("message", "").strip(),
+            "reply_to": x.get("reply_to"),
+        }
+        for x in pkg.get("comments", [])
+        if x.get("message", "").strip()
+    ]
     results = []
 
     for idx, group_url in enumerate(group_urls, 1):
@@ -278,9 +357,18 @@ def run_package(page, package_path, confirm_post, output_dir):
             status = "PREVIEW_OK" if not confirm_post else "POST_CLICKED"
             if confirm_post:
                 # Best effort: comments are isolated from the core posting flow.
-                for comment in comments:
+                posted_comment_messages = {}
+                for cidx, spec in enumerate(comments, 1):
                     try:
-                        add_comment(page, comment)
+                        if spec.get("reply_to"):
+                            parent_idx = int(spec["reply_to"])
+                            parent_message = posted_comment_messages.get(parent_idx)
+                            if not parent_message:
+                                raise RuntimeError(f"Parent comment #{parent_idx} was not posted in this run")
+                            add_reply_to_comment(page, parent_message, spec["message"])
+                        else:
+                            add_comment(page, spec["message"])
+                        posted_comment_messages[cidx] = spec["message"]
                     except Exception as exc:
                         print(f"COMMENT_WARNING={exc}")
                         status = "POST_OK_COMMENT_WARNING"
