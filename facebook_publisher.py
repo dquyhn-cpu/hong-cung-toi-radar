@@ -135,6 +135,21 @@ class FacebookPagePublisher:
             raise RuntimeError(f"Facebook did not return post id: {payload}")
         return post_id
 
+    def create_photo_url_post(self, message, image_url):
+        payload = self._request(
+            "POST",
+            f"/{self.page_id}/photos",
+            data={
+                "url": image_url,
+                "message": message,
+                "published": "true",
+            },
+        )
+        post_id = payload.get("post_id") or payload.get("id")
+        if not post_id:
+            raise RuntimeError(f"Facebook did not return photo post id: {payload}")
+        return post_id
+
     def create_photo_post(self, message, image_path):
         path = Path(image_path)
         if not path.exists():
@@ -235,8 +250,11 @@ def validate_queue(queue):
         if not message:
             raise ValueError(f"Item {publish_id} has empty message")
         image_path = item.get("image_path")
+        image_url = item.get("image_url")
         if image_path is not None and not isinstance(image_path, str):
             raise ValueError(f"Item {publish_id} image_path must be a string")
+        if image_url is not None and not isinstance(image_url, str):
+            raise ValueError(f"Item {publish_id} image_url must be a string")
         comments = item.get("comments", [])
         if comments is None:
             item["comments"] = []
@@ -258,6 +276,7 @@ def process_item(publisher, item, state, *, dry_run=False, comment_delay=1.0):
     message = item["message"].strip()
     comments = [c.strip() for c in item.get("comments", []) if c.strip()]
     image_path = str(item.get("image_path") or "").strip()
+    image_url = str(item.get("image_url") or "").strip()
 
     record = state["items"].setdefault(
         publish_id,
@@ -292,7 +311,11 @@ def process_item(publisher, item, state, *, dry_run=False, comment_delay=1.0):
             record["post_id"] = post_id
             record["post_status"] = "FOUND_EXISTING"
         else:
-            if image_path:
+            if image_url:
+                post_id = publisher.create_photo_url_post(message, image_url)
+                record["post_status"] = "POSTED_WITH_IMAGE"
+                record["image_url"] = image_url
+            elif image_path:
                 post_id = publisher.create_photo_post(message, image_path)
                 record["post_status"] = "POSTED_WITH_IMAGE"
                 record["image_path"] = image_path
