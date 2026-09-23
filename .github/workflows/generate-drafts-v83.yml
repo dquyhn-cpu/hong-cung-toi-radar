@@ -1,0 +1,79 @@
+name: Generate Editorial Drafts V8.3
+
+on:
+  workflow_dispatch:
+    inputs:
+      limit:
+        description: "Maximum number of draft packets to generate"
+        required: true
+        default: "3"
+        type: string
+      model:
+        description: "OpenAI model for drafting"
+        required: true
+        default: "gpt-5.6-terra"
+        type: string
+
+jobs:
+  generate-drafts:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Playwright Chromium
+        run: python -m playwright install --with-deps chromium
+
+      - name: Restore radar history
+        uses: actions/cache@v4
+        with:
+          path: radar_history.json
+          key: radar-history-${{ github.run_id }}
+          restore-keys: |
+            radar-history-
+
+      - name: Run Radar
+        run: python radar.py
+
+      - name: Build Editorial V8.2
+        run: python editorial_pipeline.py
+
+      - name: Read original sources
+        run: python build_editorial_context.py
+
+      - name: Build draft packets
+        run: python build_draft_packets.py
+
+      - name: Generate V8.3 drafts
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_DRAFT_MODEL: ${{ inputs.model }}
+        run: |
+          python draft_generator_v83.py \
+            --limit "${{ inputs.limit }}" \
+            --model "${{ inputs.model }}"
+
+      - name: Upload review package
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: editorial-review-package-${{ github.run_id }}
+          path: |
+            radar_editorial_v82.json
+            radar_editorial_context_v82.json
+            radar_draft_packets_v82.json
+            radar_drafts_v83.json
+            editorial_review_decisions.example.json
+          if-no-files-found: warn
+          retention-days: 7
