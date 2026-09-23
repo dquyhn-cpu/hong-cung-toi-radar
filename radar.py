@@ -3604,14 +3604,23 @@ def main():
         )
     )
 
-    # Only newly changed events need expensive verification.
-    active_events = [
-        event
-        for event in events
-        if event_has_new_signal(
+    # Only newly changed events need expensive verification in normal runs.
+    # Manual diagnostic runs can rescan the current collected set without
+    # clearing history by setting RADAR_RESCAN_ALL=1.
+    rescan_all = os.getenv("RADAR_RESCAN_ALL", "").strip().lower() in {
+        "1", "true", "yes", "on"
+    }
+
+    if rescan_all:
+        active_events = list(events)
+    else:
+        active_events = [
             event
-        )
-    ]
+            for event in events
+            if event_has_new_signal(
+                event
+            )
+        ]
 
     print()
     print(
@@ -3638,6 +3647,11 @@ def main():
         len(
             active_events
         ),
+    )
+
+    print(
+        "RESCAN ALL:",
+        rescan_all,
     )
 
     # ========================================================
