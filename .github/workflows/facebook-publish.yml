@@ -51,6 +51,21 @@ jobs:
           restore-keys: |
             facebook-publish-state-
 
+      - name: Generate clean Quang Ngai cover
+        run: python generate_quang_ngai_cover.py
+
+      - name: Verify generated cover
+        run: |
+          python - <<'PY'
+          from PIL import Image
+          p = "facebook_assets/news_copyright_fine_cover_v3.jpg"
+          with Image.open(p) as im:
+              im.load()
+              assert im.mode == "RGB"
+              assert im.size == (1080, 1350), im.size
+          print("COVER_OK", p)
+          PY
+
       - name: Publish approved queue
         env:
           FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
