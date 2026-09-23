@@ -1,0 +1,6 @@
+{
+  "action": "IDLE",
+  "command_id": "",
+  "package": "",
+  "note": "Queue mặc định IDLE. Chỉ chuyển sang PUBLISH khi người dùng ra lệnh đăng Group."
+}
