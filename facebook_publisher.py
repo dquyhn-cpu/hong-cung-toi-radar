@@ -135,6 +135,63 @@ class FacebookPagePublisher:
             raise RuntimeError(f"Facebook did not return post id: {payload}")
         return post_id
 
+    def create_photo_post(self, message, image_path):
+        path = Path(image_path)
+        if not path.exists():
+            raise RuntimeError(f"Image file not found: {image_path}")
+
+        url = f"{GRAPH_BASE}/{self.page_id}/photos"
+        last_exc = None
+        for attempt in range(1, self.max_attempts + 1):
+            try:
+                with path.open("rb") as fh:
+                    r = self.session.post(
+                        url,
+                        data={
+                            "message": message,
+                            "published": "true",
+                            "access_token": self.access_token,
+                        },
+                        files={"source": (path.name, fh)},
+                        timeout=max(self.timeout, 60),
+                    )
+            except requests.RequestException as exc:
+                last_exc = exc
+                if attempt == self.max_attempts:
+                    raise
+                time.sleep(min(2 ** (attempt - 1), 8))
+                continue
+
+            try:
+                payload = r.json()
+            except ValueError:
+                payload = {"raw": r.text}
+
+            if r.ok and "error" not in payload:
+                post_id = payload.get("post_id") or payload.get("id")
+                if not post_id:
+                    raise RuntimeError(f"Facebook did not return photo post id: {payload}")
+                return post_id
+
+            err = payload.get("error", {}) if isinstance(payload, dict) else {}
+            code = err.get("code")
+            retryable = r.status_code in {429, 500, 502, 503, 504} or code in {1, 2, 4, 17, 32, 613}
+            if retryable and attempt < self.max_attempts:
+                time.sleep(min(2 ** (attempt - 1), 8))
+                continue
+
+            raise FacebookAPIError(
+                err.get("message") or f"HTTP {r.status_code}",
+                status=r.status_code,
+                code=code,
+                subcode=err.get("error_subcode"),
+                payload=payload,
+            )
+
+        if last_exc:
+            raise last_exc
+        raise RuntimeError("Facebook photo upload failed")
+
     def existing_comments(self, post_id, limit=100):
         payload = self._request(
             "GET",
@@ -177,6 +234,9 @@ def validate_queue(queue):
         seen_ids.add(publish_id)
         if not message:
             raise ValueError(f"Item {publish_id} has empty message")
+        image_path = item.get("image_path")
+        if image_path is not None and not isinstance(image_path, str):
+            raise ValueError(f"Item {publish_id} image_path must be a string")
         comments = item.get("comments", [])
         if comments is None:
             item["comments"] = []
@@ -197,6 +257,7 @@ def process_item(publisher, item, state, *, dry_run=False, comment_delay=1.0):
     publish_id = str(item["publish_id"])
     message = item["message"].strip()
     comments = [c.strip() for c in item.get("comments", []) if c.strip()]
+    image_path = str(item.get("image_path") or "").strip()
 
     record = state["items"].setdefault(
         publish_id,
@@ -231,9 +292,14 @@ def process_item(publisher, item, state, *, dry_run=False, comment_delay=1.0):
             record["post_id"] = post_id
             record["post_status"] = "FOUND_EXISTING"
         else:
-            post_id = publisher.create_post(message)
+            if image_path:
+                post_id = publisher.create_photo_post(message, image_path)
+                record["post_status"] = "POSTED_WITH_IMAGE"
+                record["image_path"] = image_path
+            else:
+                post_id = publisher.create_post(message)
+                record["post_status"] = "POSTED"
             record["post_id"] = post_id
-            record["post_status"] = "POSTED"
         record["updated_at"] = utc_now()
 
     comment_failures = []
