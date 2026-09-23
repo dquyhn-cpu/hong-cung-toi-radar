@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - ".manual-review-trigger"
+  schedule:
+    - cron: "7 * * * *"
   workflow_dispatch:
     inputs:
       limit:
@@ -44,6 +46,8 @@ jobs:
             radar-history-
 
       - name: Run Radar
+        env:
+          RADAR_RESCAN_ALL: ${{ github.event_name == 'push' && '1' || '0' }}
         run: python radar.py
 
       - name: Build Editorial V8.2
@@ -56,16 +60,20 @@ jobs:
         run: python build_draft_packets.py
 
       - name: Prepare manual review candidates
+        id: candidates
         env:
           REVIEW_LIMIT: ${{ inputs.limit }}
         run: |
           LIMIT="${REVIEW_LIMIT:-5}"
           python build_manual_review_v83.py --limit "$LIMIT"
+          COUNT="$(python -c 'import json; print(json.load(open("editorial_review_candidates_v83.json", encoding="utf-8"))["candidate_count"])')"
+          echo "count=$COUNT" >> "$GITHUB_OUTPUT"
 
       - name: Add review summary
         run: cat editorial_review_candidates_v83.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Create GitHub review issue
+        if: steps.candidates.outputs.count != '0'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
