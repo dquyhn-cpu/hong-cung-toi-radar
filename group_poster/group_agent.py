@@ -60,7 +60,7 @@ def main():
             git_pull()
             queue = load_json(QUEUE, {'action':'IDLE'})
             command_id = str(queue.get('command_id') or '').strip()
-            if str(queue.get('action') or 'IDLE').upper() == 'PUBLISH' and command_id and command_id != state.get('last_command_id'):
+            if str(queue.get('action') or 'IDLE').upper() in {'PUBLISH','PING'} and command_id and command_id != state.get('last_command_id'):
                 try:
                     done_id = run_command(queue)
                     state = {'last_command_id': done_id, 'last_status':'SUCCESS', 'updated_at':datetime.now().isoformat(timespec='seconds')}
