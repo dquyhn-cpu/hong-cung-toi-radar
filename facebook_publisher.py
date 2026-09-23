@@ -8,12 +8,16 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
-from PIL import Image
+from PIL import Image, ImageFile
 
 GRAPH_VERSION = os.getenv("FB_GRAPH_VERSION", "v26.0")
 GRAPH_BASE = f"https://graph.facebook.com/{GRAPH_VERSION}"
 DEFAULT_QUEUE = "facebook_publish_queue.json"
 DEFAULT_STATE = "facebook_publish_state.json"
+
+# Some generated/exported JPEGs may be slightly truncated but still visually intact.
+# Load them permissively, then re-encode to a clean standards-compliant JPEG before upload.
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class FacebookAPIError(RuntimeError):
