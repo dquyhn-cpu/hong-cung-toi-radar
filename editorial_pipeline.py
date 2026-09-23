@@ -22,13 +22,19 @@ def choose_source(event):
     usable = [
         article
         for article in event.get("articles", [])
-        if article.get("url")
+        if (article.get("url") or article.get("google_url"))
         and article.get("source_tier") in {"OFFICIAL", "TRUSTED_NEWS"}
     ]
     for article in usable:
         if article.get("source_tier") == "OFFICIAL":
             return article
-    return usable[0] if usable else None
+    if not usable:
+        return None
+    chosen = dict(usable[0])
+    if not chosen.get("url") and chosen.get("google_url"):
+        chosen["url"] = chosen["google_url"]
+        chosen["source_url_status"] = "GOOGLE_NEWS_PROXY"
+    return chosen
 
 
 def should_include_event(event, package):
