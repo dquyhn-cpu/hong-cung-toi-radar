@@ -1,5 +1,4 @@
 import argparse
-import json
 import sys
 import time
 from pathlib import Path
@@ -7,417 +6,198 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 
 DEFAULT_PROFILE = str(Path.home() / ".hong-cung-toi" / "facebook-group-profile")
+DEFAULT_OUTPUT = "output"
 
 
 def read_text(path):
-    return Path(path).read_text(encoding="utf-8").strip()
-
-
-def ensure_file(path, label):
     p = Path(path)
-    if not p.exists():
-        raise SystemExit(f"{label} not found: {p}")
-    return p
-
-
-def click_first(page, candidates, timeout=2500):
-    last = None
-    for kind, value in candidates:
+    # Tolerate UTF-8 BOM and Windows-created UTF-16 files.
+    raw = p.read_bytes()
+    for enc in ("utf-8-sig", "utf-16", "cp1258", "cp1252"):
         try:
-            if kind == "role":
-                role, name = value
-                loc = page.get_by_role(role, name=name)
-            elif kind == "text":
-                loc = page.get_by_text(value, exact=False)
-            elif kind == "css":
-                loc = page.locator(value)
-            else:
-                continue
-            loc.first.wait_for(state="visible", timeout=timeout)
-            loc.first.click()
-            return True
-        except Exception as exc:
-            last = exc
-    if last:
-        raise last
-    return False
+            return raw.decode(enc).strip()
+        except UnicodeDecodeError:
+            pass
+    raise RuntimeError(f"Could not decode text file: {p}")
 
 
-def switch_to_page_identity(page, page_name):
-    """
-    Switch Facebook interaction identity to the requested Page.
-    Safety rule: if the requested Page cannot be selected/confirmed, STOP.
-    """
-    target = (page_name or "").strip()
-    if not target:
-        raise RuntimeError("Missing --page-name; refusing to post as personal profile")
-
-    # First try obvious identity controls shown in groups.
-    identity_labels = [
-        "Tương tác dưới tên",
-        "Interact as",
-        "Chuyển trang cá nhân",
-        "Switch profile",
-        "Chuyển hồ sơ",
-        "Switch profile or Page",
-    ]
-    opened = False
-    for label in identity_labels:
+def open_group_composer(page):
+    labels = ["Viết gì đó", "Bạn viết gì đi", "Tạo bài viết", "Write something", "Create post"]
+    for label in labels:
         try:
             loc = page.get_by_text(label, exact=False)
-            loc.first.wait_for(state="visible", timeout=1600)
-            loc.first.click()
-            opened = True
-            break
-        except Exception:
-            pass
-
-    # Fallback: click account/profile menu in the top-right.
-    if not opened:
-        selectors = [
-            "div[aria-label='Account']",
-            "div[aria-label='Tài khoản']",
-            "div[aria-label='Your profile']",
-            "div[aria-label='Trang cá nhân của bạn']",
-        ]
-        for sel in selectors:
-            try:
-                loc = page.locator(sel)
-                loc.first.wait_for(state="visible", timeout=1400)
-                loc.first.click()
-                opened = True
-                break
-            except Exception:
-                pass
-
-    if not opened:
-        raise RuntimeError(
-            f"Could not open Facebook identity switcher. Refusing to continue because Page '{target}' is required."
-        )
-
-    page.wait_for_timeout(700)
-
-    # Select exact Page name where possible.
-    selected = False
-    try:
-        loc = page.get_by_text(target, exact=True)
-        loc.first.wait_for(state="visible", timeout=3000)
-        loc.first.click()
-        selected = True
-    except Exception:
-        try:
-            loc = page.get_by_text(target, exact=False)
-            loc.first.wait_for(state="visible", timeout=2500)
-            loc.first.click()
-            selected = True
-        except Exception:
-            pass
-
-    if not selected:
-        raise RuntimeError(
-            f"Page identity '{target}' was not available. Refusing to post as personal profile."
-        )
-
-    page.wait_for_timeout(2200)
-
-    # Conservative confirmation: the requested Page name must be visible after switch.
-    # If Facebook changes UI and this cannot be confirmed, stop rather than risk wrong identity.
-    try:
-        page.get_by_text(target, exact=False).first.wait_for(state="visible", timeout=2500)
-    except Exception:
-        raise RuntimeError(
-            f"Could not confirm active identity '{target}'. Refusing to continue."
-        )
-
-    print(f"PAGE_IDENTITY_CONFIRMED={target}")
-    return True
-
-
-def open_composer(page):
-    candidates = [
-        ("role", ("button", "Write something")),
-        ("role", ("button", "Viết gì đó")),
-        ("role", ("button", "Bạn viết gì đi")),
-        ("role", ("button", "Tạo bài viết")),
-        ("text", "Write something"),
-        ("text", "Viết gì đó"),
-        ("text", "Bạn viết gì đi"),
-        ("text", "Hãy viết gì đó"),
-        ("text", "Tạo bài viết"),
-    ]
-    try:
-        return click_first(page, candidates, timeout=2200)
-    except Exception:
-        # Fallback: click the visible composer prompt text.
-        for needle in ["Write something", "Viết gì đó", "Bạn viết gì đi", "Hãy viết gì đó", "Create post", "Tạo bài viết"]:
-            try:
-                page.get_by_text(needle, exact=False).first.click(timeout=2000)
+            loc.first.click(timeout=1800)
+            page.wait_for_timeout(700)
+            if page.get_by_text("Tạo bài viết", exact=True).count() or page.get_by_text("Create post", exact=True).count():
                 return True
-            except Exception:
-                pass
+        except Exception:
+            pass
     return False
-
-
-def fill_message(page, message):
-    # DOM diagnostics show Facebook exposes the actual caption editor with
-    # aria-placeholder="Tạo bài viết công khai..." after media upload.
-    # Target that editor directly instead of guessing among all editables.
-    selectors = [
-        "[contenteditable='true'][aria-placeholder^='Tạo bài viết công khai']",
-        "[role='textbox'][contenteditable='true'][aria-placeholder^='Tạo bài viết công khai']",
-        "[contenteditable='true'][aria-placeholder*='bài viết công khai']",
-        "[contenteditable='true'][aria-placeholder^='Create a public post']",
-    ]
-    dialog = page.locator("div[role='dialog']").last
-    last_error = None
-
-    for sel in selectors:
-        loc = dialog.locator(sel)
-        try:
-            count = loc.count()
-            for i in range(count):
-                target = loc.nth(i)
-                if not target.is_visible():
-                    continue
-                target.click(force=True)
-                page.keyboard.insert_text(message)
-                page.wait_for_timeout(600)
-                if message[:25] in dialog.inner_text():
-                    print("CAPTION_TYPED_EXACT_EDITOR")
-                    return
-        except Exception as exc:
-            last_error = exc
-
-    dump_composer_debug(page, "group_poster/output")
-    raise RuntimeError(f"Could not fill exact Facebook caption editor: {last_error}")
-
-def dump_composer_debug(page, screenshot_dir):
-    """
-    Capture enough DOM/accessibility detail to diagnose Facebook composer changes
-    without guessing selectors again.
-    """
-    out_dir = Path(screenshot_dir)
-    out_dir.mkdir(parents=True, exist_ok=True)
-    debug_path = out_dir / "composer_debug.json"
-
-    data = {
-        "url": page.url,
-        "dialogs": [],
-        "contenteditables": [],
-        "textboxes": [],
-        "file_inputs": [],
-    }
-
-    try:
-        dialogs = page.locator("div[role='dialog']")
-        for i in range(dialogs.count()):
-            d = dialogs.nth(i)
-            try:
-                data["dialogs"].append({
-                    "index": i,
-                    "visible": d.is_visible(),
-                    "text": d.inner_text(timeout=1500)[:4000],
-                    "html": d.evaluate("(el) => el.outerHTML").replace("\n"," ")[:12000],
-                })
-            except Exception as exc:
-                data["dialogs"].append({"index": i, "error": str(exc)})
-    except Exception as exc:
-        data["dialogs_error"] = str(exc)
-
-    for selector, key in [
-        ("[contenteditable='true']", "contenteditables"),
-        ("[role='textbox']", "textboxes"),
-        ("input[type='file']", "file_inputs"),
-    ]:
-        try:
-            loc = page.locator(selector)
-            for i in range(loc.count()):
-                el = loc.nth(i)
-                try:
-                    data[key].append({
-                        "index": i,
-                        "visible": el.is_visible(),
-                        "box": el.bounding_box(),
-                        "tag": el.evaluate("(e)=>e.tagName"),
-                        "role": el.get_attribute("role"),
-                        "aria_label": el.get_attribute("aria-label"),
-                        "aria_placeholder": el.get_attribute("aria-placeholder"),
-                        "placeholder": el.get_attribute("placeholder"),
-                        "data_lexical_editor": el.get_attribute("data-lexical-editor"),
-                        "contenteditable": el.get_attribute("contenteditable"),
-                        "text": (el.inner_text(timeout=800) if el.evaluate("(e)=>['DIV','SPAN','P'].includes(e.tagName)") else "")[:1000],
-                        "html": el.evaluate("(e)=>e.outerHTML").replace("\n"," ")[:3000],
-                    })
-                except Exception as exc:
-                    data[key].append({"index": i, "error": str(exc)})
-        except Exception as exc:
-            data[key + "_error"] = str(exc)
-
-    debug_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-    print(f"COMPOSER_DEBUG={debug_path}")
-
-    # Print a compact summary directly to PowerShell so the next diagnosis does
-    # not require opening the JSON file manually.
-    print("=== COMPOSER DEBUG SUMMARY ===")
-    print(f"dialogs={len(data.get('dialogs', []))} contenteditables={len(data.get('contenteditables', []))} textboxes={len(data.get('textboxes', []))}")
-    for item in data.get("contenteditables", []):
-        print("EDITABLE", json.dumps({
-            "index": item.get("index"),
-            "visible": item.get("visible"),
-            "box": item.get("box"),
-            "role": item.get("role"),
-            "aria_label": item.get("aria_label"),
-            "aria_placeholder": item.get("aria_placeholder"),
-            "placeholder": item.get("placeholder"),
-            "data_lexical_editor": item.get("data_lexical_editor"),
-            "text": item.get("text"),
-        }, ensure_ascii=False))
-    print("=== END COMPOSER DEBUG ===")
-    return debug_path
-
-
-def verify_message(page, message):
-    expected = message.strip()
-    if not expected:
-        return True
-    prefix = expected[:40]
-    dialog = page.locator("div[role='dialog']")
-    try:
-        text = dialog.last.inner_text(timeout=3000)
-    except Exception:
-        text = page.locator("body").inner_text(timeout=3000)
-    if prefix not in text:
-        raise RuntimeError(
-            "Caption disappeared from composer after media upload. Refusing to continue."
-        )
-    print("CAPTION_CONFIRMED")
-    return True
 
 
 def attach_image(page, image_path):
     if not image_path:
         return
-    p = ensure_file(image_path, "Image")
+    p = Path(image_path)
+    if not p.exists():
+        raise RuntimeError(f"Image not found: {p}")
+
     inputs = page.locator("input[type='file']")
-    count = inputs.count()
-    if count == 0:
-        # Try to expose file input by clicking Photo/video.
-        for needle in ["Photo/video", "Ảnh/video", "Photo", "Ảnh"]:
+    if inputs.count() == 0:
+        for label in ["Ảnh/video", "Photo/video", "Ảnh", "Photo"]:
             try:
-                page.get_by_text(needle, exact=False).first.click(timeout=1800)
-                time.sleep(0.5)
+                page.get_by_text(label, exact=False).first.click(timeout=1500)
+                page.wait_for_timeout(400)
                 break
             except Exception:
                 pass
         inputs = page.locator("input[type='file']")
-        count = inputs.count()
-    if count == 0:
-        raise RuntimeError("Could not locate Facebook image upload input")
+
+    if inputs.count() == 0:
+        raise RuntimeError("Could not find Facebook image upload control")
+
     inputs.last.set_input_files(str(p.resolve()))
+    page.wait_for_timeout(1800)
+
+
+def find_active_caption_editor(page):
+    """
+    Facebook exposes more than one editable region.
+    The real modal caption editor is the visible element whose aria-placeholder
+    says 'Tạo bài viết công khai...' (or English equivalent) nearest the top of
+    the active composer.
+    """
+    selectors = [
+        "[contenteditable='true'][aria-placeholder*='Tạo bài viết công khai']",
+        "[contenteditable='true'][aria-placeholder*='Create a public post']",
+        "[role='textbox'][contenteditable='true'][aria-placeholder*='Tạo bài viết công khai']",
+        "[role='textbox'][contenteditable='true'][aria-placeholder*='Create a public post']",
+    ]
+
+    candidates = []
+    for sel in selectors:
+        loc = page.locator(sel)
+        for i in range(loc.count()):
+            el = loc.nth(i)
+            try:
+                if not el.is_visible():
+                    continue
+                box = el.bounding_box()
+                if not box or box["width"] < 150 or box["height"] < 15:
+                    continue
+                candidates.append((box["y"], el))
+            except Exception:
+                pass
+
+    if not candidates:
+        return None
+
+    candidates.sort(key=lambda x: x[0])
+    return candidates[0][1]
+
+
+def enter_caption(page, message):
+    editor = find_active_caption_editor(page)
+    if editor is None:
+        raise RuntimeError("Caption box not found")
+
+    box = editor.bounding_box()
+    if not box:
+        raise RuntimeError("Caption box has no visible bounds")
+
+    # Click the visual center of the real caption field, then inject text.
+    page.mouse.click(box["x"] + min(40, box["width"] / 2), box["y"] + box["height"] / 2)
+    page.wait_for_timeout(150)
+    page.keyboard.insert_text(message)
+    page.wait_for_timeout(650)
+
+    # Verify against the whole page because Facebook can replace the editor node
+    # while preserving the typed caption.
+    body = page.locator("body").inner_text(timeout=3000)
+    if message[:35] not in body:
+        raise RuntimeError("Caption text was not retained in Facebook composer")
+
+    print("CAPTION_OK")
 
 
 def find_post_button(page):
-    candidates = [
-        ("role", ("button", "Post")),
-        ("role", ("button", "Đăng")),
-        ("text", "Post"),
-        ("text", "Đăng"),
-    ]
-    for kind, value in candidates:
+    for name in ["Đăng", "Post"]:
         try:
-            if kind == "role":
-                role, name = value
-                loc = page.get_by_role(role, name=name)
-            else:
-                loc = page.get_by_text(value, exact=True)
-            loc.first.wait_for(state="visible", timeout=2000)
-            return loc.first
+            btn = page.get_by_role("button", name=name)
+            btn.first.wait_for(state="visible", timeout=1600)
+            return btn.first
         except Exception:
             pass
     return None
 
 
-def login_mode(context, page):
+def login_mode(page):
     page.goto("https://www.facebook.com/", wait_until="domcontentloaded", timeout=60000)
-    print("\nFacebook opened in a dedicated browser profile.")
-    print("Log in manually, complete any checkpoint/2FA, then return here.")
-    input("Press ENTER after Facebook is fully logged in... ")
-    page.reload(wait_until="domcontentloaded", timeout=60000)
+    print("Facebook opened in the dedicated Group Poster browser.")
+    print("Log in and switch this dedicated browser to Page 'Hóng Cùng Tôi' once.")
+    input("Press ENTER after Facebook is ready... ")
     print("LOGIN_PROFILE_READY")
     return 0
 
 
-def post_mode(context, page, group_url, message, image_path, do_post, screenshot_dir, page_name):
-    group_url = group_url.strip()
+def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
     if not group_url.startswith("https://www.facebook.com/groups/"):
-        raise SystemExit("group_url must be a Facebook group URL")
+        raise RuntimeError("Invalid Facebook Group URL")
+
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
 
     page.goto(group_url, wait_until="domcontentloaded", timeout=60000)
     page.wait_for_timeout(2500)
 
     if "login" in page.url.lower():
-        raise RuntimeError("Facebook session is not logged in. Run with --login first.")
+        raise RuntimeError("Facebook session expired. Run --login again.")
 
-    # Dedicated Chromium profile is reserved for Group Poster and should
-    # remain logged in as the Hóng Cùng Tôi Page. Do not switch identity on
-    # every run: it adds an unnecessary navigation round-trip.
-    # Safety is verified from the composer after it opens.
-    print(f"USING_PERSISTED_PAGE_SESSION={page_name}")
+    print("GROUP_OPENED")
 
-    if not open_composer(page):
-        raise RuntimeError("Could not open group post composer. You may not have permission to post in this group.")
+    if not open_group_composer(page):
+        raise RuntimeError("Could not open Facebook Group composer")
 
-    page.wait_for_timeout(800)
+    print("COMPOSER_OPENED")
 
-    # Dedicated browser profile is already reserved for the Page session.
-    # Do not perform another identity switch or a brittle text check here.
-    # The first manual setup/preview established the Page identity.
-    print(f"PAGE_SESSION_REUSED={page_name}")
-    # Attach media FIRST. Facebook re-renders the composer after image upload,
-    # which can discard text entered beforehand.
+    # Important: media first, caption second.
     attach_image(page, image_path)
-    page.wait_for_timeout(1800)
+    if image_path:
+        print("IMAGE_ATTACHED")
 
-    # Fill caption only after the media editor has stabilized.
-    fill_message(page, message)
-    page.wait_for_timeout(700)
-    verify_message(page, message)
+    enter_caption(page, message)
 
     post_button = find_post_button(page)
-    if not post_button:
-        raise RuntimeError("Could not locate the final Post button")
+    if post_button is None:
+        raise RuntimeError("Post button not found")
 
-    Path(screenshot_dir).mkdir(parents=True, exist_ok=True)
-    preview = Path(screenshot_dir) / "group_post_preview.png"
+    preview = out / "group_post_preview.png"
     page.screenshot(path=str(preview), full_page=False)
-    print(f"PREVIEW_SCREENSHOT={preview}")
+    print(f"PREVIEW={preview}")
 
-    if not do_post:
-        print("DRY_RUN_OK: composer is ready; nothing was posted.")
-        print("Re-run with --confirm-post only after checking the preview.")
+    if not confirm_post:
+        print("DRY_RUN_OK")
         return 0
 
     post_button.click()
     page.wait_for_timeout(3500)
-
-    final = Path(screenshot_dir) / "group_post_after_submit.png"
+    final = out / "group_post_after_submit.png"
     page.screenshot(path=str(final), full_page=False)
-    print(f"POST_CLICKED screenshot={final}")
-    print("IMPORTANT: Some groups use admin approval. Confirm the post state visually in Facebook.")
+    print(f"POST_CLICKED={final}")
     return 0
 
 
 def main():
-    ap = argparse.ArgumentParser(description="Hóng Cùng Tôi - isolated Facebook Group Poster V1")
+    ap = argparse.ArgumentParser(description="Hóng Cùng Tôi - Facebook Group Poster")
     ap.add_argument("--profile-dir", default=DEFAULT_PROFILE)
-    ap.add_argument("--login", action="store_true", help="Open a visible browser for manual Facebook login")
+    ap.add_argument("--login", action="store_true")
     ap.add_argument("--group-url")
     ap.add_argument("--message")
     ap.add_argument("--message-file")
     ap.add_argument("--image")
-    ap.add_argument("--page-name", default="Hóng Cùng Tôi", help="Required Facebook Page identity for group posting")
     ap.add_argument("--confirm-post", action="store_true")
-    ap.add_argument("--screenshot-dir", default="group_poster/output")
+    ap.add_argument("--output-dir", default=DEFAULT_OUTPUT)
+    ap.add_argument("--page-name", default="Hóng Cùng Tôi")
     args = ap.parse_args()
 
     if not args.login and not args.group_url:
@@ -440,24 +220,23 @@ def main():
         page = context.pages[0] if context.pages else context.new_page()
         try:
             if args.login:
-                return login_mode(context, page)
+                return login_mode(page)
             return post_mode(
-                context,
                 page,
                 args.group_url,
                 message,
                 args.image,
                 args.confirm_post,
-                args.screenshot_dir,
-                args.page_name,
+                args.output_dir,
             )
         except PlaywrightTimeoutError as exc:
             print(f"TIMEOUT: {exc}", file=sys.stderr)
             return 2
         except Exception as exc:
             try:
-                Path(args.screenshot_dir).mkdir(parents=True, exist_ok=True)
-                err = Path(args.screenshot_dir) / "group_post_error.png"
+                out = Path(args.output_dir)
+                out.mkdir(parents=True, exist_ok=True)
+                err = out / "group_post_error.png"
                 page.screenshot(path=str(err), full_page=False)
                 print(f"ERROR_SCREENSHOT={err}", file=sys.stderr)
             except Exception:
