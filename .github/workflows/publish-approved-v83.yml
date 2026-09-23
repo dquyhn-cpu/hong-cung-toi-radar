@@ -1,0 +1,79 @@
+name: Publish Approved Editorial V8.3
+
+on:
+  workflow_dispatch:
+    inputs:
+      approved_run_id:
+        description: "Run ID from Review Editorial Drafts V8.3"
+        required: true
+        type: string
+      dry_run:
+        description: "Dry run only"
+        required: true
+        default: true
+        type: boolean
+      strict_comments:
+        description: "Fail if any comment fails"
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Download approved package
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p approved_package
+          gh run download "${{ inputs.approved_run_id }}" \
+            --repo "${{ github.repository }}" \
+            --name "editorial-approved-package-${{ inputs.approved_run_id }}" \
+            --dir approved_package
+
+      - name: Restore publisher state
+        uses: actions/cache@v4
+        with:
+          path: facebook_publish_state.json
+          key: facebook-publish-state-${{ github.run_id }}
+          restore-keys: |
+            facebook-publish-state-
+
+      - name: Publish approved queue
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          FB_GRAPH_VERSION: v26.0
+        run: |
+          ARGS=""
+          if [ "${{ inputs.dry_run }}" = "true" ]; then ARGS="$ARGS --dry-run"; fi
+          if [ "${{ inputs.strict_comments }}" = "true" ]; then ARGS="$ARGS --strict-comments"; fi
+          python facebook_publisher.py \
+            --queue approved_package/facebook_publish_queue.json \
+            --state facebook_publish_state.json \
+            $ARGS
+
+      - name: Upload publisher state
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: facebook-publish-state-${{ github.run_id }}
+          path: facebook_publish_state.json
+          if-no-files-found: ignore
+          retention-days: 14
