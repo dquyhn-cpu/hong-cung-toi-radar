@@ -2,6 +2,8 @@ import re
 import unicodedata
 from datetime import datetime, timezone
 
+from monetization_preflight import monetization_preflight
+
 
 HUMAN_INTEREST_KEYWORDS = {
     "tre em", "hoc sinh", "gia dinh", "nguoi gia", "em be", "cha me",
@@ -217,6 +219,7 @@ def choose_editorial_angle(event, editorial):
 
 def build_editorial_package(event, source):
     editorial = score_editorial_value(event)
+    preflight = monetization_preflight(event)
     angle = choose_editorial_angle(event, editorial)
 
     source_urls = []
@@ -233,9 +236,14 @@ def build_editorial_package(event, source):
         "event_id": event.get("event_id"),
         "origin": event.get("origin", []),
         "page": "Hóng Cùng Tôi",
-        "status": "NEEDS_EDITORIAL_DRAFT",
+        "status": (
+            "SKIP_PRECHECK"
+            if preflight.get("recommended_publish_mode") == "SKIP"
+            else "NEEDS_EDITORIAL_DRAFT"
+        ),
         "editorial_score": editorial,
         "recommended_angle": angle,
+        "monetization_preflight": preflight,
         "working_title": event.get("title"),
         "primary_source": {
             "source": source.get("source") if source else None,
@@ -280,6 +288,14 @@ def build_editorial_package(event, source):
             "source_note": {
                 "required": True,
                 "format": "Nguồn: tên cơ quan/báo + URL gốc.",
+            },
+            "bao_chi_tu_link_contract": {
+                "source_fidelity": "Mọi dữ kiện phải truy được về bài gốc đã đọc; không thêm suy đoán, động cơ, lời thoại hoặc kết luận ngoài nguồn.",
+                "monetization": "Phân biệt được phép đăng với khả năng kiếm tiền; ưu tiên phiên bản trung tính hơn khi có rủi ro.",
+                "originality": "Không coi chép lại/tóm tắt tối thiểu/đổi khung là đủ nguyên bản; cần giá trị biên tập thực chất.",
+                "copyright": "Credit không thay thế quyền sử dụng ảnh/video; không xóa watermark.",
+                "engagement": "Không engagement bait, watch bait hoặc giấu dữ kiện trọng yếu xuống comment.",
+                "legal": "Phân biệt cáo buộc, điều tra và kết luận; quy nguồn rõ với thông tin pháp lý.",
             },
         },
         "output_schema": {
