@@ -2165,6 +2165,44 @@ def cluster_social_posts(
 # NEWS EVENT CLUSTERING
 # ============================================================
 
+def news_cluster_match(text_a, text_b):
+    """
+    Stricter than strict_event_match because unrelated newsroom headlines
+    often share generic policy/sports words. False merges inflate source
+    counts and corrupt downstream editorial scoring.
+    """
+    match = strict_event_match(text_a, text_b)
+    matched_count = len(set(match.get("matched_distinctive") or []))
+    coverage = match.get("coverage", 0)
+    sequence = match.get("sequence", 0)
+
+    accepted = False
+
+    if (
+        match.get("proper_match")
+        and matched_count >= 2
+        and sequence >= 0.18
+    ):
+        accepted = True
+    elif (
+        match.get("number_match")
+        and matched_count >= 3
+        and sequence >= 0.20
+    ):
+        accepted = True
+    elif (
+        matched_count >= 4
+        and coverage >= 0.45
+        and sequence >= 0.22
+    ):
+        accepted = True
+
+    return {
+        **match,
+        "accepted": accepted,
+    }
+
+
 def cluster_news_articles(
     articles,
 ):
@@ -2175,7 +2213,7 @@ def cluster_news_articles(
 
         for event in events:
             match = (
-                strict_event_match(
+                news_cluster_match(
                     article[
                         "title"
                     ],
@@ -2684,6 +2722,20 @@ def apply_hot_filter(event):
         reason = (
             "Có nguồn đáng tin nhưng chưa đủ "
             "điều kiện chuyển thẳng bàn biên tập."
+        )
+
+    # Safety net: a fresh item from an official/trusted source should still
+    # reach the second editorial layer even if the specificity heuristic is
+    # uncertain. V8.2 will decide whether it is worth surfacing.
+    elif (
+        (official_articles or trusted_articles)
+        and not generic_admin
+    ):
+        decision = "THEO_DOI"
+        rule = "VERIFIED_SOURCE_WATCH"
+        reason = (
+            "Có nguồn chính thức/báo uy tín nhưng lớp nhận diện sự kiện "
+            "chưa đủ chắc; chuyển sang V8.2 để đánh giá tiếp thay vì loại sớm."
         )
 
     elif generic_admin:
@@ -3981,6 +4033,11 @@ def main():
                 "verification_status",
                 "N/A",
             ),
+        )
+
+        print(
+            "SPECIFICITY:",
+            json.dumps(event.get("specificity", {}), ensure_ascii=False),
         )
 
         print(
