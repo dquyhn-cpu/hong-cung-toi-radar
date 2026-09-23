@@ -4,3 +4,4 @@ manual retest after WATCH promotion
 manual retest after specificity fix
 manual retest after clustering and verified-source fallback fix
 manual full rescan after history fix
+manual retest after unresolved-source candidate fix
