@@ -24,6 +24,18 @@ def main():
 
     for item in payload.get("items", []):
         enriched = dict(item)
+        preflight = item.get("monetization_preflight") or {}
+        if preflight.get("recommended_publish_mode") == "SKIP":
+            enriched["source_bundle"] = []
+            enriched["source_read_status"] = {
+                "attempted": 0,
+                "readable": 0,
+                "primary_readable": False,
+            }
+            enriched["status"] = "SKIP_PRECHECK"
+            items.append(enriched)
+            continue
+
         source_bundle = build_source_bundle(item)
         readable = [
             x for x in source_bundle
