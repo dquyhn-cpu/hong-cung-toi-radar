@@ -7,6 +7,7 @@ on:
       - "radar.py"
       - "editorial_v82.py"
       - "editorial_pipeline.py"
+      - "monetization_preflight.py"
       - "source_reader.py"
       - "build_editorial_context.py"
       - "build_draft_packets.py"
@@ -14,6 +15,7 @@ on:
       - "prepare_facebook_queue.py"
       - "test_editorial_v82.py"
       - "test_editorial_pipeline_v82.py"
+      - "test_monetization_preflight.py"
       - ".github/workflows/main.yml"
 
 jobs:
@@ -33,7 +35,7 @@ jobs:
         run: pip install -r requirements.txt
 
       - name: Run Editorial V8.2 unit tests
-        run: python -m unittest test_editorial_v82.py test_editorial_pipeline_v82.py
+        run: python -m unittest test_editorial_v82.py test_editorial_pipeline_v82.py test_monetization_preflight.py
 
       - name: Install Playwright Chromium
         run: python -m playwright install --with-deps chromium
