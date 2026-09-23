@@ -1,5 +1,15 @@
 {
-  "generated_at": null,
+  "generated_at": "2026-09-23T10:31:00+00:00",
   "page": "Hóng Cùng Tôi",
-  "items": []
+  "items": [
+    {
+      "publish_id": "smoke-test-20260923-001",
+      "event_id": "manual_smoke_test",
+      "enabled": true,
+      "message": "Kiểm tra tự động hóa Hóng Cùng Tôi V8.1 — bài test kỹ thuật, sẽ xóa.",
+      "comments": [
+        "Comment test tự động V8.1 — sẽ xóa."
+      ]
+    }
+  ]
 }
