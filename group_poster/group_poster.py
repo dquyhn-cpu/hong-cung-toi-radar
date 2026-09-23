@@ -159,29 +159,35 @@ def open_composer(page):
 
 
 def fill_message(page, message):
-    # Facebook's composer is a Lexical contenteditable. Prefer the textbox inside
-    # the active Create Post dialog and type text as a user would. fill() can
-    # appear successful while Facebook later replaces the DOM when an image is added.
-    selectors = [
-        "div[role='dialog'] div[role='textbox'][contenteditable='true']",
-        "div[role='dialog'] div[contenteditable='true'][data-lexical-editor='true']",
-        "div[role='dialog'] div[contenteditable='true']",
+    # Facebook uses a Lexical editor. After media is attached there can be
+    # several contenteditable nodes, so target the visible empty textbox in the
+    # active Create Post dialog and paste text as one operation.
+    dialog = page.locator("div[role='dialog']").last
+    candidates = [
         "div[role='textbox'][contenteditable='true']",
+        "div[contenteditable='true'][data-lexical-editor='true']",
+        "div[contenteditable='true']",
     ]
     last_error = None
-    for sel in selectors:
-        loc = page.locator(sel)
+    for sel in candidates:
+        loc = dialog.locator(sel)
         try:
-            target = loc.last
-            target.wait_for(state="visible", timeout=3000)
-            target.click()
-            # Clear placeholder/editor content, then insert text through keyboard.
-            page.keyboard.press("Control+A")
-            page.keyboard.type(message, delay=1)
-            page.wait_for_timeout(400)
-            visible_text = target.inner_text().strip()
-            if message[:20] in visible_text or len(visible_text) >= min(20, len(message)):
-                return
+            count = loc.count()
+            for i in range(count):
+                target = loc.nth(i)
+                if not target.is_visible():
+                    continue
+                box = target.bounding_box()
+                if not box or box["height"] < 20 or box["width"] < 120:
+                    continue
+                target.click()
+                page.keyboard.press("Control+A")
+                page.keyboard.insert_text(message)
+                page.wait_for_timeout(500)
+                txt = target.inner_text().strip()
+                if message[:25] in txt:
+                    print("CAPTION_TYPED")
+                    return
         except Exception as exc:
             last_error = exc
     raise RuntimeError(f"Could not reliably fill Facebook post text editor: {last_error}")
@@ -285,12 +291,14 @@ def post_mode(context, page, group_url, message, image_path, do_post, screenshot
         raise RuntimeError("Could not open group post composer. You may not have permission to post in this group.")
 
     page.wait_for_timeout(800)
-    fill_message(page, message)
+    # Attach media FIRST. Facebook re-renders the composer after image upload,
+    # which can discard text entered beforehand.
     attach_image(page, image_path)
     page.wait_for_timeout(1800)
 
-    # Media upload can re-render Facebook's editor. Never allow posting unless
-    # the approved caption is still visibly present after the image is attached.
+    # Fill caption only after the media editor has stabilized.
+    fill_message(page, message)
+    page.wait_for_timeout(700)
     verify_message(page, message)
 
     post_button = find_post_button(page)
