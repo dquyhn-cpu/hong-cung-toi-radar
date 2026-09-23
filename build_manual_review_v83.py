@@ -45,12 +45,10 @@ def build_candidates(context_payload, packets_payload, limit):
     }
     candidates = []
     for item in context_payload.get("items", []):
-        if item.get("status") != "READY_FOR_DRAFT":
+        if item.get("status") not in {"READY_FOR_DRAFT", "SOURCE_READ_REQUIRED"}:
             continue
         event_id = str(item.get("event_id"))
         packet = packet_map.get(event_id)
-        if not packet:
-            continue
         score = item.get("editorial_score") or {}
         preflight = item.get("monetization_preflight") or {}
         source = first_source(item)
@@ -64,7 +62,9 @@ def build_candidates(context_payload, packets_payload, limit):
             "recommended_publish_mode": preflight.get("recommended_publish_mode"),
             "risk_flags": preflight.get("risk_flags") or score.get("risk_flags") or [],
             "source": source,
-            "draft_prompt": packet.get("prompt"),
+            "source_read_status": item.get("status"),
+            "needs_source_resolution": item.get("status") == "SOURCE_READ_REQUIRED",
+            "draft_prompt": packet.get("prompt") if packet else None,
         })
     candidates.sort(
         key=lambda x: (
@@ -78,7 +78,7 @@ def build_markdown(candidates):
     lines = [
         "# Hóng Cùng Tôi — Editorial Review V8.3",
         "",
-        "Danh sách tin đã qua Radar, xác minh nguồn, Editorial V8.2, Monetization Preflight và đọc bài gốc.",
+        "Danh sách tin đã qua Radar, xác minh tín hiệu nguồn, Editorial V8.2 và Monetization Preflight. Tin nào chưa đọc được bài gốc sẽ được đánh dấu để ChatGPT resolve/đọc lại trước khi biên tập.",
         "",
         "**Không có API AI nào được gọi ở bước này. Không có bài nào được tự động đăng Facebook.**",
         "",
@@ -102,6 +102,8 @@ def build_markdown(candidates):
             f"- **Publish mode:** {item.get('recommended_publish_mode')}",
             f"- **Risk flags:** {flags}",
             f"- **Nguồn chính:** {src.get('source') or 'N/A'}",
+            f"- **Trạng thái nguồn:** {item.get('source_read_status')}",
+            f"- **Cần resolve/đọc lại nguồn:** {'CÓ' if item.get('needs_source_resolution') else 'KHÔNG'}",
             f"- **Tiêu đề nguồn:** {src.get('title') or 'N/A'}",
             f"- **URL nguồn:** {src.get('url') or 'N/A'}",
             "",
@@ -112,7 +114,7 @@ def build_markdown(candidates):
         "",
         "### Quy tắc duyệt",
         "",
-        "1. Tin được chọn vẫn phải được ChatGPT đọc/đối chiếu lại bài gốc trước khi biên tập.",
+        "1. Tin được chọn bắt buộc phải được ChatGPT resolve URL gốc và đọc/đối chiếu bài gốc trước khi biên tập; SOURCE_READ_REQUIRED chỉ là candidate, chưa được phép soạn bài.",
         "2. Bản nháp phải giữ dữ kiện cốt lõi trong bài chính; comment chỉ bổ sung bối cảnh/nguồn.",
         "3. Nội dung nhạy cảm, pháp lý, trẻ em hoặc công quyền phải tuân thủ risk flags.",
         "4. Chỉ sau khi anh nói rõ duyệt đăng thì mới được đưa nội dung vào facebook_publish_queue.json.",
