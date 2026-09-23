@@ -159,21 +159,50 @@ def open_composer(page):
 
 
 def fill_message(page, message):
+    # Facebook's composer is a Lexical contenteditable. Prefer the textbox inside
+    # the active Create Post dialog and type text as a user would. fill() can
+    # appear successful while Facebook later replaces the DOM when an image is added.
     selectors = [
+        "div[role='dialog'] div[role='textbox'][contenteditable='true']",
+        "div[role='dialog'] div[contenteditable='true'][data-lexical-editor='true']",
         "div[role='dialog'] div[contenteditable='true']",
-        "div[contenteditable='true'][role='textbox']",
         "div[role='textbox'][contenteditable='true']",
     ]
+    last_error = None
     for sel in selectors:
         loc = page.locator(sel)
         try:
-            loc.last.wait_for(state="visible", timeout=2500)
-            loc.last.click()
-            loc.last.fill(message)
-            return
-        except Exception:
-            pass
-    raise RuntimeError("Could not locate Facebook post text editor")
+            target = loc.last
+            target.wait_for(state="visible", timeout=3000)
+            target.click()
+            # Clear placeholder/editor content, then insert text through keyboard.
+            page.keyboard.press("Control+A")
+            page.keyboard.type(message, delay=1)
+            page.wait_for_timeout(400)
+            visible_text = target.inner_text().strip()
+            if message[:20] in visible_text or len(visible_text) >= min(20, len(message)):
+                return
+        except Exception as exc:
+            last_error = exc
+    raise RuntimeError(f"Could not reliably fill Facebook post text editor: {last_error}")
+
+
+def verify_message(page, message):
+    expected = message.strip()
+    if not expected:
+        return True
+    prefix = expected[:40]
+    dialog = page.locator("div[role='dialog']")
+    try:
+        text = dialog.last.inner_text(timeout=3000)
+    except Exception:
+        text = page.locator("body").inner_text(timeout=3000)
+    if prefix not in text:
+        raise RuntimeError(
+            "Caption disappeared from composer after media upload. Refusing to continue."
+        )
+    print("CAPTION_CONFIRMED")
+    return True
 
 
 def attach_image(page, image_path):
@@ -258,7 +287,11 @@ def post_mode(context, page, group_url, message, image_path, do_post, screenshot
     page.wait_for_timeout(800)
     fill_message(page, message)
     attach_image(page, image_path)
-    page.wait_for_timeout(1200)
+    page.wait_for_timeout(1800)
+
+    # Media upload can re-render Facebook's editor. Never allow posting unless
+    # the approved caption is still visibly present after the image is attached.
+    verify_message(page, message)
 
     post_button = find_post_button(page)
     if not post_button:
