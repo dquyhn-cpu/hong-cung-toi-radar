@@ -1,0 +1,234 @@
+{
+  "version": 1,
+  "source": "Danh sách các nhóm tin tức Việt Nam có tương tác tốt - PDF người dùng cung cấp",
+  "default_enabled": false,
+  "note": "Chưa bật đăng hàng loạt. Các share/g cần resolve sang URL group chuẩn trên máy trước khi enable.",
+  "groups": [
+    {
+      "id": "G01",
+      "url": "https://www.facebook.com/share/g/1Hx7FUvdZQ/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G02",
+      "url": "https://www.facebook.com/share/g/1BoKasGZDS/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G03",
+      "url": "https://www.facebook.com/share/g/1CXrejxG3x/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G04",
+      "url": "https://www.facebook.com/share/g/19Dw81H86A/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G05",
+      "url": "https://www.facebook.com/share/g/1BkTvF1jq3/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G06",
+      "url": "https://www.facebook.com/share/g/19g1rtHwiv/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G07",
+      "url": "https://www.facebook.com/share/g/1C4yeRmKe4/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G08",
+      "url": "https://www.facebook.com/share/g/18G8RU11KG/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G09",
+      "url": "https://www.facebook.com/share/g/18QA5HDbLg/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G10",
+      "url": "https://www.facebook.com/share/g/1Z1MyCz2rE/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G11",
+      "url": "https://www.facebook.com/share/g/1BpjLs8ucL/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G12",
+      "url": "https://www.facebook.com/share/g/1DnBq4eHTg/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G13",
+      "url": "https://www.facebook.com/share/g/19Q3a5YTop/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G14",
+      "url": "https://www.facebook.com/share/g/18ERBFdJ14/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G15",
+      "url": "https://www.facebook.com/share/g/1BiajkHhKj/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G16",
+      "url": "https://www.facebook.com/share/g/14pZXbChQH4/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G17",
+      "url": "https://www.facebook.com/share/g/19JHYCy2En/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G18",
+      "url": "https://www.facebook.com/share/g/1D85WYcRDc/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G19",
+      "url": "https://www.facebook.com/groups/2934085380204159/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G20",
+      "url": "https://www.facebook.com/groups/4187038148094626/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G21",
+      "url": "https://www.facebook.com/groups/450333258659278/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G22",
+      "url": "https://www.facebook.com/groups/450333258659278",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G23",
+      "url": "https://www.facebook.com/groups/5639899666127271/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G24",
+      "url": "https://www.facebook.com/groups/1072864350073137/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G25",
+      "url": "https://www.facebook.com/groups/965833877980346/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G26",
+      "url": "https://www.facebook.com/groups/869991821428137/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G27",
+      "url": "https://www.facebook.com/groups/2746065739057191/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G28",
+      "url": "https://www.facebook.com/groups/2912905878746514/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G29",
+      "url": "https://www.facebook.com/groups/1237948921534778",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    },
+    {
+      "id": "G30",
+      "url": "https://www.facebook.com/groups/1072864350073137/",
+      "enabled": false,
+      "status": "UNVERIFIED",
+      "name": null
+    }
+  ],
+  "duplicates": [
+    {
+      "ids": [
+        "G21",
+        "G22"
+      ],
+      "group_id": "450333258659278"
+    },
+    {
+      "ids": [
+        "G24",
+        "G30"
+      ],
+      "group_id": "1072864350073137"
+    }
+  ]
+}
