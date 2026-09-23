@@ -2410,14 +2410,16 @@ def is_generic_admin_story(
 
 
 def event_specificity(event):
-    text = (
-        event.get(
-            "context"
-        )
-        or event.get(
-            "title",
-            ""
-        )
+    # Evaluate both the clustered context and the concrete headline.
+    # Previously a non-empty but generic context completely hid the title,
+    # causing clearly specific news stories to be marked non-specific.
+    text = " ".join(
+        part
+        for part in [
+            event.get("title", ""),
+            event.get("context", ""),
+        ]
+        if part
     )
 
     signature = (
