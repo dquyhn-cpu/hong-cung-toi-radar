@@ -1,0 +1,24 @@
+{
+  "name": "TEMPLATE - controlled group rollout",
+  "page_name": "Hóng Cùng Tôi",
+  "use_registry": true,
+  "rollout_limit": 3,
+  "include_group_ids": [],
+  "exclude_group_ids": [],
+  "message": "REPLACE_WITH_APPROVED_CAPTION",
+  "image_path": "facebook_assets/REPLACE_WITH_APPROVED_IMAGE.jpg",
+  "comments": [
+    {
+      "message": "REPLACE_WITH_COMMENT_1"
+    },
+    {
+      "message": "REPLACE_WITH_COMMENT_2"
+    }
+  ],
+  "safety": {
+    "auto_join": false,
+    "skip_if_no_composer": true,
+    "continue_on_skip": true,
+    "note": "First production rollout is limited to 3 groups. Increase only after report review."
+  }
+}
