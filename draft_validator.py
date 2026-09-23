@@ -80,9 +80,22 @@ def validate_editorial_output(item):
         if not any(url.rstrip(".,);]") in declared_sources for url in source_note_urls):
             warnings.append("SOURCE_NOTE_URL_NOT_IN_DECLARED_SOURCES")
 
+    preflight = item.get("monetization_preflight") or {}
     risk_flags = set(
         (item.get("editorial_score") or {}).get("risk_flags", [])
-    )
+    ) | set(preflight.get("risk_flags", []))
+
+    publish_mode = preflight.get("recommended_publish_mode")
+    if publish_mode == "SKIP":
+        errors.append("PREFLIGHT_BLOCKED")
+
+    if preflight.get("originality_risk") == "HIGH":
+        warnings.append("HIGH_ORIGINALITY_RISK")
+    elif preflight.get("originality_risk") == "MEDIUM":
+        warnings.append("REVIEW_ORIGINALITY_VALUE_ADD")
+
+    if preflight.get("copyright_risk") in {"MEDIUM", "HIGH"}:
+        warnings.append("REVIEW_COPYRIGHT_RIGHTS")
 
     if "NEUTRAL_LANGUAGE_REQUIRED" in risk_flags:
         politically_loaded = [
@@ -120,6 +133,12 @@ def validate_editorial_output(item):
         "ok": not errors,
         "errors": sorted(set(errors)),
         "warnings": sorted(set(warnings)),
+        "preflight": {
+            "monetization_risk": preflight.get("monetization_risk"),
+            "recommended_publish_mode": publish_mode,
+            "originality_risk": preflight.get("originality_risk"),
+            "copyright_risk": preflight.get("copyright_risk"),
+        },
         "checked_fields": {
             "main_post_chars": len(main_post),
             "comment_count": len(comments),
