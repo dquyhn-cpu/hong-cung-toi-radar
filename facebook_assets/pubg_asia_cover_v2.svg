@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920">
+<defs>
+  <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+    <stop offset="0" stop-color="#120d18"/>
+    <stop offset="0.48" stop-color="#111827"/>
+    <stop offset="1" stop-color="#05070b"/>
+  </linearGradient>
+  <linearGradient id="stage" x1="0" y1="0" x2="1" y2="0">
+    <stop offset="0" stop-color="#8b1118"/>
+    <stop offset="0.5" stop-color="#261017"/>
+    <stop offset="1" stop-color="#123d7a"/>
+  </linearGradient>
+  <linearGradient id="banner" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0" stop-color="#5d070e"/>
+    <stop offset="1" stop-color="#1e0306"/>
+  </linearGradient>
+  <filter id="glow"><feGaussianBlur stdDeviation="14"/></filter>
+</defs>
+<rect width="1080" height="1920" fill="url(#bg)"/>
+<rect x="0" y="0" width="1080" height="1180" fill="url(#stage)" opacity="0.92"/>
+<circle cx="160" cy="165" r="150" fill="#ff2424" opacity="0.18" filter="url(#glow)"/>
+<circle cx="920" cy="180" r="170" fill="#2389ff" opacity="0.20" filter="url(#glow)"/>
+<g opacity="0.18" stroke="#fff">
+  <path d="M0 290H1080M0 580H1080M0 870H1080"/>
+</g>
+<rect x="120" y="150" width="840" height="430" rx="28" fill="#11161e" stroke="#3b4250" stroke-width="5"/>
+<rect x="155" y="185" width="770" height="360" rx="18" fill="#1d2632"/>
+<g opacity="0.9">
+  <path d="M300 465 C320 360, 380 300, 455 300 C530 300, 585 360, 600 465 Z" fill="#20242b"/>
+  <circle cx="450" cy="305" r="70" fill="#262b33"/>
+  <rect x="405" y="292" width="95" height="26" rx="13" fill="#0d1117"/>
+  <path d="M480 305 L535 340 L515 355 L470 330 Z" fill="#0d1117"/>
+</g>
+<g transform="translate(305 360) rotate(-8)">
+  <rect x="0" y="0" width="470" height="120" rx="14" fill="#b61923" opacity="0.95"/>
+  <text x="235" y="76" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="55" fill="#fff">GIẢI ĐẤU KẾT THÚC SỚM</text>
+</g>
+<g fill="#0c0f14" stroke="#1e232c" stroke-width="4">
+  <rect x="90" y="760" width="350" height="190" rx="18"/>
+  <rect x="640" y="760" width="350" height="190" rx="18"/>
+</g>
+<g fill="#0b0d11">
+  <circle cx="260" cy="735" r="78"/>
+  <path d="M145 870 C155 760, 365 760, 375 870 L395 1035 H130 Z"/>
+  <circle cx="820" cy="735" r="78"/>
+  <path d="M705 870 C715 760, 925 760, 935 870 L955 1035 H690 Z"/>
+</g>
+<g stroke-linecap="round" fill="none">
+  <path d="M175 700 Q260 625 345 700" stroke="#242a33" stroke-width="28"/>
+  <path d="M735 700 Q820 625 905 700" stroke="#242a33" stroke-width="28"/>
+</g>
+<rect x="0" y="1120" width="1080" height="800" fill="url(#banner)"/>
+<path d="M0 1120 H1080 L1080 1200 Q600 1150 0 1225 Z" fill="#8f0e16"/>
+<rect x="105" y="1085" width="420" height="92" rx="16" fill="#7f0b12" stroke="#dc2d38" stroke-width="3"/>
+<text x="315" y="1147" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-style="italic" font-size="46" fill="#fff">Hóng Cùng Tôi</text>
+<text x="540" y="1325" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="92" fill="#fff">GIẢI PUBG CHÂU Á</text>
+<text x="540" y="1455" text-anchor="middle" font-family="Arial, sans-serif" font-weight="900" font-size="112" fill="#ffd735">KẾT THÚC SỚM</text>
+<rect x="180" y="1510" width="720" height="5" fill="#d91d27"/>
+<text x="540" y="1605" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="46" fill="#f2f2f2">Tranh cãi sau quyết định xử lý</text>
+<text x="540" y="1665" text-anchor="middle" font-family="Arial, sans-serif" font-weight="700" font-size="46" fill="#f2f2f2">của KRAFTON</text>
+<g opacity="0.45" fill="#000">
+  <path d="M0 1780 L130 1700 L230 1770 L310 1710 L430 1790 L530 1730 L650 1795 L760 1715 L890 1790 L1080 1690 V1920 H0 Z"/>
+</g>
+</svg>
