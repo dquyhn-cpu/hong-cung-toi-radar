@@ -1,4 +1,5 @@
 import argparse
+import json
 import sys
 import time
 from pathlib import Path
@@ -187,6 +188,82 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
     return 0
 
 
+
+def add_comment(page, message):
+    # Facebook post comment box under the newly submitted post.
+    selectors = [
+        "[contenteditable='true'][aria-label*='Bình luận dưới tên']",
+        "[contenteditable='true'][aria-label*='Viết bình luận']",
+        "[contenteditable='true'][aria-label*='Write a comment']",
+    ]
+    for sel in selectors:
+        loc = page.locator(sel)
+        for i in range(loc.count() - 1, -1, -1):
+            box = loc.nth(i)
+            try:
+                if not box.is_visible():
+                    continue
+                box.click(force=True)
+                page.keyboard.insert_text(message)
+                page.keyboard.press("Enter")
+                page.wait_for_timeout(1200)
+                print("COMMENT_POSTED")
+                return True
+            except Exception:
+                pass
+    raise RuntimeError("Could not find comment box for the submitted post")
+
+
+def run_package(page, package_path, confirm_post, output_dir):
+    pkg_path = Path(package_path)
+    pkg = json.loads(pkg_path.read_text(encoding="utf-8-sig"))
+    group_urls = pkg.get("group_urls") or ([pkg["group_url"]] if pkg.get("group_url") else [])
+    if not group_urls:
+        raise RuntimeError("Package has no group_url/group_urls")
+
+    message = pkg.get("message", "").strip()
+    if not message:
+        raise RuntimeError("Package message is empty")
+
+    image_path = pkg.get("image_path")
+    if image_path and not Path(image_path).exists():
+        # Packages live in group_poster/packages; repo assets live one directory up.
+        alt = Path("..") / image_path
+        if alt.exists():
+            image_path = str(alt)
+
+    comments = [x.get("message", "").strip() for x in pkg.get("comments", []) if x.get("message", "").strip()]
+    results = []
+
+    for idx, group_url in enumerate(group_urls, 1):
+        print(f"GROUP_BATCH={idx}/{len(group_urls)}")
+        try:
+            rc = post_mode(page, group_url, message, image_path, confirm_post, output_dir)
+            status = "PREVIEW_OK" if not confirm_post else "POST_CLICKED"
+            if confirm_post:
+                # Best effort: comments are isolated from the core posting flow.
+                for comment in comments:
+                    try:
+                        add_comment(page, comment)
+                    except Exception as exc:
+                        print(f"COMMENT_WARNING={exc}")
+                        status = "POST_OK_COMMENT_WARNING"
+                        break
+            results.append({"group_url": group_url, "status": status})
+        except Exception as exc:
+            results.append({"group_url": group_url, "status": "ERROR", "error": str(exc)})
+            print(f"GROUP_ERROR={group_url} :: {exc}", file=sys.stderr)
+
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    report = out / "group_batch_report.json"
+    report.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"BATCH_REPORT={report}")
+
+    failures = [r for r in results if r["status"] == "ERROR"]
+    print(f"BATCH_DONE total={len(results)} errors={len(failures)}")
+    return 1 if failures else 0
+
 def main():
     ap = argparse.ArgumentParser(description="Hóng Cùng Tôi - Facebook Group Poster")
     ap.add_argument("--profile-dir", default=DEFAULT_PROFILE)
@@ -198,13 +275,14 @@ def main():
     ap.add_argument("--confirm-post", action="store_true")
     ap.add_argument("--output-dir", default=DEFAULT_OUTPUT)
     ap.add_argument("--page-name", default="Hóng Cùng Tôi")
+    ap.add_argument("--package", help="JSON package with message, image, comments and group_url/group_urls")
     args = ap.parse_args()
 
-    if not args.login and not args.group_url:
-        ap.error("Use --login or provide --group-url")
+    if not args.login and not args.group_url and not args.package:
+        ap.error("Use --login, --package, or provide --group-url")
 
     message = args.message or (read_text(args.message_file) if args.message_file else "")
-    if not args.login and not message:
+    if not args.login and not args.package and not message:
         ap.error("Provide --message or --message-file")
 
     profile = Path(args.profile_dir)
@@ -221,6 +299,8 @@ def main():
         try:
             if args.login:
                 return login_mode(page)
+            if args.package:
+                return run_package(page, args.package, args.confirm_post, args.output_dir)
             return post_mode(
                 page,
                 args.group_url,
