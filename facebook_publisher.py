@@ -334,6 +334,13 @@ def validate_queue(queue):
         seen_ids.add(publish_id)
         if not message:
             raise ValueError(f"Item {publish_id} has empty message")
+
+        lifecycle_status = str(item.get("lifecycle_status") or "DRAFT").strip().upper()
+        allowed_statuses = {"DRAFT", "APPROVED", "PAGE_VERIFIED", "GROUP_READY"}
+        if lifecycle_status not in allowed_statuses:
+            raise ValueError(f"Item {publish_id} has invalid lifecycle_status: {lifecycle_status}")
+        item["lifecycle_status"] = lifecycle_status
+
         image_path = item.get("image_path")
         image_url = item.get("image_url")
         if image_path is not None and not isinstance(image_path, str):
@@ -394,10 +401,18 @@ def process_item(publisher, item, state, *, dry_run=False, comment_delay=1.0):
         },
     )
 
+    lifecycle_status = str(item.get("lifecycle_status") or "DRAFT").strip().upper()
+    record["lifecycle_status"] = lifecycle_status
+
     if item.get("enabled", True) is False:
         record["post_status"] = "DISABLED"
         record["updated_at"] = utc_now()
-        return {"publish_id": publish_id, "status": "DISABLED"}
+        return {"publish_id": publish_id, "status": "DISABLED", "lifecycle_status": lifecycle_status}
+
+    if lifecycle_status not in {"APPROVED", "PAGE_VERIFIED", "GROUP_READY"}:
+        record["post_status"] = "BLOCKED_NOT_APPROVED"
+        record["updated_at"] = utc_now()
+        return {"publish_id": publish_id, "status": "BLOCKED_NOT_APPROVED", "lifecycle_status": lifecycle_status}
 
     if dry_run:
         return {
@@ -437,6 +452,9 @@ def process_item(publisher, item, state, *, dry_run=False, comment_delay=1.0):
                 record["post_status"] = "POSTED"
             record["post_id"] = post_id
         record["updated_at"] = utc_now()
+        if record.get("post_status") in {"POSTED_WITH_IMAGE", "POSTED"}:
+            record["lifecycle_status"] = "APPROVED"
+            record["verification_status"] = "PENDING_PAGE_VERIFICATION"
 
     comment_failures = []
     posted_comment_ids = {}
