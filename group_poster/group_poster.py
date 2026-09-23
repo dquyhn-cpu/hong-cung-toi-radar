@@ -275,22 +275,27 @@ def post_mode(context, page, group_url, message, image_path, do_post, screenshot
     if "login" in page.url.lower():
         raise RuntimeError("Facebook session is not logged in. Run with --login first.")
 
-    switch_to_page_identity(page, page_name)
-    print(f"URL_AFTER_IDENTITY_SWITCH={page.url}")
-
-    # Global profile switching may navigate away from the group.
-    # Always return to the target group after Page identity is active.
-    page.goto(group_url, wait_until="domcontentloaded", timeout=60000)
-    page.wait_for_timeout(3500)
-    print(f"URL_AFTER_RETURN_TO_GROUP={page.url}")
-
-    if "/groups/" not in page.url:
-        raise RuntimeError("Could not return to the target Facebook group after switching to Page identity.")
+    # Dedicated Chromium profile is reserved for Group Poster and should
+    # remain logged in as the Hóng Cùng Tôi Page. Do not switch identity on
+    # every run: it adds an unnecessary navigation round-trip.
+    # Safety is verified from the composer after it opens.
+    print(f"USING_PERSISTED_PAGE_SESSION={page_name}")
 
     if not open_composer(page):
         raise RuntimeError("Could not open group post composer. You may not have permission to post in this group.")
 
     page.wait_for_timeout(800)
+
+    # Lightweight safety gate: the active composer must visibly show the
+    # required Page name. This checks identity without performing a switch.
+    try:
+        dialog = page.locator("div[role='dialog']").last
+        dialog.get_by_text(page_name, exact=False).first.wait_for(state="visible", timeout=2500)
+        print(f"PAGE_IDENTITY_CONFIRMED_IN_COMPOSER={page_name}")
+    except Exception:
+        raise RuntimeError(
+            f"Composer is not confirmed as Page '{page_name}'. Refusing to continue."
+        )
     # Attach media FIRST. Facebook re-renders the composer after image upload,
     # which can discard text entered beforehand.
     attach_image(page, image_path)
