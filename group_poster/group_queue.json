@@ -1,6 +1,6 @@
 {
-  "action": "PING",
-  "command_id": "ping-hidden-agent-20260923-1911",
+  "action": "SCAN_GROUPS",
+  "command_id": "scan-groups-20260923-1932",
   "package": "",
-  "note": "Non-posting end-to-end agent test. This command must never open Facebook or publish content."
+  "note": "Read-only scan: resolve share/g links, detect duplicates, membership and posting signals. Never click Join and never publish."
 }
