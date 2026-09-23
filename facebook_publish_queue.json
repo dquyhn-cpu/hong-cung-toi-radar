@@ -1,9 +1,9 @@
 {
-  "generated_at": "2026-09-23T13:52:00Z",
+  "generated_at": "2026-09-23T14:16:00Z",
   "page": "Hóng Cùng Tôi",
   "items": [
     {
-      "publish_id": "pubg-asia-stars-2026-20260923-v2",
+      "publish_id": "pubg-asia-stars-2026-20260923-v3",
       "event_id": "news_a4750b2279e9",
       "approved": true,
       "enabled": true,
@@ -17,7 +17,7 @@
           "message": "Đến ngày 20/9, KRAFTON quyết định không tổ chức các trận còn lại của giải.\n\nSau đó, đơn vị này cũng thừa nhận còn thiếu sót trong khâu phòng ngừa, tiêu chí ra quyết định, mức xử lý và phần giải thích ban đầu về sự việc.\n\nNgoài các thông tin đã được công bố chính thức, trên mạng còn xuất hiện nhiều suy đoán liên quan những cá nhân khác. Phần này cần tách biệt rõ: ý kiến hoặc nghi vấn trên mạng không đồng nghĩa với kết luận chính thức từ phía tổ chức.\n\nNguồn: Báo Thanh Niên\nĐọc bài gốc:\nhttps://thanhnien.vn/giai-pubg-chau-a-bi-huy-sau-cach-xu-ly-gay-tranh-cai-cua-krafton-18526092217065291.htm"
         }
       ],
-      "image_path": "facebook_assets/pubg_asia_cover_v2.svg"
+      "image_path": "facebook_assets/pubg_asia_cover_original.jpg"
     }
   ]
 }
