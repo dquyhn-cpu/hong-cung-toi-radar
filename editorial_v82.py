@@ -301,6 +301,12 @@ def build_editorial_package(event, source):
         "output_schema": {
             "publish_id": event.get("event_id"),
             "approved": False,
+            "caption_a": "",
+            "caption_b": "",
+            "summary_a": "",
+            "summary_b": "",
+            "source_comment": "",
+            "selected_variant": "",
             "main_post": "",
             "comments": [],
             "source_note": "",
