@@ -43,6 +43,96 @@ def click_first(page, candidates, timeout=2500):
     return False
 
 
+def switch_to_page_identity(page, page_name):
+    """
+    Switch Facebook interaction identity to the requested Page.
+    Safety rule: if the requested Page cannot be selected/confirmed, STOP.
+    """
+    target = (page_name or "").strip()
+    if not target:
+        raise RuntimeError("Missing --page-name; refusing to post as personal profile")
+
+    # First try obvious identity controls shown in groups.
+    identity_labels = [
+        "Tương tác dưới tên",
+        "Interact as",
+        "Chuyển trang cá nhân",
+        "Switch profile",
+        "Chuyển hồ sơ",
+        "Switch profile or Page",
+    ]
+    opened = False
+    for label in identity_labels:
+        try:
+            loc = page.get_by_text(label, exact=False)
+            loc.first.wait_for(state="visible", timeout=1600)
+            loc.first.click()
+            opened = True
+            break
+        except Exception:
+            pass
+
+    # Fallback: click account/profile menu in the top-right.
+    if not opened:
+        selectors = [
+            "div[aria-label='Account']",
+            "div[aria-label='Tài khoản']",
+            "div[aria-label='Your profile']",
+            "div[aria-label='Trang cá nhân của bạn']",
+        ]
+        for sel in selectors:
+            try:
+                loc = page.locator(sel)
+                loc.first.wait_for(state="visible", timeout=1400)
+                loc.first.click()
+                opened = True
+                break
+            except Exception:
+                pass
+
+    if not opened:
+        raise RuntimeError(
+            f"Could not open Facebook identity switcher. Refusing to continue because Page '{target}' is required."
+        )
+
+    page.wait_for_timeout(700)
+
+    # Select exact Page name where possible.
+    selected = False
+    try:
+        loc = page.get_by_text(target, exact=True)
+        loc.first.wait_for(state="visible", timeout=3000)
+        loc.first.click()
+        selected = True
+    except Exception:
+        try:
+            loc = page.get_by_text(target, exact=False)
+            loc.first.wait_for(state="visible", timeout=2500)
+            loc.first.click()
+            selected = True
+        except Exception:
+            pass
+
+    if not selected:
+        raise RuntimeError(
+            f"Page identity '{target}' was not available. Refusing to post as personal profile."
+        )
+
+    page.wait_for_timeout(2200)
+
+    # Conservative confirmation: the requested Page name must be visible after switch.
+    # If Facebook changes UI and this cannot be confirmed, stop rather than risk wrong identity.
+    try:
+        page.get_by_text(target, exact=False).first.wait_for(state="visible", timeout=2500)
+    except Exception:
+        raise RuntimeError(
+            f"Could not confirm active identity '{target}'. Refusing to continue."
+        )
+
+    print(f"PAGE_IDENTITY_CONFIRMED={target}")
+    return True
+
+
 def open_composer(page):
     candidates = [
         ("role", ("button", "Write something")),
@@ -135,7 +225,7 @@ def login_mode(context, page):
     return 0
 
 
-def post_mode(context, page, group_url, message, image_path, do_post, screenshot_dir):
+def post_mode(context, page, group_url, message, image_path, do_post, screenshot_dir, page_name):
     group_url = group_url.strip()
     if not group_url.startswith("https://www.facebook.com/groups/"):
         raise SystemExit("group_url must be a Facebook group URL")
@@ -145,6 +235,8 @@ def post_mode(context, page, group_url, message, image_path, do_post, screenshot
 
     if "login" in page.url.lower():
         raise RuntimeError("Facebook session is not logged in. Run with --login first.")
+
+    switch_to_page_identity(page, page_name)
 
     if not open_composer(page):
         raise RuntimeError("Could not open group post composer. You may not have permission to post in this group.")
@@ -186,6 +278,7 @@ def main():
     ap.add_argument("--message")
     ap.add_argument("--message-file")
     ap.add_argument("--image")
+    ap.add_argument("--page-name", default="Hóng Cùng Tôi", help="Required Facebook Page identity for group posting")
     ap.add_argument("--confirm-post", action="store_true")
     ap.add_argument("--screenshot-dir", default="group_poster/output")
     args = ap.parse_args()
@@ -219,6 +312,7 @@ def main():
                 args.image,
                 args.confirm_post,
                 args.screenshot_dir,
+                args.page_name,
             )
         except PlaywrightTimeoutError as exc:
             print(f"TIMEOUT: {exc}", file=sys.stderr)
