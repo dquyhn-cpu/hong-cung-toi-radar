@@ -1,12 +1,13 @@
 {
-  "generated_at": "2026-09-23T15:05:16.127Z",
+  "generated_at": "2026-09-23T15:09:19.982Z",
   "page": "Hóng Cùng Tôi",
   "items": [
     {
-      "publish_id": "copyright-news-video-fine-125-20260923",
-      "event_id": "news_8ec0132f26a0",
-      "approved": true,
+      "publish_id": "quang-ngai-copyright-fine-20260923",
+      "event_id": "manual-news-copyright-quang-ngai-20260923",
       "enabled": true,
+      "approved": true,
+      "image_path": "facebook_assets/news_copyright_fine_cover.jpg",
       "message": "LẤY NỘI DUNG BÁO CHÍ LÀM VIDEO CỦA MÌNH, NAM THANH NIÊN BỊ PHẠT 12,5 TRIỆU ĐỒNG\n\nMột trường hợp ở Quảng Ngãi vừa bị xử phạt 12,5 triệu đồng vì lấy nội dung từ các bản tin báo chí, biên tập lại thành video cá nhân rồi đăng lên mạng xã hội khi chưa được đơn vị sở hữu nội dung đồng ý.\n\nTheo Công an tỉnh Quảng Ngãi, người bị xử phạt là N.M.T., 28 tuổi, trú tại phường Trương Quang Trọng.\n\nCơ quan chức năng xác định một số video trên tài khoản của T. có dấu hiệu xâm phạm quyền tác giả đối với tác phẩm báo chí của Báo và Phát thanh, Truyền hình Quảng Ngãi.\n\nNguồn: Tuổi Trẻ / Công an tỉnh Quảng Ngãi\nMột số chi tiết đáng chú ý em để ở bình luận 👇",
       "comments": [
         {
@@ -14,10 +15,9 @@
         },
         {
           "reply_to": 1,
-          "message": "Theo Công an tỉnh Quảng Ngãi, quyết định xử phạt được ban hành căn cứ điểm d, khoản 1, Điều 95 Nghị định 174/2026/NĐ-CP ngày 15/5/2026. Ngoài mức phạt 12,5 triệu đồng, người vi phạm còn bị buộc gỡ bỏ thông tin vi phạm.\n\nĐiểm đáng chú ý với người làm nội dung là việc thêm bớt câu chữ, ghép thêm hình ảnh hoặc video của mình không tự động làm mất vấn đề về quyền tác giả nếu phần nội dung báo chí được sử dụng vẫn thuộc quyền của đơn vị khác. Trong vụ việc này, cơ quan chức năng xác định nội dung được sử dụng khi chưa có sự đồng ý của chủ thể quyền.\n\nNguồn: Tuổi Trẻ / Công an tỉnh Quảng Ngãi\nĐọc bài gốc:\nhttps://tuoitre.vn/lay-san-pham-bao-chi-lam-thanh-video-cua-minh-dang-mang-xa-hoi-bi-phat-125-trieu-dong-100260921210945496.htm\nThông tin từ Công an tỉnh Quảng Ngãi:\nhttps://congan.quangngai.gov.vn/danh-muc-san-pham/-tin-tuc-su-kien/xu-phat-12-5-trieu-dong-truong-hop-xam-pham-quyen-tac-gia-tac-pham-bao-chi-tren-mang-xa-hoi.html"
+          "message": "Theo Công an tỉnh Quảng Ngãi, quyết định xử phạt được ban hành căn cứ điểm d, khoản 1, Điều 95 Nghị định 174/2026/NĐ-CP ngày 15/5/2026. Ngoài mức phạt 12,5 triệu đồng, người vi phạm còn bị buộc gỡ bỏ thông tin vi phạm.\n\nĐiểm đáng chú ý với người làm nội dung là việc thêm bớt câu chữ, ghép thêm hình ảnh hoặc video của mình không tự động làm mất vấn đề về quyền tác giả nếu phần nội dung báo chí được sử dụng vẫn thuộc quyền của đơn vị khác. Trong vụ việc này, cơ quan chức năng xác định nội dung được sử dụng khi chưa có sự đồng ý của chủ thể quyền.\n\nNguồn: Tuổi Trẻ / Công an tỉnh Quảng Ngãi\nĐọc bài gốc:\nhttps://tuoitre.vn/lay-san-pham-bao-chi-lam-thanh-video-cua-minh-dang-mang-xa-hoi-bi-phat-125-trieu-dong-100260921210945496.htm\nhttps://congan.quangngai.gov.vn/danh-muc-san-pham/-tin-tuc-su-kien/xu-phat-12-5-trieu-dong-truong-hop-xam-pham-quyen-tac-gia-tac-pham-bao-chi-tren-mang-xa-hoi.html"
         }
-      ],
-      "image_path": "facebook_assets/news_copyright_125_cover.jpg"
+      ]
     }
   ]
 }
