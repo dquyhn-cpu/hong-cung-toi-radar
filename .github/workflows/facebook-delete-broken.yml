@@ -18,6 +18,6 @@ jobs:
       - name: Delete broken PUBG post
         env:
           FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
-          FB_POST_ID: "${{ secrets.FB_PAGE_ID }}_122126195721380231"
+          FB_POST_ID: "${{ secrets.FB_PAGE_ID }}_122126227545380231"
           FB_GRAPH_VERSION: v26.0
         run: python facebook_delete_post.py
