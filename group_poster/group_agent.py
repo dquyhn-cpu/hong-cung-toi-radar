@@ -11,6 +11,7 @@ QUEUE = HERE / 'group_queue.json'
 STATE = HERE / 'agent_state.json'
 LOG = HERE / 'agent.log'
 POLL_SECONDS = 30
+CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0
 
 def log(msg):
     line = f"[{datetime.now().isoformat(timespec='seconds')}] {msg}"
@@ -29,7 +30,7 @@ def save_json(path, data):
     tmp.replace(path)
 
 def git_pull():
-    p = subprocess.run(['git','-C',str(REPO),'pull','--ff-only'], capture_output=True, text=True, timeout=60)
+    p = subprocess.run(['git','-C',str(REPO),'pull','--ff-only'], capture_output=True, text=True, timeout=60, creationflags=CREATE_NO_WINDOW)
     if p.returncode != 0:
         raise RuntimeError((p.stderr or p.stdout or 'git pull failed').strip())
 
@@ -37,6 +38,11 @@ def run_command(queue):
     command_id = str(queue.get('command_id') or '').strip()
     action = str(queue.get('action') or 'IDLE').upper()
     package = str(queue.get('package') or '').strip()
+    if action == 'PING':
+        if not command_id:
+            raise RuntimeError('PING queue requires command_id')
+        log(f'PING_OK command_id={command_id}')
+        return command_id
     if action != 'PUBLISH':
         return None
     if not command_id or not package:
@@ -46,7 +52,7 @@ def run_command(queue):
         raise RuntimeError(f'Package not found: {package_path}')
     cmd = [sys.executable, str(HERE/'group_poster.py'), '--package', str(package_path), '--confirm-post', '--output-dir', str(HERE/'output')]
     log(f'START command_id={command_id} package={package}')
-    p = subprocess.run(cmd, cwd=str(HERE), text=True)
+    p = subprocess.run(cmd, cwd=str(HERE), text=True, creationflags=CREATE_NO_WINDOW)
     if p.returncode != 0:
         raise RuntimeError(f'Group Poster exited with code {p.returncode}')
     log(f'DONE command_id={command_id}')
