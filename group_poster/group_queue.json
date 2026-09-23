@@ -1,6 +1,6 @@
 {
-  "action": "IDLE",
-  "command_id": "",
+  "action": "PING",
+  "command_id": "ping-hidden-agent-20260923-1911",
   "package": "",
-  "note": "Queue mặc định IDLE. Chỉ chuyển sang PUBLISH khi người dùng ra lệnh đăng Group."
+  "note": "Non-posting end-to-end agent test. This command must never open Facebook or publish content."
 }
