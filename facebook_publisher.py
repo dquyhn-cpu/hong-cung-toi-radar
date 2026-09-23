@@ -9,6 +9,7 @@ from pathlib import Path
 
 import requests
 from PIL import Image, ImageFile
+import cairosvg
 
 GRAPH_VERSION = os.getenv("FB_GRAPH_VERSION", "v26.0")
 GRAPH_BASE = f"https://graph.facebook.com/{GRAPH_VERSION}"
@@ -59,10 +60,20 @@ def normalize_image_for_facebook(image_path):
     if not src.exists():
         raise RuntimeError(f"Image file not found: {image_path}")
 
+    raster_src = src
+    if src.suffix.lower() == ".svg":
+        png_out = Path("/tmp") / f"{src.stem}_rendered.png"
+        cairosvg.svg2png(
+            url=str(src),
+            write_to=str(png_out),
+            output_width=1080,
+            output_height=1920,
+        )
+        raster_src = png_out
+
     out = Path("/tmp") / f"{src.stem}_facebook.jpg"
-    with Image.open(src) as im:
+    with Image.open(raster_src) as im:
         im = im.convert("RGB")
-        # Keep enough resolution for feed display while avoiding odd metadata/encodings.
         im.thumbnail((2048, 2048), Image.Resampling.LANCZOS)
         im.save(
             out,
@@ -285,6 +296,13 @@ class FacebookPagePublisher:
             raise RuntimeError(f"Facebook did not return comment id: {payload}")
         return comment_id
 
+    def create_reply(self, parent_comment_id, message):
+        payload = self._request("POST", f"/{parent_comment_id}/comments", data={"message": message})
+        comment_id = payload.get("id")
+        if not comment_id:
+            raise RuntimeError(f"Facebook did not return reply comment id: {payload}")
+        return comment_id
+
 
 def validate_queue(queue):
     if not isinstance(queue, dict) or not isinstance(queue.get("items"), list):
@@ -312,8 +330,17 @@ def validate_queue(queue):
         comments = item.get("comments", [])
         if comments is None:
             item["comments"] = []
-        elif not isinstance(comments, list) or any(not isinstance(x, str) for x in comments):
-            raise ValueError(f"Item {publish_id} comments must be a string array")
+        elif not isinstance(comments, list):
+            raise ValueError(f"Item {publish_id} comments must be a list")
+        else:
+            for cmt in comments:
+                if isinstance(cmt, str):
+                    continue
+                if not isinstance(cmt, dict) or not isinstance(cmt.get("message"), str):
+                    raise ValueError(f"Item {publish_id} comments must contain strings or objects with message")
+                reply_to = cmt.get("reply_to")
+                if reply_to is not None and (not isinstance(reply_to, int) or reply_to < 1):
+                    raise ValueError(f"Item {publish_id} comment reply_to must be a positive integer")
 
 
 def ensure_state_shape(state):
@@ -328,7 +355,16 @@ def ensure_state_shape(state):
 def process_item(publisher, item, state, *, dry_run=False, comment_delay=1.0):
     publish_id = str(item["publish_id"])
     message = item["message"].strip()
-    comments = [c.strip() for c in item.get("comments", []) if c.strip()]
+    comments = []
+    for raw in item.get("comments", []):
+        if isinstance(raw, str):
+            msg = raw.strip()
+            if msg:
+                comments.append({"message": msg, "reply_to": None})
+        elif isinstance(raw, dict):
+            msg = str(raw.get("message") or "").strip()
+            if msg:
+                comments.append({"message": msg, "reply_to": raw.get("reply_to")})
     image_path = str(item.get("image_path") or "").strip()
     image_url = str(item.get("image_url") or "").strip()
 
@@ -380,7 +416,11 @@ def process_item(publisher, item, state, *, dry_run=False, comment_delay=1.0):
         record["updated_at"] = utc_now()
 
     comment_failures = []
-    for index, comment in enumerate(comments, start=1):
+    posted_comment_ids = {}
+
+    for index, comment_spec in enumerate(comments, start=1):
+        comment = comment_spec["message"]
+        reply_to = comment_spec.get("reply_to")
         key = str(index)
         cstate = record["comments"].setdefault(
             key,
@@ -388,24 +428,36 @@ def process_item(publisher, item, state, *, dry_run=False, comment_delay=1.0):
                 "message_hash": stable_hash(comment),
                 "comment_id": None,
                 "status": "PENDING",
+                "reply_to": reply_to,
                 "updated_at": utc_now(),
             },
         )
 
         if cstate.get("comment_id"):
+            posted_comment_ids[index] = cstate["comment_id"]
             continue
 
         try:
-            existing_id = publisher.comment_exists(post_id, comment)
-            if existing_id:
-                cstate["comment_id"] = existing_id if isinstance(existing_id, str) else None
-                cstate["status"] = "FOUND_EXISTING"
-            else:
-                comment_id = publisher.create_comment(post_id, comment)
+            if reply_to is not None:
+                parent_id = posted_comment_ids.get(reply_to)
+                if not parent_id:
+                    raise RuntimeError(f"Parent comment #{reply_to} is not available for reply #{index}")
+                comment_id = publisher.create_reply(parent_id, comment)
                 cstate["comment_id"] = comment_id
-                cstate["status"] = "POSTED"
-                if comment_delay:
-                    time.sleep(comment_delay)
+                cstate["status"] = "POSTED_REPLY"
+            else:
+                existing_id = publisher.comment_exists(post_id, comment)
+                if existing_id:
+                    cstate["comment_id"] = existing_id if isinstance(existing_id, str) else None
+                    cstate["status"] = "FOUND_EXISTING"
+                else:
+                    comment_id = publisher.create_comment(post_id, comment)
+                    cstate["comment_id"] = comment_id
+                    cstate["status"] = "POSTED"
+            if cstate.get("comment_id"):
+                posted_comment_ids[index] = cstate["comment_id"]
+            if comment_delay:
+                time.sleep(comment_delay)
         except Exception as exc:
             cstate["status"] = "FAILED"
             cstate["error"] = str(exc)
