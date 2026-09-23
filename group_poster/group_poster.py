@@ -216,7 +216,93 @@ def fill_message(page, message):
         except Exception as exc:
             last_error = exc
 
+    dump_composer_debug(page, "group_poster/output")
     raise RuntimeError(f"Could not reliably fill Facebook post text editor: {last_error}")
+
+def dump_composer_debug(page, screenshot_dir):
+    """
+    Capture enough DOM/accessibility detail to diagnose Facebook composer changes
+    without guessing selectors again.
+    """
+    out_dir = Path(screenshot_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    debug_path = out_dir / "composer_debug.json"
+
+    data = {
+        "url": page.url,
+        "dialogs": [],
+        "contenteditables": [],
+        "textboxes": [],
+        "file_inputs": [],
+    }
+
+    try:
+        dialogs = page.locator("div[role='dialog']")
+        for i in range(dialogs.count()):
+            d = dialogs.nth(i)
+            try:
+                data["dialogs"].append({
+                    "index": i,
+                    "visible": d.is_visible(),
+                    "text": d.inner_text(timeout=1500)[:4000],
+                    "html": d.evaluate("(el) => el.outerHTML").replace("\n"," ")[:12000],
+                })
+            except Exception as exc:
+                data["dialogs"].append({"index": i, "error": str(exc)})
+    except Exception as exc:
+        data["dialogs_error"] = str(exc)
+
+    for selector, key in [
+        ("[contenteditable='true']", "contenteditables"),
+        ("[role='textbox']", "textboxes"),
+        ("input[type='file']", "file_inputs"),
+    ]:
+        try:
+            loc = page.locator(selector)
+            for i in range(loc.count()):
+                el = loc.nth(i)
+                try:
+                    data[key].append({
+                        "index": i,
+                        "visible": el.is_visible(),
+                        "box": el.bounding_box(),
+                        "tag": el.evaluate("(e)=>e.tagName"),
+                        "role": el.get_attribute("role"),
+                        "aria_label": el.get_attribute("aria-label"),
+                        "aria_placeholder": el.get_attribute("aria-placeholder"),
+                        "placeholder": el.get_attribute("placeholder"),
+                        "data_lexical_editor": el.get_attribute("data-lexical-editor"),
+                        "contenteditable": el.get_attribute("contenteditable"),
+                        "text": (el.inner_text(timeout=800) if el.evaluate("(e)=>['DIV','SPAN','P'].includes(e.tagName)") else "")[:1000],
+                        "html": el.evaluate("(e)=>e.outerHTML").replace("\n"," ")[:3000],
+                    })
+                except Exception as exc:
+                    data[key].append({"index": i, "error": str(exc)})
+        except Exception as exc:
+            data[key + "_error"] = str(exc)
+
+    debug_path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"COMPOSER_DEBUG={debug_path}")
+
+    # Print a compact summary directly to PowerShell so the next diagnosis does
+    # not require opening the JSON file manually.
+    print("=== COMPOSER DEBUG SUMMARY ===")
+    print(f"dialogs={len(data.get('dialogs', []))} contenteditables={len(data.get('contenteditables', []))} textboxes={len(data.get('textboxes', []))}")
+    for item in data.get("contenteditables", []):
+        print("EDITABLE", json.dumps({
+            "index": item.get("index"),
+            "visible": item.get("visible"),
+            "box": item.get("box"),
+            "role": item.get("role"),
+            "aria_label": item.get("aria_label"),
+            "aria_placeholder": item.get("aria_placeholder"),
+            "placeholder": item.get("placeholder"),
+            "data_lexical_editor": item.get("data_lexical_editor"),
+            "text": item.get("text"),
+        }, ensure_ascii=False))
+    print("=== END COMPOSER DEBUG ===")
+    return debug_path
+
 
 def verify_message(page, message):
     expected = message.strip()
