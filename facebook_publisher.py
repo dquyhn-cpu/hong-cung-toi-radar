@@ -137,18 +137,31 @@ class FacebookPagePublisher:
         return post_id
 
     def create_photo_url_post(self, message, image_url):
-        payload = self._request(
+        # Upload as unpublished media first, then attach it to a feed post.
+        # This is more reliable for Page tokens than publishing directly via /photos.
+        media = self._request(
             "POST",
             f"/{self.page_id}/photos",
             data={
                 "url": image_url,
-                "message": message,
-                "published": "true",
+                "published": "false",
             },
         )
-        post_id = payload.get("post_id") or payload.get("id")
+        media_id = media.get("id")
+        if not media_id:
+            raise RuntimeError(f"Facebook did not return uploaded media id: {media}")
+
+        payload = self._request(
+            "POST",
+            f"/{self.page_id}/feed",
+            data={
+                "message": message,
+                "attached_media": json.dumps([{"media_fbid": media_id}]),
+            },
+        )
+        post_id = payload.get("id")
         if not post_id:
-            raise RuntimeError(f"Facebook did not return photo post id: {payload}")
+            raise RuntimeError(f"Facebook did not return feed post id: {payload}")
         return post_id
 
     def create_photo_post(self, message, image_path):
