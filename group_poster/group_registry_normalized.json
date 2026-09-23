@@ -1,0 +1,353 @@
+{
+  "version": 2,
+  "generated_from": "group_scan_report_20260924",
+  "safety": {
+    "auto_join": false,
+    "auto_publish_default": false,
+    "note": "Registry normalized only. Membership/postability remain unverified unless explicitly marked VERIFIED."
+  },
+  "groups": [
+    {
+      "id": "G01",
+      "group_id": "305764097143468",
+      "url": "https://www.facebook.com/groups/305764097143468/",
+      "name": "Thời Sự Nhanh 24H",
+      "source_ids": [
+        "G01"
+      ],
+      "status": "RESOLVED",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G02",
+      "group_id": "1035305801507450",
+      "url": "https://www.facebook.com/groups/1035305801507450/",
+      "name": "Cập nhật tình hình Giao Thông và Tai Nạn",
+      "source_ids": [
+        "G02",
+        "G04"
+      ],
+      "status": "RESOLVED",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G03",
+      "group_id": "2194984914333065",
+      "url": "https://www.facebook.com/groups/2194984914333065/",
+      "name": "Tin tức mới nhất 24/7",
+      "source_ids": [
+        "G03"
+      ],
+      "status": "RESOLVED",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G05",
+      "group_id": "1822611609137849",
+      "url": "https://www.facebook.com/groups/1822611609137849/",
+      "name": "Hóng Hớt Đường Phố",
+      "source_ids": [
+        "G05"
+      ],
+      "status": "RESOLVED",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G06",
+      "group_id": "391775555405184",
+      "url": "https://www.facebook.com/groups/391775555405184/",
+      "name": "Vietnam Business News",
+      "source_ids": [
+        "G06"
+      ],
+      "status": "RESOLVED",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G07",
+      "group_id": "2912905878746514",
+      "url": "https://www.facebook.com/groups/2912905878746514/",
+      "name": "TIN MỚI MỖI NGÀY",
+      "source_ids": [
+        "G07",
+        "G28"
+      ],
+      "status": "RESOLVED",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G08",
+      "group_id": "782708824657028",
+      "url": "https://www.facebook.com/groups/782708824657028/",
+      "name": "Thông Tin Chính Phủ",
+      "source_ids": [
+        "G08"
+      ],
+      "status": "VERIFIED_POST_WORKING",
+      "enabled": false,
+      "membership": "VERIFIED_CAN_POST",
+      "page_can_post": true
+    },
+    {
+      "id": "G09",
+      "group_id": "1320636581947237",
+      "url": "https://www.facebook.com/groups/1320636581947237/",
+      "name": "chính phủ và nhân dân",
+      "source_ids": [
+        "G09"
+      ],
+      "status": "RESOLVED",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G10",
+      "group_id": "1329989478977471",
+      "url": "https://www.facebook.com/groups/1329989478977471/",
+      "name": "TIN TỨC CHÍNH PHỦ",
+      "source_ids": [
+        "G10"
+      ],
+      "status": "RESOLVED",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G11",
+      "group_id": "831404175835004",
+      "url": "https://www.facebook.com/groups/831404175835004/",
+      "name": null,
+      "source_ids": [
+        "G11"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G12",
+      "group_id": "200267450320206",
+      "url": "https://www.facebook.com/groups/200267450320206/",
+      "name": null,
+      "source_ids": [
+        "G12"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G13",
+      "group_id": "230821441583734",
+      "url": "https://www.facebook.com/groups/230821441583734/",
+      "name": null,
+      "source_ids": [
+        "G13"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G14",
+      "group_id": "tintucnonghoicuchot",
+      "url": "https://www.facebook.com/groups/tintucnonghoicuchot/",
+      "name": null,
+      "source_ids": [
+        "G14"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G15",
+      "group_id": "1510470162626661",
+      "url": "https://www.facebook.com/groups/1510470162626661/",
+      "name": null,
+      "source_ids": [
+        "G15"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G16",
+      "group_id": "1165734200820824",
+      "url": "https://www.facebook.com/groups/1165734200820824/",
+      "name": null,
+      "source_ids": [
+        "G16"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G17",
+      "group_id": "1618870462288324",
+      "url": "https://www.facebook.com/groups/1618870462288324/",
+      "name": null,
+      "source_ids": [
+        "G17"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G18",
+      "group_id": "thongtinchinhphu",
+      "url": "https://www.facebook.com/groups/thongtinchinhphu/",
+      "name": null,
+      "source_ids": [
+        "G18"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G19",
+      "group_id": "2934085380204159",
+      "url": "https://www.facebook.com/groups/2934085380204159/",
+      "name": null,
+      "source_ids": [
+        "G19"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G20",
+      "group_id": "4187038148094626",
+      "url": "https://www.facebook.com/groups/4187038148094626/",
+      "name": null,
+      "source_ids": [
+        "G20"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G21",
+      "group_id": "450333258659278",
+      "url": "https://www.facebook.com/groups/450333258659278/",
+      "name": null,
+      "source_ids": [
+        "G21",
+        "G22"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G23",
+      "group_id": "5639899666127271",
+      "url": "https://www.facebook.com/groups/5639899666127271/",
+      "name": null,
+      "source_ids": [
+        "G23"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G24",
+      "group_id": "1072864350073137",
+      "url": "https://www.facebook.com/groups/1072864350073137/",
+      "name": null,
+      "source_ids": [
+        "G24",
+        "G30"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G25",
+      "group_id": "965833877980346",
+      "url": "https://www.facebook.com/groups/965833877980346/",
+      "name": null,
+      "source_ids": [
+        "G25"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G26",
+      "group_id": "869991821428137",
+      "url": "https://www.facebook.com/groups/869991821428137/",
+      "name": null,
+      "source_ids": [
+        "G26"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G27",
+      "group_id": "2746065739057191",
+      "url": "https://www.facebook.com/groups/2746065739057191/",
+      "name": null,
+      "source_ids": [
+        "G27"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    },
+    {
+      "id": "G29",
+      "group_id": "1237948921534778",
+      "url": "https://www.facebook.com/groups/1237948921534778/",
+      "name": null,
+      "source_ids": [
+        "G29"
+      ],
+      "status": "RESOLVED_FROM_LOGIN_REDIRECT",
+      "enabled": false,
+      "membership": "UNVERIFIED",
+      "page_can_post": null
+    }
+  ]
+}
