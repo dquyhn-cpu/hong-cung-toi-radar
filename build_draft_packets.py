@@ -81,14 +81,26 @@ Trả về JSON hợp lệ đúng schema:
 {{
   "publish_id": "{item.get('event_id')}",
   "approved": false,
-  "main_post": "...",
-  "comments": ["...", "..."],
+  "caption_a": "...",
+  "caption_b": "...",
+  "summary_a": "...",
+  "summary_b": "...",
+  "source_comment": "Nguồn: ...\nĐọc bài báo gốc tại đây: https://...",
+  "selected_variant": "",
+  "main_post": "",
+  "comments": [],
   "source_note": "Nguồn: ... https://..."
 }}
 
-YÊU CẦU BIÊN SOẠN
-- main_post: đủ để người đọc hiểu sự việc ngay cả khi không mở comment.
-- comments: 0-4 comment, chỉ thêm bối cảnh/chi tiết có ích.
+YÊU CẦU BIÊN SOẠN THEO @bao-chi-tu-link
+- caption_a: phương án trực diện, ngắn, đúng nguồn.
+- caption_b: phương án gợi tò mò nhưng không giấu dữ kiện trọng yếu và không clickbait gây hiểu sai.
+- summary_a: 2-3 đoạn ngắn, mạch lạc, viết lại bằng lời mới.
+- summary_b: bản tóm tắt dạng gạch đầu dòng về sự việc, địa điểm/thời gian, chi tiết chính và tình trạng xử lý nếu nguồn có nêu.
+- source_comment: bắt buộc có tên báo và URL bài gốc đã đọc; nếu có credit ảnh trong nguồn thì ghi riêng.
+- selected_variant, main_post, comments để trống ở bước tạo nháp. Review sau đó mới chọn phương án và chuẩn hóa thành bài đăng cuối.
+- main_post cuối cùng phải đủ để người đọc hiểu sự việc ngay cả khi không mở comment.
+- comments cuối cùng chỉ thêm bối cảnh/chi tiết có ích; 0-4 comment.
 - source_note: ít nhất 1 URL nguồn gốc đã đọc.
 - approved luôn để false ở bước nháp; chỉ chuyển true sau bước review.
 
