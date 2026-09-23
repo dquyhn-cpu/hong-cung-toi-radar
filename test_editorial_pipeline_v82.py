@@ -2,6 +2,7 @@ import unittest
 
 from draft_validator import validate_editorial_output
 from source_reader import extract_article_html
+from editorial_pipeline import should_include_event
 
 
 class SourceReaderTests(unittest.TestCase):
@@ -67,6 +68,23 @@ class SourceReaderTests(unittest.TestCase):
         result = validate_editorial_output(item)
         self.assertFalse(result["ok"])
         self.assertIn("SOURCE_NOTE_MISSING_URL", result["errors"])
+
+
+class EditorialPipelineSelectionTests(unittest.TestCase):
+    def test_watch_event_can_reach_v82_review(self):
+        event = {"decision": "THEO_DOI"}
+        package = {"editorial_score": {"score": 48, "tier": "REVIEW"}}
+        self.assertTrue(should_include_event(event, package))
+
+    def test_low_watch_event_stays_out(self):
+        event = {"decision": "THEO_DOI"}
+        package = {"editorial_score": {"score": 38, "tier": "LOW"}}
+        self.assertFalse(should_include_event(event, package))
+
+    def test_direct_editorial_event_is_always_included(self):
+        event = {"decision": "CHUYEN_BAN_BIEN_TAP"}
+        package = {"editorial_score": {"score": 20, "tier": "LOW"}}
+        self.assertTrue(should_include_event(event, package))
 
 
 if __name__ == "__main__":
