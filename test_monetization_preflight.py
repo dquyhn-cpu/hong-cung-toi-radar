@@ -51,5 +51,7 @@ class MonetizationPreflightTests(unittest.TestCase):
         self.assertIn(result["recommended_publish_mode"], {"POST", "POST_WITH_CAUTION"})
 
 
+# Trigger CI after installing dedicated V8.2 workflow on main.
+
 if __name__ == "__main__":
     unittest.main()
