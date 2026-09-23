@@ -3,8 +3,8 @@ from urllib.parse import urlparse
 
 
 ENGAGEMENT_BAIT_PATTERNS = [
-    r"comment\s+\w+\s+để",
-    r"bình luận\s+\w+\s+để",
+    r"comment.{0,50}\bđể\b",
+    r"bình luận.{0,50}\bđể\b",
     r"chia sẻ.*để xem",
     r"tag\s+\w+",
     r"thả tim.*để",
