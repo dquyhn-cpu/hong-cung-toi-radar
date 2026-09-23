@@ -2525,9 +2525,7 @@ def apply_hot_filter(event):
         for item in event[
             "articles"
         ]
-        if item.get(
-            "url"
-        )
+        if item.get("url") or item.get("google_url")
     ]
 
     unique_publishers = (
