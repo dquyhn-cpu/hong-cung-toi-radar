@@ -3,7 +3,7 @@ import requests
 
 GRAPH_VERSION = os.getenv("FB_GRAPH_VERSION", "v26.0")
 TOKEN = os.environ["FB_PAGE_ACCESS_TOKEN"]
-POST_ID = os.environ["FB_POST_ID"]
+RAW_POST_ID = os.environ["FB_POST_ID"]\nPAGE_ID = RAW_POST_ID.split("_", 1)[0]\nPOST_ID = f"{PAGE_ID}_122126195721380231"
 
 r = requests.delete(
     f"https://graph.facebook.com/{GRAPH_VERSION}/{POST_ID}",
