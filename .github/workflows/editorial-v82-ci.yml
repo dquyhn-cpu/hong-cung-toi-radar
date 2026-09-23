@@ -1,0 +1,31 @@
+name: V8.2 Editorial CI
+
+on:
+  pull_request:
+    paths:
+      - "editorial_v82.py"
+      - "editorial_pipeline.py"
+      - "monetization_preflight.py"
+      - "source_reader.py"
+      - "build_editorial_context.py"
+      - "build_draft_packets.py"
+      - "draft_validator.py"
+      - "prepare_facebook_queue.py"
+      - "test_editorial_v82.py"
+      - "test_editorial_pipeline_v82.py"
+      - "test_monetization_preflight.py"
+
+jobs:
+  editorial-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Run V8.2 unit tests
+        run: python -m unittest test_editorial_v82.py test_editorial_pipeline_v82.py test_monetization_preflight.py
