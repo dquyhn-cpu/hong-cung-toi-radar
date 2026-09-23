@@ -214,6 +214,42 @@ def add_comment(page, message):
     raise RuntimeError("Could not find comment box for the submitted post")
 
 
+
+def comment_only_mode(page, post_url, comments, confirm_comments, output_dir):
+    if not post_url.startswith("https://www.facebook.com/"):
+        raise RuntimeError("Invalid Facebook post URL")
+
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    page.goto(post_url, wait_until="domcontentloaded", timeout=60000)
+    page.wait_for_timeout(3000)
+
+    if "login" in page.url.lower():
+        raise RuntimeError("Facebook session expired. Run --login again.")
+
+    print("POST_OPENED")
+    preview = out / "comment_only_preview.png"
+    page.screenshot(path=str(preview), full_page=False)
+    print(f"COMMENT_PREVIEW={preview}")
+
+    if not confirm_comments:
+        print("COMMENT_DRY_RUN_OK")
+        return 0
+
+    for idx, comment in enumerate(comments, 1):
+        add_comment(page, comment)
+        print(f"COMMENT_DONE={idx}/{len(comments)}")
+
+    final = out / "comment_only_after.png"
+    page.screenshot(path=str(final), full_page=False)
+    print(f"COMMENTS_COMPLETE={final}")
+    return 0
+
+
+def load_package_comments(package_path):
+    pkg = json.loads(Path(package_path).read_text(encoding="utf-8-sig"))
+    return [x.get("message", "").strip() for x in pkg.get("comments", []) if x.get("message", "").strip()]
+
 def run_package(page, package_path, confirm_post, output_dir):
     pkg_path = Path(package_path)
     pkg = json.loads(pkg_path.read_text(encoding="utf-8-sig"))
@@ -276,14 +312,18 @@ def main():
     ap.add_argument("--output-dir", default=DEFAULT_OUTPUT)
     ap.add_argument("--page-name", default="Hóng Cùng Tôi")
     ap.add_argument("--package", help="JSON package with message, image, comments and group_url/group_urls")
+    ap.add_argument("--comment-only-url", help="Existing Facebook post URL; never creates a new post")
+    ap.add_argument("--confirm-comments", action="store_true", help="Actually submit comments in comment-only mode")
     args = ap.parse_args()
 
-    if not args.login and not args.group_url and not args.package:
-        ap.error("Use --login, --package, or provide --group-url")
+    if not args.login and not args.group_url and not args.package and not args.comment_only_url:
+        ap.error("Use --login, --package, --comment-only-url, or provide --group-url")
 
     message = args.message or (read_text(args.message_file) if args.message_file else "")
-    if not args.login and not args.package and not message:
+    if not args.login and not args.package and not args.comment_only_url and not message:
         ap.error("Provide --message or --message-file")
+    if args.comment_only_url and not args.package:
+        ap.error("--comment-only-url requires --package for comment text")
 
     profile = Path(args.profile_dir)
     profile.mkdir(parents=True, exist_ok=True)
@@ -299,6 +339,14 @@ def main():
         try:
             if args.login:
                 return login_mode(page)
+            if args.comment_only_url:
+                return comment_only_mode(
+                    page,
+                    args.comment_only_url,
+                    load_package_comments(args.package),
+                    args.confirm_comments,
+                    args.output_dir,
+                )
             if args.package:
                 return run_package(page, args.package, args.confirm_post, args.output_dir)
             return post_mode(
