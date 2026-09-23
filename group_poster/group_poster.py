@@ -159,65 +159,37 @@ def open_composer(page):
 
 
 def fill_message(page, message):
-    # After an image is attached Facebook may expose the caption editor as a
-    # plain contenteditable without role=textbox. Use the active dialog and
-    # choose the uppermost visible editable region large enough for caption text.
+    # DOM diagnostics show Facebook exposes the actual caption editor with
+    # aria-placeholder="Tạo bài viết công khai..." after media upload.
+    # Target that editor directly instead of guessing among all editables.
+    selectors = [
+        "[contenteditable='true'][aria-placeholder^='Tạo bài viết công khai']",
+        "[role='textbox'][contenteditable='true'][aria-placeholder^='Tạo bài viết công khai']",
+        "[contenteditable='true'][aria-placeholder*='bài viết công khai']",
+        "[contenteditable='true'][aria-placeholder^='Create a public post']",
+    ]
     dialog = page.locator("div[role='dialog']").last
-    loc = dialog.locator("[contenteditable='true']")
     last_error = None
-    candidates = []
-    try:
-        count = loc.count()
-        for i in range(count):
-            target = loc.nth(i)
-            try:
+
+    for sel in selectors:
+        loc = dialog.locator(sel)
+        try:
+            count = loc.count()
+            for i in range(count):
+                target = loc.nth(i)
                 if not target.is_visible():
                     continue
-                box = target.bounding_box()
-                if not box or box["width"] < 180 or box["height"] < 18:
-                    continue
-                candidates.append((box["y"], i))
-            except Exception:
-                pass
-        candidates.sort()
-        for _, i in candidates:
-            target = loc.nth(i)
-            try:
                 target.click(force=True)
-                # insert_text triggers normal input events without depending on
-                # clipboard permissions or keyboard layout.
                 page.keyboard.insert_text(message)
                 page.wait_for_timeout(600)
-                body_text = dialog.inner_text()
-                if message[:25] in body_text:
-                    print("CAPTION_TYPED")
+                if message[:25] in dialog.inner_text():
+                    print("CAPTION_TYPED_EXACT_EDITOR")
                     return
-            except Exception as exc:
-                last_error = exc
-    except Exception as exc:
-        last_error = exc
-
-    # Last fallback: click Facebook's visible caption placeholder and type.
-    for placeholder in [
-        "Tạo bài viết công khai",
-        "Bạn viết gì đi",
-        "Viết gì đó",
-        "Write something",
-        "Create a public post",
-    ]:
-        try:
-            hit = dialog.get_by_text(placeholder, exact=False).first
-            hit.click(force=True, timeout=1500)
-            page.keyboard.insert_text(message)
-            page.wait_for_timeout(600)
-            if message[:25] in dialog.inner_text():
-                print("CAPTION_TYPED_FALLBACK")
-                return
         except Exception as exc:
             last_error = exc
 
     dump_composer_debug(page, "group_poster/output")
-    raise RuntimeError(f"Could not reliably fill Facebook post text editor: {last_error}")
+    raise RuntimeError(f"Could not fill exact Facebook caption editor: {last_error}")
 
 def dump_composer_debug(page, screenshot_dir):
     """
