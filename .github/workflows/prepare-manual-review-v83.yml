@@ -1,6 +1,10 @@
 name: Prepare Manual Editorial Review V8.3
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".manual-review-trigger"
   workflow_dispatch:
     inputs:
       limit:
