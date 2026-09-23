@@ -37,7 +37,8 @@ def _source_excerpt(record, max_chars=7000):
 
 def build_prompt(item):
     score = item.get("editorial_score") or {}
-    risk_flags = score.get("risk_flags") or []
+    preflight = item.get("monetization_preflight") or {}
+    risk_flags = sorted(set((score.get("risk_flags") or []) + (preflight.get("risk_flags") or [])))
     angle = item.get("recommended_angle")
 
     readable_sources = [
@@ -72,10 +73,7 @@ GÓC ĐỀ XUẤT
 ĐIỂM ƯU TIÊN
 {score.get('score')} / 100 — {score.get('tier')}
 
-RISK FLAGS
-{', '.join(risk_flags) if risk_flags else 'Không có cờ đặc biệt'}
-
-QUY TẮC BẮT BUỘC
+MONETIZATION PREFLIGHT\n- Risk: {preflight.get("monetization_risk")}\n- Publish mode: {preflight.get("recommended_publish_mode")}\n- Originality risk: {preflight.get("originality_risk")}\n- Copyright risk: {preflight.get("copyright_risk")}\n- Reason: {preflight.get("monetization_reason")}\n\nRISK FLAGS\n{', '.join(risk_flags) if risk_flags else 'Không có cờ đặc biệt'}\n\nQUY TẮC BẮT BUỘC
 {rules}
 
 CẤU TRÚC ĐẦU RA
@@ -109,6 +107,7 @@ def main():
 
         packets.append({
             "event_id": item.get("event_id"),
+            "monetization_preflight": item.get("monetization_preflight"),
             "editorial_score": item.get("editorial_score"),
             "recommended_angle": item.get("recommended_angle"),
             "prompt": build_prompt(item),
