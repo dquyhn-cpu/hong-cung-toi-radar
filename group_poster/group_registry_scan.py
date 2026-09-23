@@ -43,12 +43,25 @@ def scan_one(page, item):
         page.goto(src, wait_until='domcontentloaded', timeout=60000)
         page.wait_for_timeout(1800)
         final = page.url
-        result['resolved_url'] = canonical_group_url(final)
-        result['group_id'] = group_id_from_url(final)
+        # Even if Facebook redirects to login, its ?next= URL often still
+        # contains the real group target. Preserve that resolved identity.
+        from urllib.parse import urlparse, parse_qs, unquote
+        identity_url = final
+        if 'login' in final.lower():
+            try:
+                nxt = parse_qs(urlparse(final).query).get('next', [None])[0]
+                if nxt:
+                    identity_url = unquote(nxt)
+            except Exception:
+                pass
+        result['resolved_url'] = canonical_group_url(identity_url)
+        result['group_id'] = group_id_from_url(identity_url)
         result['name'] = first_text(page, ['h1', "div[role='main'] h1"])
 
         if 'login' in final.lower():
             result['status'] = 'SESSION_EXPIRED'
+            result['membership'] = 'UNKNOWN'
+            result['page_can_post_signal'] = False
             return result
 
         # Read-only membership signals. Never click Join.
