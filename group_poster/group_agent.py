@@ -1,3 +1,4 @@
+import base64
 import json
 import subprocess
 import sys
@@ -11,6 +12,8 @@ QUEUE = HERE / 'group_queue.json'
 STATE = HERE / 'agent_state.json'
 LOG = HERE / 'agent.log'
 POLL_SECONDS = 30
+ASSET_MANIFEST_DIR = REPO / 'facebook_assets_b64'
+ASSET_OUT_DIR = REPO / 'facebook_assets'
 CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0
 
 def log(msg):
@@ -28,6 +31,30 @@ def save_json(path, data):
     tmp = path.with_suffix(path.suffix + '.tmp')
     tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding='utf-8')
     tmp.replace(path)
+
+def sync_binary_assets():
+    """Rebuild binary assets committed as base64 text chunks.
+
+    This lets ChatGPT place generated images into GitHub using text-safe writes,
+    while the Windows agent reconstructs the exact bytes locally after git pull.
+    """
+    if not ASSET_MANIFEST_DIR.exists():
+        return
+    ASSET_OUT_DIR.mkdir(parents=True, exist_ok=True)
+    for manifest_path in ASSET_MANIFEST_DIR.glob("*.manifest.json"):
+        spec = json.loads(manifest_path.read_text(encoding="utf-8-sig"))
+        output_name = str(spec.get("output_name") or "").strip()
+        chunks = spec.get("chunks") or []
+        if not output_name or not chunks:
+            continue
+        out_path = ASSET_OUT_DIR / output_name
+        b64 = "".join((ASSET_MANIFEST_DIR / name).read_text(encoding="ascii").strip() for name in chunks)
+        raw = base64.b64decode(b64, validate=True)
+        if out_path.exists() and out_path.read_bytes() == raw:
+            continue
+        out_path.write_bytes(raw)
+        log(f"ASSET_SYNCED {output_name} bytes={len(raw)}")
+
 
 def git_pull():
     p = subprocess.run(['git','-C',str(REPO),'pull','--ff-only'], capture_output=True, text=True, timeout=60, creationflags=CREATE_NO_WINDOW)
@@ -90,6 +117,7 @@ def main():
     while True:
         try:
             git_pull()
+            sync_binary_assets()
             queue = load_json(QUEUE, {'action':'IDLE'})
             command_id = str(queue.get('command_id') or '').strip()
             if str(queue.get('action') or 'IDLE').upper() in {'PUBLISH','PING','SCAN_GROUPS','VERIFY_GROUPS'} and command_id and command_id != state.get('last_command_id'):
