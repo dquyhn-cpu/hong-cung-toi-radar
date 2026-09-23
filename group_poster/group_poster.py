@@ -8,6 +8,7 @@ from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeo
 
 DEFAULT_PROFILE = str(Path.home() / ".hong-cung-toi" / "facebook-group-profile")
 DEFAULT_OUTPUT = "output"
+DEFAULT_REGISTRY = Path(__file__).resolve().parent / "group_registry_normalized.json"
 
 
 def read_text(path):
@@ -260,8 +261,50 @@ def run_package(page, package_path, confirm_post, output_dir):
     pkg_path = Path(package_path)
     pkg = json.loads(pkg_path.read_text(encoding="utf-8-sig"))
     group_urls = pkg.get("group_urls") or ([pkg["group_url"]] if pkg.get("group_url") else [])
+
+    # Production mode: package may request registry targets instead of embedding
+    # URLs. Only explicitly enabled registry groups are used unless the package
+    # asks for a controlled rollout of the first N resolved groups.
+    if not group_urls and pkg.get("use_registry"):
+        registry_path = Path(pkg.get("registry_path") or DEFAULT_REGISTRY)
+        if not registry_path.is_absolute():
+            registry_path = Path(__file__).resolve().parent / registry_path
+        registry = json.loads(registry_path.read_text(encoding="utf-8-sig"))
+        reg_groups = registry.get("groups", [])
+
+        rollout_limit = int(pkg.get("rollout_limit") or 0)
+        include_ids = set(pkg.get("include_group_ids") or [])
+        exclude_ids = set(pkg.get("exclude_group_ids") or [])
+
+        selected = []
+        for g in reg_groups:
+            gid = str(g.get("id") or "")
+            if gid in exclude_ids:
+                continue
+            if include_ids and gid not in include_ids:
+                continue
+
+            if include_ids:
+                eligible = True
+            elif rollout_limit > 0:
+                eligible = True
+            else:
+                eligible = bool(g.get("enabled"))
+
+            if not eligible:
+                continue
+
+            url = str(g.get("url") or "").strip()
+            if not url:
+                continue
+            selected.append(url)
+            if rollout_limit > 0 and len(selected) >= rollout_limit:
+                break
+
+        group_urls = selected
+
     if not group_urls:
-        raise RuntimeError("Package has no group_url/group_urls")
+        raise RuntimeError("Package has no target groups")
 
     message = pkg.get("message", "").strip()
     if not message:
@@ -301,8 +344,15 @@ def run_package(page, package_path, confirm_post, output_dir):
                         break
             results.append({"group_url": group_url, "status": status})
         except Exception as exc:
-            results.append({"group_url": group_url, "status": "ERROR", "error": str(exc)})
-            print(f"GROUP_ERROR={group_url} :: {exc}", file=sys.stderr)
+            err = str(exc)
+            expected_skip = any(x in err for x in [
+                "Could not open Facebook Group composer",
+                "Facebook session expired",
+                "Invalid Facebook Group URL",
+            ])
+            status = "SKIPPED" if expected_skip else "ERROR"
+            results.append({"group_url": group_url, "status": status, "error": err})
+            print(f"GROUP_{status}={group_url} :: {err}", file=sys.stderr)
 
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -311,7 +361,9 @@ def run_package(page, package_path, confirm_post, output_dir):
     print(f"BATCH_REPORT={report}")
 
     failures = [r for r in results if r["status"] == "ERROR"]
-    print(f"BATCH_DONE total={len(results)} errors={len(failures)}")
+    skipped = [r for r in results if r["status"] == "SKIPPED"]
+    posted = [r for r in results if r["status"] in {"POST_CLICKED","POST_OK_COMMENT_WARNING","PREVIEW_OK"}]
+    print(f"BATCH_DONE total={len(results)} posted_or_preview={len(posted)} skipped={len(skipped)} errors={len(failures)}")
     return 1 if failures else 0
 
 def main():
