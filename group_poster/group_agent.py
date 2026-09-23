@@ -56,6 +56,19 @@ def run_command(queue):
             raise RuntimeError((p.stderr or p.stdout or f'scanner exited {p.returncode}').strip())
         log(f'SCAN_DONE command_id={command_id}')
         return command_id
+    if action == 'VERIFY_GROUPS':
+        if not command_id:
+            raise RuntimeError('VERIFY_GROUPS queue requires command_id')
+        log(f'VERIFY_START command_id={command_id}')
+        cmd = [sys.executable, str(HERE/'group_registry_verify.py')]
+        p = subprocess.run(cmd, cwd=str(HERE), text=True, capture_output=True, creationflags=CREATE_NO_WINDOW)
+        if p.stdout:
+            for line in p.stdout.splitlines():
+                log(line)
+        if p.returncode != 0:
+            raise RuntimeError((p.stderr or p.stdout or f'verifier exited {p.returncode}').strip())
+        log(f'VERIFY_DONE command_id={command_id}')
+        return command_id
     if action != 'PUBLISH':
         return None
     if not command_id or not package:
@@ -79,7 +92,7 @@ def main():
             git_pull()
             queue = load_json(QUEUE, {'action':'IDLE'})
             command_id = str(queue.get('command_id') or '').strip()
-            if str(queue.get('action') or 'IDLE').upper() in {'PUBLISH','PING','SCAN_GROUPS'} and command_id and command_id != state.get('last_command_id'):
+            if str(queue.get('action') or 'IDLE').upper() in {'PUBLISH','PING','SCAN_GROUPS','VERIFY_GROUPS'} and command_id and command_id != state.get('last_command_id'):
                 try:
                     done_id = run_command(queue)
                     state = {'last_command_id': done_id, 'last_status':'SUCCESS', 'updated_at':datetime.now().isoformat(timespec='seconds')}
