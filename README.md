@@ -54,9 +54,9 @@ python prepare_facebook_queue.py
 This converts only approved items into `facebook_publish_queue.json`.
 
 
-## Draft + Review V8.3
+## Manual Review V8.3 — no API cost
 
-V8.3 adds the model drafting and human approval layer between V8.2 editorial packets and the Facebook publisher.
+V8.3 keeps the AI drafting step inside the user's existing ChatGPT session instead of calling the OpenAI API from GitHub Actions.
 
 Pipeline:
 
@@ -65,51 +65,54 @@ Radar
 -> Editorial V8.2
 -> Original source reading
 -> Draft packets
--> OpenAI draft generation
--> Human review (A/B)
--> Draft validation
--> Approved Facebook queue
--> Facebook publisher
+-> Manual review candidate list
+-> User selects a story in ChatGPT
+-> ChatGPT drafts A/B versions in the conversation
+-> User reviews and explicitly approves
+-> Approved content is written to facebook_publish_queue.json
+-> Existing Facebook publisher workflow posts it
 ```
 
-Important safety defaults:
+Key properties:
 
-- model output can never set `approved=true`;
-- the model cannot choose the final A/B variant;
-- `main_post` and final comments stay empty until review;
-- review decisions live in `editorial_review_decisions.json`;
-- publish workflow defaults to `dry_run=true`;
-- comment failure does not roll back a successfully published Page post.
+- no `OPENAI_API_KEY` is needed;
+- no OpenAI API billing is introduced;
+- GitHub Actions never asks a model to generate prose;
+- no candidate is auto-approved;
+- no candidate is auto-posted;
+- the user remains the human approval gate.
 
-### Secret for draft generation
+### Prepare Manual Editorial Review V8.3
 
-Add GitHub Actions secret:
+The workflow `Prepare Manual Editorial Review V8.3` runs Radar + V8.2, reads the original source, builds draft packets, then runs:
 
-- `OPENAI_API_KEY`
+```bash
+python build_manual_review_v83.py --limit 5
+```
 
-Optional repository/environment variable:
+It creates:
 
-- `OPENAI_DRAFT_MODEL` (workflow default: `gpt-5.6-terra`)
+- `editorial_review_candidates_v83.json`
+- `editorial_review_candidates_v83.md`
 
-### Three manual workflows
+The workflow also creates a GitHub Issue titled:
 
-1. **Generate Editorial Drafts V8.3**
-   - runs Radar + V8.2;
-   - reads original sources;
-   - generates A/B captions and A/B summaries;
-   - uploads an `editorial-review-package-<run_id>` artifact.
+```text
+[Editorial Review V8.3] Run <run_id>
+```
 
-2. **Review Editorial Drafts V8.3**
-   - uses a Generate run ID;
-   - reads `editorial_review_decisions.json`;
-   - assembles the selected A/B version;
-   - validates the final draft;
-   - uploads `editorial-approved-package-<run_id>`.
+The issue contains the top candidate stories, editorial score, monetization risk, risk flags, source title and source URL.
 
-3. **Publish Approved Editorial V8.3**
-   - uses a Review run ID;
-   - downloads only the approved Facebook queue;
-   - defaults to dry-run;
-   - uses existing `FB_PAGE_ID` and `FB_PAGE_ACCESS_TOKEN` secrets.
+### ChatGPT handoff
 
-No workflow schedules automatic publication yet.
+After reviewing the issue, the user can say in ChatGPT:
+
+```text
+Biên tập tin số 2
+```
+
+or provide the `event_id`.
+
+ChatGPT then reads/validates the original source again and prepares the Facebook draft. Only after the user explicitly says **duyệt đăng** should the approved text be written into `facebook_publish_queue.json`.
+
+The existing Facebook publisher remains a separate workflow and can still be run in dry-run mode before a real Page post.
