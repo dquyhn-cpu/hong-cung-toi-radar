@@ -2,6 +2,12 @@ name: Test Hong Cung Toi Radar
 
 on:
   workflow_dispatch:
+  pull_request:
+    paths:
+      - "radar.py"
+      - "editorial_v82.py"
+      - "editorial_pipeline.py"
+      - ".github/workflows/main.yml"
 
 jobs:
   test-radar:
@@ -33,6 +39,9 @@ jobs:
       - name: Run Hong Cung Toi Radar V8
         run: python radar.py
 
+      - name: Build editorial queue V8.2
+        run: python editorial_pipeline.py
+
       - name: Upload radar result
         uses: actions/upload-artifact@v4
         with:
@@ -43,5 +52,6 @@ jobs:
             radar_events.json
             radar_verified.json
             radar_editor_queue.json
+            radar_editorial_v82.json
             radar_history.json
           retention-days: 7
