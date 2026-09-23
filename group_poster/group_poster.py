@@ -159,39 +159,64 @@ def open_composer(page):
 
 
 def fill_message(page, message):
-    # Facebook uses a Lexical editor. After media is attached there can be
-    # several contenteditable nodes, so target the visible empty textbox in the
-    # active Create Post dialog and paste text as one operation.
+    # After an image is attached Facebook may expose the caption editor as a
+    # plain contenteditable without role=textbox. Use the active dialog and
+    # choose the uppermost visible editable region large enough for caption text.
     dialog = page.locator("div[role='dialog']").last
-    candidates = [
-        "div[role='textbox'][contenteditable='true']",
-        "div[contenteditable='true'][data-lexical-editor='true']",
-        "div[contenteditable='true']",
-    ]
+    loc = dialog.locator("[contenteditable='true']")
     last_error = None
-    for sel in candidates:
-        loc = dialog.locator(sel)
-        try:
-            count = loc.count()
-            for i in range(count):
-                target = loc.nth(i)
+    candidates = []
+    try:
+        count = loc.count()
+        for i in range(count):
+            target = loc.nth(i)
+            try:
                 if not target.is_visible():
                     continue
                 box = target.bounding_box()
-                if not box or box["height"] < 20 or box["width"] < 120:
+                if not box or box["width"] < 180 or box["height"] < 18:
                     continue
-                target.click()
-                page.keyboard.press("Control+A")
+                candidates.append((box["y"], i))
+            except Exception:
+                pass
+        candidates.sort()
+        for _, i in candidates:
+            target = loc.nth(i)
+            try:
+                target.click(force=True)
+                # insert_text triggers normal input events without depending on
+                # clipboard permissions or keyboard layout.
                 page.keyboard.insert_text(message)
-                page.wait_for_timeout(500)
-                txt = target.inner_text().strip()
-                if message[:25] in txt:
+                page.wait_for_timeout(600)
+                body_text = dialog.inner_text()
+                if message[:25] in body_text:
                     print("CAPTION_TYPED")
                     return
+            except Exception as exc:
+                last_error = exc
+    except Exception as exc:
+        last_error = exc
+
+    # Last fallback: click Facebook's visible caption placeholder and type.
+    for placeholder in [
+        "Tạo bài viết công khai",
+        "Bạn viết gì đi",
+        "Viết gì đó",
+        "Write something",
+        "Create a public post",
+    ]:
+        try:
+            hit = dialog.get_by_text(placeholder, exact=False).first
+            hit.click(force=True, timeout=1500)
+            page.keyboard.insert_text(message)
+            page.wait_for_timeout(600)
+            if message[:25] in dialog.inner_text():
+                print("CAPTION_TYPED_FALLBACK")
+                return
         except Exception as exc:
             last_error = exc
-    raise RuntimeError(f"Could not reliably fill Facebook post text editor: {last_error}")
 
+    raise RuntimeError(f"Could not reliably fill Facebook post text editor: {last_error}")
 
 def verify_message(page, message):
     expected = message.strip()
