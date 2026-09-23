@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
+from PIL import Image
 
 GRAPH_VERSION = os.getenv("FB_GRAPH_VERSION", "v26.0")
 GRAPH_BASE = f"https://graph.facebook.com/{GRAPH_VERSION}"
@@ -47,6 +48,26 @@ def save_json_atomic(path, data):
 
 def stable_hash(text):
     return hashlib.sha256((text or "").strip().encode("utf-8")).hexdigest()[:20]
+
+
+def normalize_image_for_facebook(image_path):
+    src = Path(image_path)
+    if not src.exists():
+        raise RuntimeError(f"Image file not found: {image_path}")
+
+    out = Path("/tmp") / f"{src.stem}_facebook.jpg"
+    with Image.open(src) as im:
+        im = im.convert("RGB")
+        # Keep enough resolution for feed display while avoiding odd metadata/encodings.
+        im.thumbnail((2048, 2048), Image.Resampling.LANCZOS)
+        im.save(
+            out,
+            format="JPEG",
+            quality=90,
+            optimize=False,
+            progressive=False,
+        )
+    return out
 
 
 class FacebookPagePublisher:
@@ -165,24 +186,23 @@ class FacebookPagePublisher:
         return post_id
 
     def create_photo_post(self, message, image_path):
-        path = Path(image_path)
-        if not path.exists():
-            raise RuntimeError(f"Image file not found: {image_path}")
+        path = normalize_image_for_facebook(image_path)
 
         url = f"{GRAPH_BASE}/{self.page_id}/photos"
         last_exc = None
+        media_id = None
+
         for attempt in range(1, self.max_attempts + 1):
             try:
                 with path.open("rb") as fh:
                     r = self.session.post(
                         url,
                         data={
-                            "message": message,
-                            "published": "true",
+                            "published": "false",
                             "access_token": self.access_token,
                         },
-                        files={"source": (path.name, fh)},
-                        timeout=max(self.timeout, 60),
+                        files={"source": (path.name, fh, "image/jpeg")},
+                        timeout=max(self.timeout, 120),
                     )
             except requests.RequestException as exc:
                 last_exc = exc
@@ -197,29 +217,45 @@ class FacebookPagePublisher:
                 payload = {"raw": r.text}
 
             if r.ok and "error" not in payload:
-                post_id = payload.get("post_id") or payload.get("id")
-                if not post_id:
-                    raise RuntimeError(f"Facebook did not return photo post id: {payload}")
-                return post_id
+                media_id = payload.get("id")
+                if not media_id:
+                    raise RuntimeError(f"Facebook did not return uploaded media id: {payload}")
+                break
 
             err = payload.get("error", {}) if isinstance(payload, dict) else {}
             code = err.get("code")
+            subcode = err.get("error_subcode")
             retryable = r.status_code in {429, 500, 502, 503, 504} or code in {1, 2, 4, 17, 32, 613}
             if retryable and attempt < self.max_attempts:
                 time.sleep(min(2 ** (attempt - 1), 8))
                 continue
 
             raise FacebookAPIError(
-                err.get("message") or f"HTTP {r.status_code}",
+                f"{err.get('message') or f'HTTP {r.status_code}'} "
+                f"(HTTP {r.status_code}, code={code}, subcode={subcode}, payload={payload})",
                 status=r.status_code,
                 code=code,
-                subcode=err.get("error_subcode"),
+                subcode=subcode,
                 payload=payload,
             )
 
-        if last_exc:
-            raise last_exc
-        raise RuntimeError("Facebook photo upload failed")
+        if not media_id:
+            if last_exc:
+                raise last_exc
+            raise RuntimeError("Facebook photo upload failed")
+
+        payload = self._request(
+            "POST",
+            f"/{self.page_id}/feed",
+            data={
+                "message": message,
+                "attached_media[0]": json.dumps({"media_fbid": media_id}),
+            },
+        )
+        post_id = payload.get("id")
+        if not post_id:
+            raise RuntimeError(f"Facebook did not return feed post id: {payload}")
+        return post_id
 
     def existing_comments(self, post_id, limit=100):
         payload = self._request(
