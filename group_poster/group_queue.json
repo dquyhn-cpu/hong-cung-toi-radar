@@ -1,6 +1,6 @@
 {
-  "action": "VERIFY_GROUPS",
-  "command_id": "verify-groups-20260923-1945",
+  "action": "IDLE",
+  "command_id": "",
   "package": "",
-  "note": "Read-only verification of 26 normalized unique groups. Never click Join and never publish."
+  "note": "Idle after registry normalization. Next publish command will be created only after user approves a new article and says đăng Group."
 }
