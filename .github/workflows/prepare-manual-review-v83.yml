@@ -56,9 +56,11 @@ jobs:
         run: python build_draft_packets.py
 
       - name: Prepare manual review candidates
+        env:
+          REVIEW_LIMIT: ${{ inputs.limit }}
         run: |
-          python build_manual_review_v83.py \
-            --limit "${{ inputs.limit }}"
+          LIMIT="${REVIEW_LIMIT:-5}"
+          python build_manual_review_v83.py --limit "$LIMIT"
 
       - name: Add review summary
         run: cat editorial_review_candidates_v83.md >> "$GITHUB_STEP_SUMMARY"
