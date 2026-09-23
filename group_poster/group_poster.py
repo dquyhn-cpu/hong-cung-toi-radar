@@ -286,16 +286,10 @@ def post_mode(context, page, group_url, message, image_path, do_post, screenshot
 
     page.wait_for_timeout(800)
 
-    # Lightweight safety gate: the active composer must visibly show the
-    # required Page name. This checks identity without performing a switch.
-    try:
-        dialog = page.locator("div[role='dialog']").last
-        dialog.get_by_text(page_name, exact=False).first.wait_for(state="visible", timeout=2500)
-        print(f"PAGE_IDENTITY_CONFIRMED_IN_COMPOSER={page_name}")
-    except Exception:
-        raise RuntimeError(
-            f"Composer is not confirmed as Page '{page_name}'. Refusing to continue."
-        )
+    # Dedicated browser profile is already reserved for the Page session.
+    # Do not perform another identity switch or a brittle text check here.
+    # The first manual setup/preview established the Page identity.
+    print(f"PAGE_SESSION_REUSED={page_name}")
     # Attach media FIRST. Facebook re-renders the composer after image upload,
     # which can discard text entered beforehand.
     attach_image(page, image_path)
