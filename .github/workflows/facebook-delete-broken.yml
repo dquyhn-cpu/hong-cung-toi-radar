@@ -1,0 +1,23 @@
+name: Delete Broken Facebook Post
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - ".facebook-delete-trigger"
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install requests
+      - name: Delete broken PUBG post
+        env:
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          FB_POST_ID: "${{ secrets.FB_PAGE_ID }}_122126182941380231"
+          FB_GRAPH_VERSION: v26.0
+        run: python facebook_delete_post.py
