@@ -97,7 +97,8 @@ class FacebookPagePublisher:
                 time.sleep(delay)
                 continue
 
-            raise FacebookAPIError(message, status=r.status_code, code=code, subcode=subcode, payload=payload)
+            detail = f"{message} (HTTP {r.status_code}, code={code}, subcode={subcode}, payload={payload})"
+            raise FacebookAPIError(detail, status=r.status_code, code=code, subcode=subcode, payload=payload)
 
         if last_exc:
             raise last_exc
