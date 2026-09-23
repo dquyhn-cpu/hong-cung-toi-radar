@@ -1,6 +1,10 @@
 name: Publish Hong Cung Toi Facebook Page
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - ".facebook-publish-trigger"
   pull_request:
     paths:
       - "facebook_publisher.py"
