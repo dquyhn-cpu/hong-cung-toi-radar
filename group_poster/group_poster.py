@@ -3,6 +3,8 @@ import json
 import sys
 import time
 from pathlib import Path
+from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
+from urllib.request import Request, urlopen
 
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 
@@ -257,6 +259,42 @@ def load_package_comments(package_path):
         if x.get("message", "").strip()
     ]
 
+def download_remote_image(url, output_dir):
+    """Download a remotely hosted approved image for a package.
+
+    Supports normal HTTPS URLs and Dropbox share links. The downloaded file is
+    stored locally before Facebook upload, so the posting core still receives a
+    normal filesystem path.
+    """
+    if not url.startswith("https://"):
+        raise RuntimeError("image_url must use https")
+
+    # Dropbox share links should force the original file download.
+    parsed = urlparse(url)
+    if "dropbox.com" in parsed.netloc.lower():
+        q = dict(parse_qsl(parsed.query, keep_blank_values=True))
+        q["dl"] = "1"
+        parsed = parsed._replace(query=urlencode(q))
+        url = urlunparse(parsed)
+
+    out_dir = Path(output_dir) / "remote_assets"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    suffix = Path(urlparse(url).path).suffix.lower()
+    if suffix not in {".jpg", ".jpeg", ".png", ".webp"}:
+        suffix = ".jpg"
+    name = f"remote_asset_{abs(hash(url))}{suffix}"
+    out_path = out_dir / name
+
+    req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
+    with urlopen(req, timeout=60) as resp:
+        data = resp.read()
+    if len(data) < 1024:
+        raise RuntimeError("Remote image download returned too little data")
+    out_path.write_bytes(data)
+    print(f"REMOTE_IMAGE_READY={out_path} bytes={len(data)}")
+    return str(out_path)
+
+
 def run_package(page, package_path, confirm_post, output_dir):
     pkg_path = Path(package_path)
     pkg = json.loads(pkg_path.read_text(encoding="utf-8-sig"))
@@ -311,7 +349,11 @@ def run_package(page, package_path, confirm_post, output_dir):
         raise RuntimeError("Package message is empty")
 
     image_path = pkg.get("image_path")
-    if image_path and not Path(image_path).exists():
+    image_url = str(pkg.get("image_url") or "").strip()
+
+    if image_url:
+        image_path = download_remote_image(image_url, output_dir)
+    elif image_path and not Path(image_path).exists():
         # Packages live in group_poster/packages; repo assets live one directory up.
         alt = Path("..") / image_path
         if alt.exists():
