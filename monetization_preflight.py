@@ -121,7 +121,10 @@ def monetization_preflight(event):
     if any(flag in flags for flag in ["DEATH", "GRAPHIC_DEATH", "SEXUAL_HARM", "SELF_HARM"]):
         flags.append("SENSITIVE_TONE_REQUIRED")
 
-    articles = [a for a in event.get("articles", []) if a.get("url")]
+    articles = [
+        a for a in event.get("articles", [])
+        if a.get("url") or a.get("google_url")
+    ]
     if not articles:
         flags.append("SOURCE_INTEGRITY_BLOCK")
         reasons.append("Chưa có bài nguồn đọc được; không đủ điều kiện biên soạn hoàn chỉnh.")
@@ -153,7 +156,7 @@ def monetization_preflight(event):
         "copyright_check": copyright_risk,
         "engagement_bait_check": "MUST_VALIDATE_DRAFT",
         "source_integrity_check": (
-            "PASS_SOURCE_PRESENT" if articles else "BLOCK_NO_SOURCE"
+            "PASS_SOURCE_SIGNAL_PRESENT" if articles else "BLOCK_NO_SOURCE"
         ),
     }
 
