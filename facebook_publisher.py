@@ -8,17 +8,13 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 import requests
-from PIL import Image, ImageFile
+from PIL import Image
 import cairosvg
 
 GRAPH_VERSION = os.getenv("FB_GRAPH_VERSION", "v26.0")
 GRAPH_BASE = f"https://graph.facebook.com/{GRAPH_VERSION}"
 DEFAULT_QUEUE = "facebook_publish_queue.json"
 DEFAULT_STATE = "facebook_publish_state.json"
-
-# Some generated/exported JPEGs may be slightly truncated but still visually intact.
-# Load them permissively, then re-encode to a clean standards-compliant JPEG before upload.
-ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 
 class FacebookAPIError(RuntimeError):
@@ -71,17 +67,28 @@ def normalize_image_for_facebook(image_path):
         )
         raster_src = png_out
 
+    # Strictly decode the entire source. Truncated images must fail before publish.
+    with Image.open(raster_src) as probe:
+        probe.verify()
+
     out = Path("/tmp") / f"{src.stem}_facebook.jpg"
     with Image.open(raster_src) as im:
+        im.load()
         im = im.convert("RGB")
+        width, height = im.size
+        if width < 320 or height < 320:
+            raise RuntimeError(f"Image is too small for Facebook publishing: {width}x{height}")
         im.thumbnail((2048, 2048), Image.Resampling.LANCZOS)
-        im.save(
-            out,
-            format="JPEG",
-            quality=90,
-            optimize=False,
-            progressive=False,
-        )
+        im.save(out, format="JPEG", quality=92, optimize=False, progressive=False)
+
+    # Verify and fully decode the normalized output too.
+    with Image.open(out) as check:
+        check.verify()
+    with Image.open(out) as check:
+        check.load()
+        if check.mode != "RGB":
+            raise RuntimeError(f"Normalized image mode is not RGB: {check.mode}")
+
     return out
 
 
