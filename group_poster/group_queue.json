@@ -1,6 +1,6 @@
 {
-  "action": "SCAN_GROUPS",
-  "command_id": "scan-groups-20260923-1932",
+  "action": "VERIFY_GROUPS",
+  "command_id": "verify-groups-20260923-1945",
   "package": "",
-  "note": "Read-only scan: resolve share/g links, detect duplicates, membership and posting signals. Never click Join and never publish."
+  "note": "Read-only verification of 26 normalized unique groups. Never click Join and never publish."
 }
