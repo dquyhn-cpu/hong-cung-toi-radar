@@ -1,0 +1,72 @@
+name: Publish Hong Cung Toi Facebook Page
+
+on:
+  pull_request:
+    paths:
+      - "facebook_publisher.py"
+      - "facebook_publish_queue.json"
+      - "facebook_publish_queue.example.json"
+      - "FACEBOOK_PUBLISHER_V81.md"
+      - ".github/workflows/facebook-publish.yml"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run only (no Facebook writes)"
+        required: true
+        default: true
+        type: boolean
+      strict_comments:
+        description: "Fail workflow if any comment fails"
+        required: true
+        default: false
+        type: boolean
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Restore publisher state
+        uses: actions/cache@v4
+        with:
+          path: facebook_publish_state.json
+          key: facebook-publish-state-${{ github.run_id }}
+          restore-keys: |
+            facebook-publish-state-
+
+      - name: Publish approved queue
+        env:
+          FB_PAGE_ID: ${{ secrets.FB_PAGE_ID }}
+          FB_PAGE_ACCESS_TOKEN: ${{ secrets.FB_PAGE_ACCESS_TOKEN }}
+          FB_GRAPH_VERSION: v26.0
+        run: |
+          ARGS=""
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            ARGS="$ARGS --dry-run"
+          elif [ "${{ inputs.dry_run }}" = "true" ]; then
+            ARGS="$ARGS --dry-run"
+          fi
+          if [ "${{ inputs.strict_comments }}" = "true" ]; then ARGS="$ARGS --strict-comments"; fi
+          python facebook_publisher.py --queue facebook_publish_queue.json --state facebook_publish_state.json $ARGS
+
+      - name: Upload publisher state
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: facebook-publish-state-${{ github.run_id }}
+          path: facebook_publish_state.json
+          if-no-files-found: ignore
+          retention-days: 14

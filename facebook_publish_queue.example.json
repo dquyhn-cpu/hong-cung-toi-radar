@@ -1,0 +1,16 @@
+{
+  "generated_at": "2026-09-23T00:00:00+00:00",
+  "page": "Hóng Cùng Tôi",
+  "items": [
+    {
+      "publish_id": "demo-001",
+      "event_id": "news_demo_001",
+      "enabled": true,
+      "message": "Đây là bài test. Thay nội dung này bằng bản tin đã được duyệt trước khi chạy thật.",
+      "comments": [
+        "Chi tiết bổ sung 1.",
+        "Nguồn và thông tin bổ sung 2."
+      ]
+    }
+  ]
+}
