@@ -172,6 +172,12 @@ class FacebookPagePublisher:
                 return post.get("id")
         return None
 
+    def delete_post(self, post_id):
+        payload = self._request("DELETE", f"/{post_id}")
+        if payload.get("success") is not True:
+            raise RuntimeError(f"Facebook did not confirm delete for {post_id}: {payload}")
+        return True
+
     def create_post(self, message):
         payload = self._request("POST", f"/{self.page_id}/feed", data={"message": message})
         post_id = payload.get("id")
@@ -403,8 +409,18 @@ def process_item(publisher, item, state, *, dry_run=False, comment_delay=1.0):
 
     post_id = record.get("post_id")
     if not post_id:
-        post_id = publisher.find_existing_post_by_message(message)
-        if post_id:
+        existing_post_id = publisher.find_existing_post_by_message(message)
+
+        if item.get("replace_existing", False) and existing_post_id:
+            publisher.delete_post(existing_post_id)
+            record["replaced_post_id"] = existing_post_id
+            record["post_status"] = "DELETED_EXISTING_BEFORE_REPOST"
+            record["updated_at"] = utc_now()
+            time.sleep(2)
+            existing_post_id = None
+
+        if existing_post_id:
+            post_id = existing_post_id
             record["post_id"] = post_id
             record["post_status"] = "FOUND_EXISTING"
         else:
