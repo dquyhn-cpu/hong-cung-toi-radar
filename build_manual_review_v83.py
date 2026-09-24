@@ -72,6 +72,7 @@ def build_candidates(context_payload, packets_payload, limit):
             "source": source,
             "social_sources": item.get("social_sources") or [],
             "social_signals": item.get("social_signals") or [],
+            "story_status": "UPDATE" if item.get("is_update") else "NEW",
             "source_read_status": item.get("status"),
             "needs_source_resolution": item.get("status") == "SOURCE_READ_REQUIRED",
             "draft_prompt": packet.get("prompt") if packet else None,
@@ -141,6 +142,7 @@ def build_markdown(candidates, social_health=None):
             f"## Tin {index} — {item.get('working_title') or '(không có tiêu đề)'}",
             "",
             f"- **event_id:** {item.get('event_id')}",
+            f"- **Loại tin:** {item.get('story_status', 'NEW')}",
             f"- **Ưu tiên:** {item.get('score')} / 100 — {item.get('tier')}",
             f"- **Góc đề xuất:** {item.get('recommended_angle')}",
             f"- **Rủi ro kiếm tiền:** {item.get('monetization_risk')}",
@@ -178,7 +180,7 @@ def main():
     parser.add_argument("--packets", default=DEFAULT_PACKETS)
     parser.add_argument("--json-output", default=DEFAULT_JSON)
     parser.add_argument("--md-output", default=DEFAULT_MD)
-    parser.add_argument("--limit", type=int, default=5)
+    parser.add_argument("--limit", type=int, default=10)
     parser.add_argument("--radar-results", default=DEFAULT_RADAR)
     args = parser.parse_args()
 
@@ -190,6 +192,7 @@ def main():
 
     save_json(args.json_output, {
         "version": "8.3-manual",
+        "selection_mode": "top_candidates_plus_social_backup",
         "candidate_count": len(candidates),
         "social_health": social_health,
         "items": candidates,
