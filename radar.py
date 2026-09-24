@@ -173,11 +173,12 @@ TRUSTED_DOMAINS = {
 # SETTINGS
 # ============================================================
 
-MAX_FB_POSTS_PER_SOURCE = 3
+MAX_FB_POSTS_PER_SOURCE = 8
 MAX_NEWS_PER_SOURCE = 2
 
-FB_SCROLL_ROUNDS = 4
-FB_SCROLL_WAIT_MS = 1200
+FB_SCROLL_ROUNDS = 8
+FB_SCROLL_WAIT_MS = 1800
+FB_INITIAL_WAIT_MS = 5000
 
 NEWS_LOOKBACK_DAYS = 2
 
@@ -581,10 +582,13 @@ FB_POST_MARKERS = (
     "/posts/",
     "/videos/",
     "/reel/",
+    "/reels/",
+    "/watch/",
     "/permalink/",
     "/photo/",
     "story.php",
     "photo.php",
+    "permalink.php",
 )
 
 
@@ -668,7 +672,8 @@ def fb_post_id(url):
     patterns = [
         r"/posts/([^/?#]+)",
         r"/videos/([^/?#]+)",
-        r"/reel/([^/?#]+)",
+        r"/reel(?:s)?/([^/?#]+)",
+        r"/watch/([^/?#]+)",
         r"/permalink/([^/?#]+)",
     ]
 
@@ -1015,8 +1020,22 @@ def discover_fb_entry(
         )
 
         page.wait_for_timeout(
-            3500
+            FB_INITIAL_WAIT_MS
         )
+
+        for selector in (
+            '[aria-label="Close"]',
+            '[aria-label="Đóng"]',
+            'div[role="button"]:has-text("Not Now")',
+            'div[role="button"]:has-text("Lúc khác")',
+        ):
+            try:
+                button = page.locator(selector).first
+                if button.is_visible(timeout=500):
+                    button.click(timeout=1000)
+                    page.wait_for_timeout(500)
+            except Exception:
+                pass
 
         print(
             "HTTP:",
@@ -1073,10 +1092,15 @@ def discover_fb_entry(
             ):
                 break
 
-            page.mouse.wheel(
-                0,
-                4000,
-            )
+            try:
+                page.evaluate(
+                    "window.scrollBy(0, Math.max(window.innerHeight * 2.5, 3200))"
+                )
+            except Exception:
+                page.mouse.wheel(
+                    0,
+                    5000,
+                )
 
             page.wait_for_timeout(
                 FB_SCROLL_WAIT_MS
