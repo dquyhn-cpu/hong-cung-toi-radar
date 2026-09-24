@@ -13,7 +13,7 @@ STATE = HERE / 'agent_state.json'
 LOG = HERE / 'agent.log'
 POLL_SECONDS = 30
 ASSET_MANIFEST_DIR = REPO / 'facebook_assets_b64'
-ASSET_OUT_DIR = REPO / 'facebook_assets'
+ASSET_OUT_DIR = REPO / 'facebook_assets_cache'
 CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0
 
 def log(msg):
