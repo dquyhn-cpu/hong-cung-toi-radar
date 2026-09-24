@@ -1,6 +1,6 @@
 {
-  "action": "PING",
-  "command_id": "ping-agent-20260924-1414",
-  "package": "",
-  "note": "Diagnostic ping after agent restart; confirms queue polling and status push."
+  "action": "PUBLISH",
+  "command_id": "publish-highlands-g08-20260924-1416",
+  "package": "group_poster/packages/highlands_20260924_g08.json",
+  "note": "Resume Highlands G08 rollout after successful diagnostic ping."
 }
