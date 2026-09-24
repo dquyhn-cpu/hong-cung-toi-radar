@@ -1,0 +1,15 @@
+{
+  "package_version": 2,
+  "publish_id": "meat-imports-20260924-test-row36",
+  "event_id": "news_f691ee5d442c",
+  "group_urls": [
+    "https://www.facebook.com/groups/tinnong360/"
+  ],
+  "message": "HƠN 2 TỶ USD THỊT NHẬP KHẨU VÀO VIỆT NAM, CÓ NHÓM GIÁ BÌNH QUÂN CHỈ KHOẢNG 26.500 ĐỒNG/KG\n\nTheo số liệu Cục Hải quan được VietnamNet dẫn lại, từ đầu năm đến ngày 15/9, Việt Nam đã chi khoảng 2,04 tỷ USD nhập khẩu thịt và các sản phẩm từ thịt.\n\nRiêng trong 7 tháng đầu năm, Việt Nam nhập gần 217.371 tấn thịt và phụ phẩm gia cầm, với giá nhập khẩu bình quân khoảng 26.500 đồng/kg.\n\nĐối với thịt lợn tươi, ướp lạnh hoặc đông lạnh, lượng nhập khẩu đạt khoảng 112.090 tấn, giá bình quân khoảng 43.000 đồng/kg. Đáng chú ý, mức giá nhập khẩu bình quân thịt lợn giảm 38,4% so với cùng kỳ năm 2025.\n\nTrong 7 tháng đầu năm, lượng thịt lợn nhập khẩu tăng 27,1%, trong khi giá trị lại giảm 20,9% so với cùng kỳ. Một số chuyên gia trong ngành được VietnamNet dẫn lời cho rằng nguồn thịt nhập khẩu giá thấp đang tạo thêm sức ép cạnh tranh đối với ngành chăn nuôi trong nước.\n\nLưu ý: mức 26.500 đồng/kg là giá nhập khẩu bình quân của nhóm thịt và phụ phẩm gia cầm, không phải giá bán lẻ tới người tiêu dùng.\n\nNguồn: VietnamNet, dẫn số liệu Cục Hải quan\nhttps://vietnamnet.vn/nhap-khau-thit-vuot-2-ty-usd-co-nhom-gia-chi-hon-26-000-dong-kg-2557447.html",
+  "comments": [],
+  "asset_policy": "LOCAL_APPROVED_ARTWORK",
+  "approved_source": "Google Drive: meat_imports_20260924.png",
+  "image_path": "facebook_assets_cache/meat_imports_20260924.png",
+  "inter_group_delay_seconds": 60,
+  "rollout_note": "Single-group safety test on spreadsheet row 36 after hardening spam-warning detection. No comments."
+}
