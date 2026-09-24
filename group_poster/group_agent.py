@@ -56,7 +56,31 @@ def sync_binary_assets():
         log(f"ASSET_SYNCED {output_name} bytes={len(raw)}")
 
 
-def git_pull():
+def publish_status_to_repo():
+    """Commit lightweight agent status/report so ChatGPT can observe local runs."""
+    targets = [STATE]
+    report = HERE / "output" / "group_batch_report.json"
+    if report.exists():
+        targets.append(report)
+    rels = [str(p.relative_to(REPO)) for p in targets if p.exists()]
+    if not rels:
+        return
+    subprocess.run(["git","-C",str(REPO),"add","-f",*rels], capture_output=True, text=True, timeout=30, creationflags=CREATE_NO_WINDOW)
+    diff = subprocess.run(["git","-C",str(REPO),"diff","--cached","--quiet"], capture_output=True, text=True, timeout=30, creationflags=CREATE_NO_WINDOW)
+    if diff.returncode == 0:
+        return
+    msg = f"Agent status {datetime.now().isoformat(timespec='seconds')}"
+    c = subprocess.run(["git","-C",str(REPO),"commit","-m",msg], capture_output=True, text=True, timeout=60, creationflags=CREATE_NO_WINDOW)
+    if c.returncode != 0:
+        log(f"STATUS_COMMIT_WARNING {(c.stderr or c.stdout).strip()}")
+        return
+    p = subprocess.run(["git","-C",str(REPO),"push","origin","HEAD:main"], capture_output=True, text=True, timeout=60, creationflags=CREATE_NO_WINDOW)
+    if p.returncode != 0:
+        log(f"STATUS_PUSH_WARNING {(p.stderr or p.stdout).strip()}")
+    else:
+        log("STATUS_PUSHED")
+
+
     p = subprocess.run(['git','-C',str(REPO),'pull','--ff-only'], capture_output=True, text=True, timeout=60, creationflags=CREATE_NO_WINDOW)
     if p.returncode != 0:
         raise RuntimeError((p.stderr or p.stdout or 'git pull failed').strip())
@@ -125,10 +149,12 @@ def main():
                     done_id = run_command(queue)
                     state = {'last_command_id': done_id, 'last_status':'SUCCESS', 'updated_at':datetime.now().isoformat(timespec='seconds')}
                     save_json(STATE, state)
+                    publish_status_to_repo()
                 except Exception as exc:
                     state = {'last_command_id': command_id, 'last_status':'ERROR', 'error':str(exc), 'updated_at':datetime.now().isoformat(timespec='seconds')}
                     save_json(STATE, state)
                     log(f'COMMAND_ERROR command_id={command_id} error={exc}')
+                    publish_status_to_repo()
             time.sleep(POLL_SECONDS)
         except KeyboardInterrupt:
             log('AGENT_STOPPED')
