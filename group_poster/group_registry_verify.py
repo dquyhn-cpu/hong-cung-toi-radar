@@ -6,6 +6,32 @@ HERE = Path(__file__).resolve().parent
 REG = HERE / 'group_registry_normalized.json'
 OUT = HERE / 'output' / 'group_verify_report.json'
 PROFILE = str(Path.home() / '.hong-cung-toi' / 'facebook-group-profile')
+SESSION_STATE = Path.home() / '.hong-cung-toi' / 'facebook-group-session.json'
+
+def load_saved_session(context):
+    if not SESSION_STATE.exists():
+        return False
+    try:
+        data=json.loads(SESSION_STATE.read_text(encoding='utf-8'))
+        cookies=data.get('cookies') or []
+        if cookies:
+            context.add_cookies(cookies)
+            print(f'SESSION_RESTORED cookies={len(cookies)}', flush=True)
+            return True
+    except Exception as exc:
+        print(f'SESSION_RESTORE_WARNING={exc}', flush=True)
+    return False
+
+def save_current_session(context):
+    try:
+        SESSION_STATE.parent.mkdir(parents=True, exist_ok=True)
+        cookies=context.cookies()
+        tmp=SESSION_STATE.with_suffix('.json.tmp')
+        tmp.write_text(json.dumps({'cookies':cookies}, ensure_ascii=False, indent=2), encoding='utf-8')
+        tmp.replace(SESSION_STATE)
+        print(f'SESSION_SAVED cookies={len(cookies)}', flush=True)
+    except Exception as exc:
+        print(f'SESSION_SAVE_WARNING={exc}', flush=True)
 
 def body_text(page):
     try:
@@ -20,8 +46,24 @@ def main():
     results=[]
     with sync_playwright() as p:
         context=p.chromium.launch_persistent_context(user_data_dir=PROFILE, headless=False, viewport={'width':1400,'height':1000}, args=['--disable-notifications'])
+        load_saved_session(context)
         page=context.pages[0] if context.pages else context.new_page()
         try:
+            # Validate/authenticate once before scanning so early groups are not
+            # falsely marked as login redirects while the operator is signing in.
+            page.goto('https://www.facebook.com/', wait_until='domcontentloaded', timeout=60000)
+            page.wait_for_timeout(1500)
+            if 'login' in page.url.lower() or page.locator("input[name='email']").count():
+                print('SESSION_LOGIN_REQUIRED waiting_up_to_300s', flush=True)
+                deadline=__import__('time').time()+300
+                while __import__('time').time() < deadline:
+                    page.wait_for_timeout(1000)
+                    if 'login' not in page.url.lower() and not page.locator("input[name='email']").count():
+                        break
+                if 'login' in page.url.lower() or page.locator("input[name='email']").count():
+                    raise RuntimeError('Facebook login not completed within 300 seconds')
+            save_current_session(context)
+
             for i,g in enumerate(groups,1):
                 print(f'VERIFY_GROUP={i}/{len(groups)} {g["id"]}', flush=True)
                 r={'id':g['id'],'group_id':g.get('group_id'),'url':g['url'],'status':'ERROR'}
@@ -48,6 +90,10 @@ def main():
                     r['error']=str(exc)
                 results.append(r)
         finally:
+            try:
+                save_current_session(context)
+            except Exception:
+                pass
             context.close()
     OUT.write_text(json.dumps({'mode':'VERIFY_READ_ONLY','results':results},ensure_ascii=False,indent=2),encoding='utf-8')
     print(f'VERIFY_REPORT={OUT}', flush=True)
