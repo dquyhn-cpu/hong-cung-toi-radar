@@ -1044,6 +1044,52 @@ def discover_fb_entry(
             else None,
         )
 
+        # Diagnostic telemetry: distinguish a real public feed from a
+        # login/challenge/limited shell returned to headless GitHub Actions.
+        try:
+            title = page.title()
+        except Exception:
+            title = ""
+
+        try:
+            body_text = clean_text(
+                page.locator("body").inner_text(timeout=3000)
+            )
+        except Exception:
+            body_text = ""
+
+        try:
+            article_count = page.locator('div[role="article"]').count()
+        except Exception:
+            article_count = -1
+
+        try:
+            href_count = page.locator("a[href]").count()
+        except Exception:
+            href_count = -1
+
+        low_body = normalize_text(body_text)
+        wall_terms = (
+            "dang nhap",
+            "log in",
+            "login",
+            "create new account",
+            "tao tai khoan",
+            "security check",
+            "checkpoint",
+            "confirm your identity",
+        )
+        wall_hits = [
+            term for term in wall_terms
+            if term in low_body
+        ]
+
+        print("  PAGE TITLE:", title[:180])
+        print("  ROLE ARTICLES:", article_count)
+        print("  HREF COUNT:", href_count)
+        print("  WALL HITS:", ", ".join(wall_hits) if wall_hits else "none")
+        print("  BODY SAMPLE:", repr(body_text[:500]))
+
         for round_no in range(
             FB_SCROLL_ROUNDS + 1
         ):
