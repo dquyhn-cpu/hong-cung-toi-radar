@@ -1,6 +1,6 @@
 {
   "action": "PUBLISH",
-  "command_id": "publish-airfleet-g08-20260924-1504",
+  "command_id": "publish-airfleet-g08-20260924-1506",
   "package": "group_poster/packages/airfleet_258_20260924_g08.json",
-  "note": "Retry aviation G08 using the single persistent Group Poster Chromium profile. User may complete Facebook login in that exact window if prompted."
+  "note": "Retry aviation G08. If Facebook login is required, keep the persistent Chromium window open up to 300 seconds for interactive login, then continue automatically."
 }
