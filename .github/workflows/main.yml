@@ -48,7 +48,22 @@ jobs:
           restore-keys: |
             radar-history-
 
+      - name: Restore Facebook session
+        env:
+          FB_STORAGE_STATE_B64: ${{ secrets.FB_STORAGE_STATE_B64 }}
+        shell: bash
+        run: |
+          if [ -n "$FB_STORAGE_STATE_B64" ]; then
+            printf '%s' "$FB_STORAGE_STATE_B64" | base64 --decode > fb_storage_state.json
+            chmod 600 fb_storage_state.json
+            echo "Facebook storage state restored."
+          else
+            echo "FB_STORAGE_STATE_B64 is not configured; Radar will use anonymous Facebook collection."
+          fi
+
       - name: Run Hong Cung Toi Radar V8
+        env:
+          FB_STORAGE_STATE_PATH: ${{ github.workspace }}/fb_storage_state.json
         run: python radar.py
 
       - name: Build editorial queue V8.2
