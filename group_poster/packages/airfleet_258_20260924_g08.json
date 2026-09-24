@@ -12,7 +12,7 @@
     }
   ],
   "asset_policy": "LOCAL_APPROVED_ARTWORK",
-  "approved_source": "facebook_assets/airfleet_258_20260924.png",
+  "approved_source": "facebook_assets_cache/airfleet_258_20260924.png",
   "rollout_note": "Canary G08 only; aviation story.",
-  "image_path": "facebook_assets/airfleet_258_20260924.png"
+  "image_path": "facebook_assets_cache/airfleet_258_20260924.png"
 }
