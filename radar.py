@@ -178,9 +178,9 @@ MAX_NEWS_PER_SOURCE = 2
 
 # Authenticated feeds usually expose enough posts quickly. Keep a bounded fallback
 # for slower pages, but avoid paying the old 8-round/5-second cost on every URL.
-FB_SCROLL_ROUNDS = 6
-FB_SCROLL_WAIT_MS = 1200
-FB_INITIAL_WAIT_MS = 3000
+FB_SCROLL_ROUNDS = 10
+FB_SCROLL_WAIT_MS = 1800
+FB_INITIAL_WAIT_MS = 4000
 
 NEWS_LOOKBACK_DAYS = 2
 
@@ -997,6 +997,60 @@ def extract_fb_posts(page):
     return found
 
 
+def try_resume_facebook_session(page):
+    """Resume Facebook's remembered-account chooser when a cloud runner sees it.
+
+    The storage state can be valid while Facebook still asks the remembered
+    account to press Continue on a new device/IP. This uses no credentials and
+    only clicks the visible remembered-session continuation control.
+    """
+    try:
+        body = clean_text(page.locator("body").inner_text(timeout=2500))
+    except Exception:
+        body = ""
+
+    low = normalize_text(body)
+    chooser_markers = (
+        "dung trang ca nhan khac",
+        "use another profile",
+        "use another account",
+    )
+    if not any(marker in low for marker in chooser_markers):
+        return False
+
+    selectors = [
+        'div[role="button"]:has-text("Tiếp tục")',
+        'button:has-text("Tiếp tục")',
+        'div[role="button"]:has-text("Continue")',
+        'button:has-text("Continue")',
+    ]
+    for sel in selectors:
+        try:
+            btn = page.locator(sel).first
+            if btn.count() and btn.is_visible(timeout=800):
+                print("  SESSION RESUME: clicking remembered-account Continue")
+                btn.click(timeout=2500)
+                page.wait_for_timeout(3500)
+                return True
+        except Exception:
+            pass
+
+    # Text locator fallback.
+    for label in ("Tiếp tục", "Continue"):
+        try:
+            btn = page.get_by_text(label, exact=True).first
+            if btn.count() and btn.is_visible(timeout=800):
+                print("  SESSION RESUME: clicking remembered-account text control")
+                btn.click(timeout=2500)
+                page.wait_for_timeout(3500)
+                return True
+        except Exception:
+            pass
+
+    print("  SESSION RESUME: chooser detected but Continue control not clickable")
+    return False
+
+
 def discover_fb_entry(
     page,
     url,
@@ -1025,6 +1079,15 @@ def discover_fb_entry(
         page.wait_for_timeout(
             FB_INITIAL_WAIT_MS
         )
+
+        # GitHub-hosted runners use a new device/IP each run. Facebook may
+        # present a remembered-account chooser even when storage_state loaded.
+        if try_resume_facebook_session(page):
+            try:
+                page.wait_for_load_state("domcontentloaded", timeout=12000)
+            except Exception:
+                pass
+            page.wait_for_timeout(1500)
 
         for selector in (
             '[aria-label="Close"]',
@@ -1143,17 +1206,20 @@ def discover_fb_entry(
 
             try:
                 page.evaluate(
-                    "window.scrollBy(0, Math.max(window.innerHeight * 2.5, 3200))"
+                    """() => {
+                        const step = Math.max(window.innerHeight * 3.5, 4200);
+                        window.scrollBy(0, step);
+                        if (document.documentElement) {
+                            document.documentElement.scrollTop =
+                                Math.max(document.documentElement.scrollTop, window.scrollY);
+                        }
+                    }"""
                 )
+                page.mouse.wheel(0, 2200)
             except Exception:
-                page.mouse.wheel(
-                    0,
-                    5000,
-                )
+                page.mouse.wheel(0, 6500)
 
-            page.wait_for_timeout(
-                FB_SCROLL_WAIT_MS
-            )
+            page.wait_for_timeout(FB_SCROLL_WAIT_MS)
 
     except Exception as exc:
         print(
@@ -1170,103 +1236,43 @@ def collect_fb_source(
     config,
 ):
     print()
-    print(
-        "=" * 70
-    )
-
-    print(
-        "FACEBOOK:",
-        source_name,
-        "[",
-        config["tier"],
-        "]",
-    )
+    print("=" * 70)
+    print("FACEBOOK:", source_name, "[", config["tier"], "]")
 
     combined = {}
 
-    for label, url in (
-        (
-            "desktop",
-            config["page"],
-        ),
-        (
-            "mobile",
-            config["mobile"],
-        ),
-    ):
-        batch = discover_fb_entry(
-            page,
-            url,
-            label,
-        )
+    base_page = config["page"].rstrip("/")
+    base_mobile = config["mobile"].rstrip("/")
 
-        for key, post in (
-            batch.items()
-        ):
-            if key not in combined:
-                combined[
-                    key
-                ] = post
-
-            elif (
-                len(
-                    post.get(
-                        "text",
-                        "",
-                    )
-                )
-                >
-                len(
-                    combined[
-                        key
-                    ].get(
-                        "text",
-                        "",
-                    )
-                )
-            ):
-                combined[
-                    key
-                ] = post
-
-        # Fast path: authenticated desktop Facebook already returned a full
-        # batch, so the mobile mirror would only duplicate work and latency.
-        if (
-            label == "desktop"
-            and len(combined) >= MAX_FB_POSTS_PER_SOURCE
-        ):
-            print(
-                "  FAST PATH: desktop feed full; "
-                "skip mobile mirror"
-            )
-            break
-
-    posts = list(
-        combined.values()
-    )[
-        :MAX_FB_POSTS_PER_SOURCE
+    entries = [
+        ("desktop", base_page),
+        ("desktop_posts", base_page + "/posts"),
+        ("desktop_reels", base_page + "/reels"),
+        ("mobile", base_mobile),
+        ("mobile_posts", base_mobile + "/posts"),
     ]
 
+    for label, url in entries:
+        batch = discover_fb_entry(page, url, label)
+
+        for key, post in batch.items():
+            if key not in combined:
+                combined[key] = post
+            elif len(post.get("text", "")) > len(combined[key].get("text", "")):
+                combined[key] = post
+
+        if len(combined) >= MAX_FB_POSTS_PER_SOURCE:
+            print("  FAST PATH: source reached target; skip remaining endpoints")
+            break
+
+    posts = list(combined.values())[:MAX_FB_POSTS_PER_SOURCE]
+
     for post in posts:
-        post[
-            "source"
-        ] = source_name
+        post["source"] = source_name
+        post["source_tier"] = config["tier"]
+        post["signal_type"] = "FACEBOOK"
 
-        post[
-            "source_tier"
-        ] = config[
-            "tier"
-        ]
-
-        post[
-            "signal_type"
-        ] = "FACEBOOK"
-
-    print(
-        "FOUND:",
-        len(posts),
-    )
-
+    print("FOUND:", len(posts))
     return posts
 
 
