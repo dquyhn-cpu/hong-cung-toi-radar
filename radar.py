@@ -3616,24 +3616,35 @@ def main():
             )
         )
 
-        context = (
-            browser.new_context(
-                viewport={
-                    "width": 1280,
-                    "height": 1000,
-                },
+        storage_state_path = os.getenv(
+            "FB_STORAGE_STATE_PATH",
+            "",
+        ).strip()
 
-                locale="vi-VN",
+        context_kwargs = {
+            "viewport": {
+                "width": 1280,
+                "height": 1000,
+            },
+            "locale": "vi-VN",
+            "user_agent": (
+                "Mozilla/5.0 "
+                "(Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 "
+                "(KHTML, like Gecko) "
+                "Chrome/140.0.0.0 "
+                "Safari/537.36"
+            ),
+        }
 
-                user_agent=(
-                    "Mozilla/5.0 "
-                    "(Windows NT 10.0; Win64; x64) "
-                    "AppleWebKit/537.36 "
-                    "(KHTML, like Gecko) "
-                    "Chrome/140.0.0.0 "
-                    "Safari/537.36"
-                ),
-            )
+        if storage_state_path and os.path.exists(storage_state_path):
+            context_kwargs["storage_state"] = storage_state_path
+            print("FACEBOOK SESSION: authenticated storage state loaded")
+        else:
+            print("FACEBOOK SESSION: anonymous")
+
+        context = browser.new_context(
+            **context_kwargs
         )
 
         page = (
