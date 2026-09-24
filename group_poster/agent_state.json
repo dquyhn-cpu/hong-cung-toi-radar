@@ -1,5 +1,6 @@
 {
-  "last_command_id": "test-meat-row36-after-safety-fix-20260925",
-  "last_status": "SUCCESS",
-  "updated_at": "2026-09-25T00:38:35"
+  "last_command_id": "publish-meat-imports-resume-37-20260925",
+  "last_status": "ERROR",
+  "error": "Group Poster exited with code 1: GROUP_SKIPPED=https://www.facebook.com/groups/tintucnong24hhomnay/ :: Could not open Facebook Group composer",
+  "updated_at": "2026-09-25T01:16:15"
 }
