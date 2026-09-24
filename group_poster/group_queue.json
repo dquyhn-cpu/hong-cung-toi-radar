@@ -1,6 +1,6 @@
 {
   "action": "PUBLISH",
-  "command_id": "publish-meat-imports-20260924-2329",
-  "package": "group_poster/packages/meat_imports_20260924_groups_13_51_then_1_12.json",
-  "note": "User order: rows 13-51 first, then rows 1-12. Exclude row 52 education-only. No comments. Track approval state; halt on Facebook safety limits."
+  "command_id": "publish-meat-imports-resume-36-20260925",
+  "package": "group_poster/packages/meat_imports_20260924_resume_36_51_then_1_12.json",
+  "note": "Resume from spreadsheet row 36 after user confirmed rows 13-35 posted. Continue 36-51 then 1-12. Exclude row 52. No comments; halt on Facebook safety limits."
 }
