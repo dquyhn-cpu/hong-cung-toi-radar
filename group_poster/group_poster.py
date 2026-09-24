@@ -195,6 +195,20 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
     print("GROUP_OPENED")
 
     if not open_group_composer(page):
+        # Diagnostic mode: capture visible Facebook text and keep the browser
+        # open briefly so the operator can inspect the exact UI variant.
+        try:
+            body_text = page.locator("body").inner_text(timeout=5000)
+            diag = out / "composer_debug.txt"
+            diag.write_text(body_text[:30000], encoding="utf-8")
+            print(f"COMPOSER_DEBUG_TEXT={diag}")
+            snap = out / "composer_debug.png"
+            page.screenshot(path=str(snap), full_page=False)
+            print(f"COMPOSER_DEBUG_SCREENSHOT={snap}")
+        except Exception as exc:
+            print(f"COMPOSER_DEBUG_WARNING={exc}")
+        print("COMPOSER_DEBUG_HOLD=120s")
+        page.wait_for_timeout(120000)
         raise RuntimeError("Could not open Facebook Group composer")
 
     print("COMPOSER_OPENED")
