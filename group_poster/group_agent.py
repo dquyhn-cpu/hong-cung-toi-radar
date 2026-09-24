@@ -80,7 +80,13 @@ def publish_status_to_repo():
     if c.returncode != 0:
         log(f"STATUS_COMMIT_WARNING {(c.stderr or c.stdout).strip()}")
         return
-    p = subprocess.run(["git","-C",str(REPO),"push","origin","HEAD:main"], capture_output=True, text=True, timeout=60, creationflags=CREATE_NO_WINDOW)
+    # Rebase lightweight local status commits onto the latest remote main before pushing.
+    # This prevents queue/package commits made remotely from making the agent branch diverge.
+    r = subprocess.run(["git","-C",str(REPO),"pull","--rebase","--autostash","origin","main"], capture_output=True, text=True, timeout=90, creationflags=CREATE_NO_WINDOW)
+    if r.returncode != 0:
+        log(f"STATUS_REBASE_WARNING {(r.stderr or r.stdout).strip()}")
+        return
+    p = subprocess.run(["git","-C",str(REPO),"push","origin","HEAD:main"], capture_output=True, text=True, timeout=90, creationflags=CREATE_NO_WINDOW)
     if p.returncode != 0:
         log(f"STATUS_PUSH_WARNING {(p.stderr or p.stdout).strip()}")
     else:
@@ -88,7 +94,9 @@ def publish_status_to_repo():
 
 
 def git_pull():
-    p = subprocess.run(['git','-C',str(REPO),'pull','--ff-only'], capture_output=True, text=True, timeout=60, creationflags=CREATE_NO_WINDOW)
+    # Agent may have its own local status commit while queue/package commits land remotely.
+    # Rebase keeps both histories without the permanent --ff-only deadlock seen on 2026-09-25.
+    p = subprocess.run(['git','-C',str(REPO),'pull','--rebase','--autostash','origin','main'], capture_output=True, text=True, timeout=90, creationflags=CREATE_NO_WINDOW)
     if p.returncode != 0:
         raise RuntimeError((p.stderr or p.stdout or 'git pull failed').strip())
 
