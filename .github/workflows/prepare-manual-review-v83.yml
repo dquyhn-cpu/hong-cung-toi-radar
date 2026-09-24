@@ -45,10 +45,27 @@ jobs:
           restore-keys: |
             radar-history-
 
+      - name: Prepare Facebook session
+        env:
+          FB_STORAGE_STATE_B64: ${{ secrets.FB_STORAGE_STATE_B64 }}
+        run: |
+          if [ -n "$FB_STORAGE_STATE_B64" ]; then
+            printf '%s' "$FB_STORAGE_STATE_B64" | base64 --decode > fb_storage_state.json
+            chmod 600 fb_storage_state.json
+            echo "Authenticated Facebook session prepared."
+          else
+            echo "No Facebook session secret configured; anonymous mode will be used."
+          fi
+
       - name: Run Radar
         env:
           RADAR_RESCAN_ALL: ${{ github.event_name == 'push' && '1' || '0' }}
+          FB_STORAGE_STATE_PATH: ${{ github.workspace }}/fb_storage_state.json
         run: python radar.py
+
+      - name: Remove Facebook session
+        if: always()
+        run: rm -f fb_storage_state.json
 
       - name: Build Editorial V8.2
         run: python editorial_pipeline.py
