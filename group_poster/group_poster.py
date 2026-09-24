@@ -2,8 +2,6 @@ import argparse
 import json
 import sys
 import time
-import shutil
-import tempfile
 from pathlib import Path
 from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
 from urllib.request import Request, urlopen
@@ -488,56 +486,26 @@ def main():
     profile.mkdir(parents=True, exist_ok=True)
 
     with sync_playwright() as p:
-        # Publish from a disposable clone of the saved login profile.
-        # This avoids Chromium ProcessSingleton/profile-lock crashes if a prior
-        # interactive login browser left background processes behind.
-        run_profile = None
-        launch_profile = profile
-        if not args.login:
-            run_profile = Path(tempfile.mkdtemp(prefix="hct-group-profile-"))
-            # Only copy stable login/profile data. Volatile Chromium runtime
-            # files (Sessions, Cookies journals, caches, locks) may remain held
-            # briefly even after the visible browser window closes.
-            ignore = shutil.ignore_patterns(
-                "Singleton*", "lockfile", "*.lock", "*.tmp", "*-journal",
-                "Crashpad", "Cache", "Code Cache", "GPUCache", "ShaderCache",
-                "GrShaderCache", "Sessions", "Session Storage", "Service Worker",
-                "WebStorage", "Network Action Predictor", "TransportSecurity"
+        # Always use the single dedicated persistent Group Poster profile.
+        # This preserves Facebook login/session state across publish runs.
+        # Do not clone the profile; if it is currently open elsewhere, fail
+        # clearly and let the operator close that dedicated Chromium window.
+        try:
+            context = p.chromium.launch_persistent_context(
+                user_data_dir=str(profile),
+                headless=False,
+                viewport={"width": 1400, "height": 1000},
+                args=["--disable-notifications", "--disable-background-mode", "--no-first-run"],
             )
-            try:
-                shutil.copytree(profile, run_profile, dirs_exist_ok=True, ignore=ignore)
-            except shutil.Error as exc:
-                # Windows can transiently lock individual Chromium files.
-                # Retry with a targeted copy of the stable authentication state.
-                print(f"PROFILE_CLONE_WARNING={exc}", file=sys.stderr)
-                shutil.rmtree(run_profile, ignore_errors=True)
-                run_profile.mkdir(parents=True, exist_ok=True)
-                for rel in ["Local State", "Default/Preferences", "Default/Secure Preferences", "Default/Login Data"]:
-                    src = profile / rel
-                    dst = run_profile / rel
-                    if src.exists():
-                        dst.parent.mkdir(parents=True, exist_ok=True)
-                        try:
-                            shutil.copy2(src, dst)
-                        except OSError:
-                            pass
-                # Cookies are useful but optional; copy only when Windows releases them.
-                src = profile / "Default/Network/Cookies"
-                dst = run_profile / "Default/Network/Cookies"
-                if src.exists():
-                    dst.parent.mkdir(parents=True, exist_ok=True)
-                    try:
-                        shutil.copy2(src, dst)
-                    except OSError:
-                        pass
-            launch_profile = run_profile
-
-        context = p.chromium.launch_persistent_context(
-            user_data_dir=str(launch_profile),
-            headless=False,
-            viewport={"width": 1400, "height": 1000},
-            args=["--disable-notifications", "--disable-background-mode", "--no-first-run"],
-        )
+        except Exception as exc:
+            msg = str(exc)
+            if "Target page, context or browser has been closed" in msg or "ProcessSingleton" in msg or "profile" in msg.lower():
+                raise RuntimeError(
+                    "Dedicated Group Poster Chromium profile is already in use. "
+                    "Close only the Group Poster Chromium window/background process, then retry. "
+                    "The saved Facebook login will remain in this same profile."
+                ) from exc
+            raise
         page = context.pages[0] if context.pages else context.new_page()
         try:
             if args.login:
@@ -576,11 +544,6 @@ def main():
             return 1
         finally:
             context.close()
-            if run_profile is not None:
-                try:
-                    shutil.rmtree(run_profile, ignore_errors=True)
-                except Exception:
-                    pass
 
 
 if __name__ == "__main__":
