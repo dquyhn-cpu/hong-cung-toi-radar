@@ -241,6 +241,32 @@ def write_batch_report(results, output_dir):
     return report
 
 
+def detect_facebook_safety_stop(page):
+    """Return a safety-stop reason when Facebook shows checkpoint/rate-limit UI."""
+    try:
+        body = " ".join(page.locator("body").inner_text(timeout=5000).split()).lower()
+    except Exception:
+        return None
+
+    markers = [
+        ("RATE_LIMIT", "bạn tạm thời bị hạn chế"),
+        ("RATE_LIMIT", "tạm thời bị hạn chế"),
+        ("RATE_LIMIT", "we limit how often"),
+        ("RATE_LIMIT", "you are temporarily blocked"),
+        ("RATE_LIMIT", "try again later"),
+        ("CHECKPOINT", "checkpoint"),
+        ("CHECKPOINT", "security check"),
+        ("CHECKPOINT", "xác nhận danh tính"),
+        ("CHECKPOINT", "confirm your identity"),
+        ("SPAM_WARNING", "spam"),
+    ]
+    for code, text in markers:
+        if text in body:
+            return code
+    return None
+
+
+
 def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
     if not group_url.startswith("https://www.facebook.com/groups/"):
         raise RuntimeError("Invalid Facebook Group URL")
@@ -298,9 +324,14 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
     final = out / "group_post_after_submit.png"
     page.screenshot(path=str(final), full_page=False)
 
-    status = "POST_CLICKED"
+    status = "POSTED_UNVERIFIED"
+    safety_stop = detect_facebook_safety_stop(page)
+    if safety_stop:
+        raise RuntimeError(f"SAFETY_STOP:{safety_stop}")
+
     try:
-        body = " ".join(page.locator("body").inner_text(timeout=5000).split()).lower()
+        body_raw = " ".join(page.locator("body").inner_text(timeout=5000).split())
+        body = body_raw.lower()
         pending_markers = [
             "đang chờ phê duyệt",
             "chờ quản trị viên phê duyệt",
@@ -310,6 +341,10 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
         ]
         if any(marker in body for marker in pending_markers):
             status = "PENDING_APPROVAL"
+        else:
+            snippet = " ".join((message or "").split())[:70]
+            if snippet and snippet in body_raw:
+                status = "PUBLISHED_VISIBLE"
     except Exception:
         pass
 
@@ -582,15 +617,19 @@ def run_package(page, package_path, confirm_post, output_dir):
             write_batch_report(results, output_dir)
         except Exception as exc:
             err = str(exc)
+            safety_stop = err.startswith("SAFETY_STOP:")
             expected_skip = any(x in err for x in [
                 "Could not open Facebook Group composer",
                 "Facebook session expired",
                 "Invalid Facebook Group URL",
             ])
-            status = "SKIPPED" if expected_skip else "ERROR"
+            status = "SAFETY_STOP" if safety_stop else ("SKIPPED" if expected_skip else "ERROR")
             results.append({"group_url": group_url, "status": status, "error": err})
             write_batch_report(results, output_dir)
             print(f"GROUP_{status}={group_url} :: {err}", file=sys.stderr)
+            if safety_stop:
+                print("BATCH_HALTED_FOR_SAFETY", file=sys.stderr)
+                break
 
         # Pace group submissions to avoid accidental burst-posting.
         delay_sec = int(pkg.get("inter_group_delay_seconds") or 0)
@@ -606,7 +645,7 @@ def run_package(page, package_path, confirm_post, output_dir):
 
     failures = [r for r in results if r["status"] == "ERROR"]
     skipped = [r for r in results if r["status"] == "SKIPPED"]
-    posted = [r for r in results if r["status"] in {"POST_CLICKED","POST_OK_COMMENT_WARNING","PREVIEW_OK","PENDING_APPROVAL","SKIP_ALREADY_POSTED"}]
+    posted = [r for r in results if r["status"] in {"POST_CLICKED","POSTED_UNVERIFIED","PUBLISHED_VISIBLE","POST_OK_COMMENT_WARNING","PREVIEW_OK","PENDING_APPROVAL","SKIP_ALREADY_POSTED"}]
     print(f"BATCH_DONE total={len(results)} posted_or_preview={len(posted)} skipped={len(skipped)} errors={len(failures)}")
     return 1 if failures else 0
 
