@@ -1,6 +1,6 @@
 {
   "action": "PUBLISH",
-  "command_id": "publish-highlands-g08-20260924-1416",
+  "command_id": "publish-highlands-g08-20260924-1421",
   "package": "group_poster/packages/highlands_20260924_g08.json",
-  "note": "Resume Highlands G08 rollout after successful diagnostic ping."
+  "note": "Retry Highlands G08 after enabling Group Poster stdout/stderr capture."
 }
