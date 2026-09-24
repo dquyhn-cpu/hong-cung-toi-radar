@@ -12,7 +12,7 @@ on:
       limit:
         description: "Maximum number of candidates to show"
         required: true
-        default: "5"
+        default: "10"
         type: string
 
 jobs:
@@ -81,7 +81,7 @@ jobs:
         env:
           REVIEW_LIMIT: ${{ inputs.limit }}
         run: |
-          LIMIT="${REVIEW_LIMIT:-5}"
+          LIMIT="${REVIEW_LIMIT:-10}"
           python build_manual_review_v83.py --limit "$LIMIT"
           COUNT="$(python -c 'import json; print(json.load(open("editorial_review_candidates_v83.json", encoding="utf-8"))["candidate_count"])')"
           echo "count=$COUNT" >> "$GITHUB_OUTPUT"
