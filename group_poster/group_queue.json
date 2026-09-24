@@ -1,6 +1,6 @@
 {
   "action": "PUBLISH",
-  "command_id": "publish-airfleet-g08-20260924-1459",
+  "command_id": "publish-airfleet-g08-20260924-1504",
   "package": "group_poster/packages/airfleet_258_20260924_g08.json",
-  "note": "Retry aviation G08 after skipping locked Chromium runtime files."
+  "note": "Retry aviation G08 using the single persistent Group Poster Chromium profile. User may complete Facebook login in that exact window if prompted."
 }
