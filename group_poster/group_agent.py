@@ -121,6 +121,24 @@ def run_command(queue):
             raise RuntimeError((p.stderr or p.stdout or f'verifier exited {p.returncode}').strip())
         log(f'VERIFY_DONE command_id={command_id}')
         return command_id
+    if action == 'LOGIN':
+        if not command_id:
+            raise RuntimeError('LOGIN queue requires command_id')
+        log(f'LOGIN_START command_id={command_id}')
+        cmd = [sys.executable, str(HERE/'group_poster.py'), '--login']
+        p = subprocess.run(cmd, cwd=str(HERE), text=True, capture_output=True, creationflags=CREATE_NO_WINDOW)
+        if p.stdout:
+            for line in p.stdout.splitlines():
+                log(f'LOGIN_OUT {line}')
+        if p.stderr:
+            for line in p.stderr.splitlines():
+                log(f'LOGIN_ERR {line}')
+        if p.returncode != 0:
+            detail = (p.stderr or p.stdout or '').strip().splitlines()
+            tail = detail[-1] if detail else 'no detail'
+            raise RuntimeError(f'Group Poster login exited with code {p.returncode}: {tail}')
+        log(f'LOGIN_DONE command_id={command_id}')
+        return command_id
     if action != 'PUBLISH':
         return None
     if not command_id or not package:
@@ -153,7 +171,7 @@ def main():
             sync_binary_assets()
             queue = load_json(QUEUE, {'action':'IDLE'})
             command_id = str(queue.get('command_id') or '').strip()
-            if str(queue.get('action') or 'IDLE').upper() in {'PUBLISH','PING','SCAN_GROUPS','VERIFY_GROUPS'} and command_id and command_id != state.get('last_command_id'):
+            if str(queue.get('action') or 'IDLE').upper() in {'PUBLISH','PING','SCAN_GROUPS','VERIFY_GROUPS','LOGIN'} and command_id and command_id != state.get('last_command_id'):
                 try:
                     done_id = run_command(queue)
                     state = {'last_command_id': done_id, 'last_status':'SUCCESS', 'updated_at':datetime.now().isoformat(timespec='seconds')}
