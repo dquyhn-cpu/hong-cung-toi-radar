@@ -1,6 +1,6 @@
 {
   "action": "PUBLISH",
-  "command_id": "publish-highlands-g08-20260924-1442",
-  "package": "group_poster/packages/highlands_20260924_g08.json",
-  "note": "Retry Highlands G08 after interactive --login completed."
+  "command_id": "publish-airfleet-g08-20260924-1449",
+  "package": "group_poster/packages/airfleet_258_20260924_g08.json",
+  "note": "Canary aviation story to G08 after interactive Facebook login."
 }
