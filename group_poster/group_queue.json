@@ -1,6 +1,6 @@
 {
   "action": "PUBLISH",
-  "command_id": "test-meat-row36-after-safety-fix-20260925",
-  "package": "group_poster/packages/meat_imports_20260924_test_row36.json",
-  "note": "Single-group test only: row 36. No comments. Verify result before resuming remaining groups."
+  "command_id": "publish-meat-imports-resume-37-20260925",
+  "package": "group_poster/packages/meat_imports_20260924_resume_37_51_then_1_12.json",
+  "note": "Row 36 test succeeded. Continue rows 37-51 then 1-12. Exclude row 52. No comments; halt on strong Facebook safety signals."
 }
