@@ -190,7 +190,20 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
     page.wait_for_timeout(2500)
 
     if "login" in page.url.lower():
-        raise RuntimeError("Facebook session expired. Run --login again.")
+        # Interactive recovery: keep this exact persistent-profile Chromium
+        # window open so the operator can complete Facebook login/2FA.
+        print("FACEBOOK_LOGIN_REQUIRED")
+        print("LOGIN_HOLD=300s")
+        deadline = time.time() + 300
+        while time.time() < deadline:
+            page.wait_for_timeout(1000)
+            if "login" not in page.url.lower():
+                break
+        if "login" in page.url.lower():
+            raise RuntimeError("Facebook login was not completed within 300 seconds")
+        # Return to the intended group after login completes.
+        page.goto(group_url, wait_until="domcontentloaded", timeout=60000)
+        page.wait_for_timeout(2500)
 
     print("GROUP_OPENED")
 
