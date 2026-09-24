@@ -1,6 +1,6 @@
 {
   "action": "PUBLISH",
-  "command_id": "publish-airfleet-g08-20260924-1522",
+  "command_id": "publish-airfleet-g08-20260924-1536",
   "package": "group_poster/packages/airfleet_258_20260924_g08.json",
-  "note": "Canary aviation post to G08 using restored single persistent Chromium profile after agent restart/login."
+  "note": "Retry aviation G08 using the restored persistent Chromium profile and exact approved image reconstructed locally from GitHub base64 asset chunks. No Drive URL."
 }
