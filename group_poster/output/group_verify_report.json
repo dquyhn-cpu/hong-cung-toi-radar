@@ -1,0 +1,291 @@
+{
+  "mode": "VERIFY_READ_ONLY",
+  "results": [
+    {
+      "id": "G01",
+      "group_id": "305764097143468",
+      "url": "https://www.facebook.com/groups/305764097143468/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/305764097143468/",
+      "login_redirect": false,
+      "join_button_visible": true,
+      "joined_signal": false,
+      "composer_signal": false
+    },
+    {
+      "id": "G02",
+      "group_id": "1035305801507450",
+      "url": "https://www.facebook.com/groups/1035305801507450/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/1035305801507450/",
+      "login_redirect": false,
+      "join_button_visible": true,
+      "joined_signal": false,
+      "composer_signal": true
+    },
+    {
+      "id": "G03",
+      "group_id": "2194984914333065",
+      "url": "https://www.facebook.com/groups/2194984914333065/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/2194984914333065/",
+      "login_redirect": false,
+      "join_button_visible": true,
+      "joined_signal": false,
+      "composer_signal": true
+    },
+    {
+      "id": "G05",
+      "group_id": "1822611609137849",
+      "url": "https://www.facebook.com/groups/1822611609137849/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/1822611609137849/",
+      "login_redirect": false,
+      "join_button_visible": true,
+      "joined_signal": false,
+      "composer_signal": true
+    },
+    {
+      "id": "G06",
+      "group_id": "391775555405184",
+      "url": "https://www.facebook.com/groups/391775555405184/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/391775555405184/",
+      "login_redirect": false,
+      "join_button_visible": true,
+      "joined_signal": false,
+      "composer_signal": true
+    },
+    {
+      "id": "G07",
+      "group_id": "2912905878746514",
+      "url": "https://www.facebook.com/groups/2912905878746514/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/2912905878746514/",
+      "login_redirect": false,
+      "join_button_visible": false,
+      "joined_signal": true,
+      "composer_signal": true
+    },
+    {
+      "id": "G08",
+      "group_id": "782708824657028",
+      "url": "https://www.facebook.com/groups/782708824657028/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/782708824657028/",
+      "login_redirect": false,
+      "join_button_visible": false,
+      "joined_signal": true,
+      "composer_signal": true
+    },
+    {
+      "id": "G09",
+      "group_id": "1320636581947237",
+      "url": "https://www.facebook.com/groups/1320636581947237/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/1320636581947237/",
+      "login_redirect": false,
+      "join_button_visible": false,
+      "joined_signal": true,
+      "composer_signal": true
+    },
+    {
+      "id": "G10",
+      "group_id": "1329989478977471",
+      "url": "https://www.facebook.com/groups/1329989478977471/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/1329989478977471/",
+      "login_redirect": false,
+      "join_button_visible": false,
+      "joined_signal": true,
+      "composer_signal": true
+    },
+    {
+      "id": "G11",
+      "group_id": "831404175835004",
+      "url": "https://www.facebook.com/groups/831404175835004/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/831404175835004/",
+      "login_redirect": false,
+      "join_button_visible": true,
+      "joined_signal": false,
+      "composer_signal": true
+    },
+    {
+      "id": "G12",
+      "group_id": "200267450320206",
+      "url": "https://www.facebook.com/groups/200267450320206/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/200267450320206/",
+      "login_redirect": false,
+      "join_button_visible": false,
+      "joined_signal": true,
+      "composer_signal": true
+    },
+    {
+      "id": "G13",
+      "group_id": "230821441583734",
+      "url": "https://www.facebook.com/groups/230821441583734/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/230821441583734/",
+      "login_redirect": false,
+      "join_button_visible": true,
+      "joined_signal": false,
+      "composer_signal": true
+    },
+    {
+      "id": "G14",
+      "group_id": "tintucnonghoicuchot",
+      "url": "https://www.facebook.com/groups/tintucnonghoicuchot/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/tintucnonghoicuchot/",
+      "login_redirect": false,
+      "join_button_visible": false,
+      "joined_signal": true,
+      "composer_signal": true
+    },
+    {
+      "id": "G15",
+      "group_id": "1510470162626661",
+      "url": "https://www.facebook.com/groups/1510470162626661/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/1510470162626661/",
+      "login_redirect": false,
+      "join_button_visible": false,
+      "joined_signal": true,
+      "composer_signal": true
+    },
+    {
+      "id": "G16",
+      "group_id": "1165734200820824",
+      "url": "https://www.facebook.com/groups/1165734200820824/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/1165734200820824/",
+      "login_redirect": false,
+      "join_button_visible": false,
+      "joined_signal": true,
+      "composer_signal": true
+    },
+    {
+      "id": "G17",
+      "group_id": "1618870462288324",
+      "url": "https://www.facebook.com/groups/1618870462288324/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/1618870462288324/",
+      "login_redirect": false,
+      "join_button_visible": true,
+      "joined_signal": false,
+      "composer_signal": false
+    },
+    {
+      "id": "G18",
+      "group_id": "thongtinchinhphu",
+      "url": "https://www.facebook.com/groups/thongtinchinhphu/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/thongtinchinhphu/",
+      "login_redirect": false,
+      "join_button_visible": true,
+      "joined_signal": false,
+      "composer_signal": true
+    },
+    {
+      "id": "G19",
+      "group_id": "2934085380204159",
+      "url": "https://www.facebook.com/groups/2934085380204159/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/2934085380204159/",
+      "login_redirect": false,
+      "join_button_visible": false,
+      "joined_signal": true,
+      "composer_signal": true
+    },
+    {
+      "id": "G20",
+      "group_id": "4187038148094626",
+      "url": "https://www.facebook.com/groups/4187038148094626/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/4187038148094626/",
+      "login_redirect": false,
+      "join_button_visible": true,
+      "joined_signal": false,
+      "composer_signal": true
+    },
+    {
+      "id": "G21",
+      "group_id": "450333258659278",
+      "url": "https://www.facebook.com/groups/450333258659278/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/450333258659278/",
+      "login_redirect": false,
+      "join_button_visible": true,
+      "joined_signal": false,
+      "composer_signal": true
+    },
+    {
+      "id": "G23",
+      "group_id": "5639899666127271",
+      "url": "https://www.facebook.com/groups/5639899666127271/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/5639899666127271/",
+      "login_redirect": false,
+      "join_button_visible": false,
+      "joined_signal": true,
+      "composer_signal": true
+    },
+    {
+      "id": "G24",
+      "group_id": "1072864350073137",
+      "url": "https://www.facebook.com/groups/1072864350073137/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/1072864350073137/",
+      "login_redirect": false,
+      "join_button_visible": true,
+      "joined_signal": false,
+      "composer_signal": true
+    },
+    {
+      "id": "G25",
+      "group_id": "965833877980346",
+      "url": "https://www.facebook.com/groups/965833877980346/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/965833877980346/",
+      "login_redirect": false,
+      "join_button_visible": false,
+      "joined_signal": true,
+      "composer_signal": true
+    },
+    {
+      "id": "G26",
+      "group_id": "869991821428137",
+      "url": "https://www.facebook.com/groups/869991821428137/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/869991821428137/",
+      "login_redirect": false,
+      "join_button_visible": false,
+      "joined_signal": true,
+      "composer_signal": true
+    },
+    {
+      "id": "G27",
+      "group_id": "2746065739057191",
+      "url": "https://www.facebook.com/groups/2746065739057191/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/2746065739057191/",
+      "login_redirect": false,
+      "join_button_visible": true,
+      "joined_signal": false,
+      "composer_signal": true
+    },
+    {
+      "id": "G29",
+      "group_id": "1237948921534778",
+      "url": "https://www.facebook.com/groups/1237948921534778/",
+      "status": "OK",
+      "final_url": "https://www.facebook.com/groups/1237948921534778/",
+      "login_redirect": false,
+      "join_button_visible": true,
+      "joined_signal": false,
+      "composer_signal": true
+    }
+  ]
+}
