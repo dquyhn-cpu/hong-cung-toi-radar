@@ -1,6 +1,6 @@
 {
   "action": "PUBLISH",
-  "command_id": "publish-airfleet-remaining-20260924-1619",
+  "command_id": "publish-airfleet-remaining-20260924-1639b",
   "package": "group_poster/packages/airfleet_258_20260924_round_remaining.json",
-  "note": "Round 1 aviation rollout to verified joined groups, excluding G08. 30-second pacing between groups; detect pending approval."
+  "note": "Retry aviation remaining after local asset sync succeeded. Exclude G08. 30-second pacing between groups; detect pending approval."
 }
