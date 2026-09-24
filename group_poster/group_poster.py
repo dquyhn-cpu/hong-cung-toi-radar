@@ -26,16 +26,51 @@ def read_text(path):
 
 
 def open_group_composer(page):
-    labels = ["Viết gì đó", "Bạn viết gì đi", "Tạo bài viết", "Write something", "Create post"]
+    # Facebook frequently changes the visible copy around the group composer.
+    # Prefer semantic/placeholder selectors first, then fall back to text.
+    selectors = [
+        "[role='textbox'][contenteditable='true'][aria-placeholder*='Viết gì']",
+        "[role='textbox'][contenteditable='true'][aria-placeholder*='Bạn viết gì']",
+        "[role='textbox'][contenteditable='true'][aria-placeholder*='Write something']",
+        "[contenteditable='true'][aria-placeholder*='Tạo bài viết công khai']",
+        "[contenteditable='true'][aria-placeholder*='Create a public post']",
+    ]
+    for sel in selectors:
+        loc = page.locator(sel)
+        for i in range(loc.count()):
+            try:
+                el = loc.nth(i)
+                if not el.is_visible():
+                    continue
+                el.click(timeout=2500, force=True)
+                page.wait_for_timeout(900)
+                # Modal composer normally creates a dialog and/or a public-post textbox.
+                if page.locator("div[role='dialog']").count() or find_active_caption_editor(page) is not None:
+                    return True
+            except Exception:
+                pass
+
+    labels = [
+        "Bạn viết gì đi",
+        "Viết gì đó",
+        "Tạo bài viết",
+        "Write something",
+        "Create post",
+    ]
     for label in labels:
         try:
             loc = page.get_by_text(label, exact=False)
-            loc.first.click(timeout=1800)
-            page.wait_for_timeout(700)
-            if page.get_by_text("Tạo bài viết", exact=True).count() or page.get_by_text("Create post", exact=True).count():
-                return True
+            for i in range(loc.count()):
+                el = loc.nth(i)
+                if not el.is_visible():
+                    continue
+                el.click(timeout=2500, force=True)
+                page.wait_for_timeout(900)
+                if page.locator("div[role='dialog']").count() or find_active_caption_editor(page) is not None:
+                    return True
         except Exception:
             pass
+
     return False
 
 
