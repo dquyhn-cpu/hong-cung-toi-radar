@@ -2,8 +2,6 @@ import argparse
 import json
 import sys
 import time
-import subprocess
-import os
 from pathlib import Path
 from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
 from urllib.request import Request, urlopen
@@ -172,27 +170,6 @@ def find_post_button(page):
     return None
 
 
-def cleanup_stale_group_poster_chromium(profile_dir):
-    """Stop only stale Chromium processes launched with the dedicated Group Poster profile."""
-    if sys.platform != "win32":
-        return
-    profile_abs = str(Path(profile_dir).resolve()).lower()
-    ps = (
-        "$p = Get-CimInstance Win32_Process | Where-Object { "
-        "$_.Name -match 'chrome|chromium' -and $_.CommandLine -and "
-        "$_.CommandLine.ToLower().Contains('" + profile_abs.replace("'", "''") + "') }; "
-        "$p | ForEach-Object { try { Stop-Process -Id $_.ProcessId -Force -ErrorAction Stop } catch {} }"
-    )
-    try:
-        subprocess.run(
-            ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", ps],
-            capture_output=True, text=True, timeout=20, creationflags=0x08000000
-        )
-        time.sleep(1.0)
-    except Exception as exc:
-        print(f"PROFILE_CLEANUP_WARNING={exc}", file=sys.stderr)
-
-
 def login_mode(page):
     page.goto("https://www.facebook.com/", wait_until="domcontentloaded", timeout=60000)
     print("Facebook opened in the dedicated Group Poster browser.")
@@ -213,38 +190,11 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
     page.wait_for_timeout(2500)
 
     if "login" in page.url.lower():
-        # Interactive recovery: keep this exact persistent-profile Chromium
-        # window open so the operator can complete Facebook login/2FA.
-        print("FACEBOOK_LOGIN_REQUIRED")
-        print("LOGIN_HOLD=300s")
-        deadline = time.time() + 300
-        while time.time() < deadline:
-            page.wait_for_timeout(1000)
-            if "login" not in page.url.lower():
-                break
-        if "login" in page.url.lower():
-            raise RuntimeError("Facebook login was not completed within 300 seconds")
-        # Return to the intended group after login completes.
-        page.goto(group_url, wait_until="domcontentloaded", timeout=60000)
-        page.wait_for_timeout(2500)
+        raise RuntimeError("Facebook session expired. Run --login again.")
 
     print("GROUP_OPENED")
 
     if not open_group_composer(page):
-        # Diagnostic mode: capture visible Facebook text and keep the browser
-        # open briefly so the operator can inspect the exact UI variant.
-        try:
-            body_text = page.locator("body").inner_text(timeout=5000)
-            diag = out / "composer_debug.txt"
-            diag.write_text(body_text[:30000], encoding="utf-8")
-            print(f"COMPOSER_DEBUG_TEXT={diag}")
-            snap = out / "composer_debug.png"
-            page.screenshot(path=str(snap), full_page=False)
-            print(f"COMPOSER_DEBUG_SCREENSHOT={snap}")
-        except Exception as exc:
-            print(f"COMPOSER_DEBUG_WARNING={exc}")
-        print("COMPOSER_DEBUG_HOLD=120s")
-        page.wait_for_timeout(120000)
         raise RuntimeError("Could not open Facebook Group composer")
 
     print("COMPOSER_OPENED")
@@ -522,30 +472,12 @@ def main():
     profile.mkdir(parents=True, exist_ok=True)
 
     with sync_playwright() as p:
-        # Clear only stale Chromium processes tied to this dedicated profile.
-        # This preserves login cookies/profile data while releasing Windows profile locks.
-        cleanup_stale_group_poster_chromium(profile)
-
-        # Always use the single dedicated persistent Group Poster profile.
-        # This preserves Facebook login/session state across publish runs.
-        # Do not clone the profile; if it is currently open elsewhere, fail
-        # clearly and let the operator close that dedicated Chromium window.
-        try:
-            context = p.chromium.launch_persistent_context(
-                user_data_dir=str(profile),
-                headless=False,
-                viewport={"width": 1400, "height": 1000},
-                args=["--disable-notifications", "--disable-background-mode", "--no-first-run"],
-            )
-        except Exception as exc:
-            msg = str(exc)
-            if "Target page, context or browser has been closed" in msg or "ProcessSingleton" in msg or "profile" in msg.lower():
-                raise RuntimeError(
-                    "Dedicated Group Poster Chromium profile is already in use. "
-                    "Close only the Group Poster Chromium window/background process, then retry. "
-                    "The saved Facebook login will remain in this same profile."
-                ) from exc
-            raise
+        context = p.chromium.launch_persistent_context(
+            user_data_dir=str(profile),
+            headless=False,
+            viewport={"width": 1400, "height": 1000},
+            args=["--disable-notifications"],
+        )
         page = context.pages[0] if context.pages else context.new_page()
         try:
             if args.login:
