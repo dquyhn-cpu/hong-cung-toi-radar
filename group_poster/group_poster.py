@@ -242,27 +242,54 @@ def write_batch_report(results, output_dir):
 
 
 def detect_facebook_safety_stop(page):
-    """Return a safety-stop reason when Facebook shows checkpoint/rate-limit UI."""
+    """Return a safety-stop reason only for strong Facebook safety signals.
+
+    Do not treat the bare word "spam" anywhere in group content as a safety
+    warning; public posts/comments can contain that word and caused false
+    positives during the 2026-09-25 rollout.
+    """
+    texts = []
+
+    # Prefer modal/alert surfaces where Facebook presents actual restrictions.
+    for sel in ["div[role='dialog']", "[role='alert']", "[aria-live='assertive']"]:
+        try:
+            loc = page.locator(sel)
+            for i in range(loc.count()):
+                el = loc.nth(i)
+                if el.is_visible():
+                    txt = " ".join(el.inner_text(timeout=2500).split()).lower()
+                    if txt:
+                        texts.append(txt)
+        except Exception:
+            pass
+
+    # Also inspect the page for strong, specific phrases only.
     try:
         body = " ".join(page.locator("body").inner_text(timeout=5000).split()).lower()
+        texts.append(body)
     except Exception:
-        return None
+        pass
 
     markers = [
         ("RATE_LIMIT", "bạn tạm thời bị hạn chế"),
-        ("RATE_LIMIT", "tạm thời bị hạn chế"),
-        ("RATE_LIMIT", "we limit how often"),
+        ("RATE_LIMIT", "tài khoản của bạn tạm thời bị hạn chế"),
+        ("RATE_LIMIT", "we limit how often you can"),
         ("RATE_LIMIT", "you are temporarily blocked"),
-        ("RATE_LIMIT", "try again later"),
-        ("CHECKPOINT", "checkpoint"),
-        ("CHECKPOINT", "security check"),
+        ("RATE_LIMIT", "you're temporarily blocked"),
         ("CHECKPOINT", "xác nhận danh tính"),
         ("CHECKPOINT", "confirm your identity"),
-        ("SPAM_WARNING", "spam"),
+        ("CHECKPOINT", "security check required"),
+        ("SPAM_WARNING", "bài viết của bạn có vẻ giống spam"),
+        ("SPAM_WARNING", "bài viết này có vẻ giống spam"),
+        ("SPAM_WARNING", "we removed your post because it may be spam"),
+        ("SPAM_WARNING", "your post may go against our spam"),
+        ("SPAM_WARNING", "we think this post may be spam"),
     ]
-    for code, text in markers:
-        if text in body:
-            return code
+    for text_blob in texts:
+        for code, marker in markers:
+            if marker in text_blob:
+                print(f"SAFETY_SIGNAL_MATCH={code}:{marker}")
+                return code
     return None
 
 
