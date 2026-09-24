@@ -194,6 +194,7 @@ EVENT_FILE = "radar_events.json"
 VERIFIED_FILE = "radar_verified.json"
 EDITOR_QUEUE_FILE = "radar_editor_queue.json"
 HISTORY_FILE = "radar_history.json"
+FB_DIAGNOSTICS_FILE = "radar_fb_diagnostics.json"
 
 
 # ============================================================
@@ -3618,6 +3619,7 @@ def main():
 
     facebook_posts = []
     fb_stats = {}
+    fb_session_mode = "anonymous"
 
     with sync_playwright() as p:
         browser = (
@@ -3653,8 +3655,10 @@ def main():
 
         if storage_state_path and os.path.exists(storage_state_path):
             context_kwargs["storage_state"] = storage_state_path
+            fb_session_mode = "authenticated_storage_state"
             print("FACEBOOK SESSION: authenticated storage state loaded")
         else:
+            fb_session_mode = "anonymous"
             print("FACEBOOK SESSION: anonymous")
 
         context = browser.new_context(
@@ -3948,6 +3952,45 @@ def main():
         },
     )
 
+    social_source_health = {}
+    for source_name, config in FACEBOOK_SOURCES.items():
+        if config.get("tier") != "SOCIAL_RADAR":
+            continue
+        count = int(fb_stats.get(source_name, 0))
+        if count >= MAX_FB_POSTS_PER_SOURCE:
+            status = "FULL"
+        elif count > 0:
+            status = "PARTIAL"
+        else:
+            status = "EMPTY"
+        social_source_health[source_name] = {
+            "count": count,
+            "status": status,
+        }
+
+    save_json(
+        FB_DIAGNOSTICS_FILE,
+        {
+            "generated_at": now,
+            "version": VERSION,
+            "session_mode": fb_session_mode,
+            "target_per_source": MAX_FB_POSTS_PER_SOURCE,
+            "sources": social_source_health,
+            "full_source_count": sum(
+                1 for item in social_source_health.values()
+                if item["status"] == "FULL"
+            ),
+            "partial_source_count": sum(
+                1 for item in social_source_health.values()
+                if item["status"] == "PARTIAL"
+            ),
+            "empty_source_count": sum(
+                1 for item in social_source_health.values()
+                if item["status"] == "EMPTY"
+            ),
+        },
+    )
+
     save_json(
         NEWS_FILE,
         {
@@ -4076,6 +4119,23 @@ def main():
             source,
             ":",
             count,
+        )
+
+    print()
+    print(
+        "FACEBOOK SOCIAL HEALTH:"
+    )
+    print(
+        " session:",
+        fb_session_mode,
+    )
+    for source_name, item in social_source_health.items():
+        print(
+            " -",
+            source_name,
+            ":",
+            f"{item['count']}/{MAX_FB_POSTS_PER_SOURCE}",
+            item["status"],
         )
 
     print()
