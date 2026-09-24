@@ -1,5 +1,6 @@
 {
-  "action": "IDLE",
-  "command_id": "hold-after-comment-duplication-20260924-1648",
-  "note": "Paused rollout after duplicate-comment behavior was observed. Do not publish until comment submit/verify logic is fixed and remaining targets are reconciled."
+  "action": "PUBLISH",
+  "command_id": "publish-meat-imports-20260924-2329",
+  "package": "group_poster/packages/meat_imports_20260924_groups_13_51_then_1_12.json",
+  "note": "User order: rows 13-51 first, then rows 1-12. Exclude row 52 education-only. No comments. Track approval state; halt on Facebook safety limits."
 }
