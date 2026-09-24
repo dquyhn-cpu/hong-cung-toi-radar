@@ -1,6 +1,6 @@
 {
   "action": "PUBLISH",
-  "command_id": "debug-highlands-g08-20260924-1431",
+  "command_id": "publish-highlands-g08-20260924-1437",
   "package": "group_poster/packages/highlands_20260924_g08.json",
-  "note": "Visible composer debug: keep Chromium open 120 seconds if composer cannot be detected."
+  "note": "Retry Highlands G08 after Facebook login persisted in Group Poster profile."
 }
