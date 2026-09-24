@@ -253,6 +253,16 @@ def build_editorial_package(event, source):
         },
         "sources": source_urls,
         "social_sources": event.get("social_sources", []),
+        "social_signals": [
+            {
+                "source": post.get("source"),
+                "url": post.get("url"),
+                "time": post.get("time"),
+                "text_excerpt": (post.get("text") or "")[:500],
+            }
+            for post in event.get("social_posts", [])
+            if post.get("source") or post.get("url")
+        ],
         "verification_status": event.get("verification_status"),
         "hot_rule": event.get("hot_rule"),
         "decision_reason": event.get("decision_reason"),
