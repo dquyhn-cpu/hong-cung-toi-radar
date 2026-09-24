@@ -72,7 +72,7 @@ def build_candidates(context_payload, packets_payload, limit):
             "source": source,
             "social_sources": item.get("social_sources") or [],
             "social_signals": item.get("social_signals") or [],
-            "story_status": "UPDATE" if item.get("is_update") else "NEW",
+            "story_status": "UPDATE" if item.get("is_update") else "NEW_OR_UPDATE_CHECK",
             "source_read_status": item.get("status"),
             "needs_source_resolution": item.get("status") == "SOURCE_READ_REQUIRED",
             "draft_prompt": packet.get("prompt") if packet else None,
