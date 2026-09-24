@@ -535,16 +535,12 @@ def run_package(page, package_path, confirm_post, output_dir):
         try:
             rc = post_mode(page, group_url, message, image_path, confirm_post, output_dir)
             status = "PREVIEW_OK" if not confirm_post else (rc if isinstance(rc, str) else "POST_CLICKED")
-            if confirm_post:
-                # Keep comments deliberately simple and robust: all comments are
-                # posted at top level. reply_to metadata is ignored.
-                for spec in comments:
-                    try:
-                        add_comment(page, spec["message"], message)
-                    except Exception as exc:
-                        print(f"COMMENT_WARNING={exc}")
-                        status = "POST_OK_COMMENT_WARNING"
-                        break
+            if confirm_post and comments:
+                # Group rollout policy: publish the main post only.
+                # Automated comments are intentionally disabled to reduce
+                # Facebook rate-limit risk. Source links/details must live in
+                # the main post package instead.
+                print(f"GROUP_COMMENTS_DISABLED count={len(comments)}")
             results.append({"group_url": group_url, "status": status})
         except Exception as exc:
             err = str(exc)
