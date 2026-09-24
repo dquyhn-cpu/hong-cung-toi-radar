@@ -1,6 +1,5 @@
 {
-  "action": "PUBLISH",
-  "command_id": "publish-meat-imports-resume-36-20260925",
-  "package": "group_poster/packages/meat_imports_20260924_resume_36_51_then_1_12.json",
-  "note": "Resume from spreadsheet row 36 after user confirmed rows 13-35 posted. Continue 36-51 then 1-12. Exclude row 52. No comments; halt on Facebook safety limits."
+  "action": "PING",
+  "command_id": "ping-after-divergence-fix-20260925-0032",
+  "note": "Diagnostic only. Do not publish. Confirms Windows agent can sync after Git divergence repair."
 }
