@@ -6,6 +6,14 @@ DEFAULT_CONTEXT = "radar_editorial_context_v82.json"
 DEFAULT_PACKETS = "radar_draft_packets_v82.json"
 DEFAULT_JSON = "editorial_review_candidates_v83.json"
 DEFAULT_MD = "editorial_review_candidates_v83.md"
+DEFAULT_RADAR = "radar_results.json"
+
+SOCIAL_RADAR_SOURCES = [
+    "BeatVN",
+    "Theanh28",
+    "Top Comments",
+    "Bí Mật Showbiz",
+]
 
 def load_json(path):
     with Path(path).open("r", encoding="utf-8") as f:
@@ -62,6 +70,8 @@ def build_candidates(context_payload, packets_payload, limit):
             "recommended_publish_mode": preflight.get("recommended_publish_mode"),
             "risk_flags": preflight.get("risk_flags") or score.get("risk_flags") or [],
             "source": source,
+            "social_sources": item.get("social_sources") or [],
+            "social_signals": item.get("social_signals") or [],
             "source_read_status": item.get("status"),
             "needs_source_resolution": item.get("status") == "SOURCE_READ_REQUIRED",
             "draft_prompt": packet.get("prompt") if packet else None,
@@ -74,7 +84,26 @@ def build_candidates(context_payload, packets_payload, limit):
     )
     return candidates[: max(limit, 0)]
 
-def build_markdown(candidates):
+def build_social_health(radar_payload):
+    stats = (radar_payload or {}).get("facebook_stats") or {}
+    output = []
+    for source in SOCIAL_RADAR_SOURCES:
+        count = int(stats.get(source) or 0)
+        if count == 0:
+            status = "DOWN_OR_BLOCKED"
+        elif count == 1:
+            status = "LOW_YIELD"
+        else:
+            status = "OK"
+        output.append({
+            "source": source,
+            "count": count,
+            "status": status,
+        })
+    return output
+
+
+def build_markdown(candidates, social_health=None):
     lines = [
         "# Hóng Cùng Tôi — Editorial Review V8.3",
         "",
@@ -85,6 +114,20 @@ def build_markdown(candidates):
         "Cách dùng: xem danh sách rồi nói trong ChatGPT: Biên tập tin số N hoặc Biên tập event_id ...",
         "",
     ]
+
+    if social_health:
+        lines.extend([
+            "## Social Radar Health",
+            "",
+            "Số post Facebook đọc được ở lượt quét hiện tại. 0 = có khả năng bị chặn/không đọc được; 1 = sản lượng thấp bất thường với các page đăng dày.",
+            "",
+        ])
+        for item in social_health:
+            lines.append(
+                f"- **{item.get('source')}:** {item.get('count')} post — {item.get('status')}"
+            )
+        lines.append("")
+
     if not candidates:
         lines.append("_Không có tin nào đủ điều kiện READY_FOR_DRAFT trong lượt chạy này._")
         return "\n".join(lines) + "\n"
@@ -92,6 +135,8 @@ def build_markdown(candidates):
     for index, item in enumerate(candidates, start=1):
         src = item.get("source") or {}
         flags = ", ".join(item.get("risk_flags") or []) or "Không có cờ nổi bật"
+        social_sources = item.get("social_sources") or []
+        social_signals = item.get("social_signals") or []
         lines.extend([
             f"## Tin {index} — {item.get('working_title') or '(không có tiêu đề)'}",
             "",
@@ -102,12 +147,17 @@ def build_markdown(candidates):
             f"- **Publish mode:** {item.get('recommended_publish_mode')}",
             f"- **Risk flags:** {flags}",
             f"- **Nguồn chính:** {src.get('source') or 'N/A'}",
+            f"- **Phát hiện từ social:** {', '.join(social_sources) if social_sources else 'Không có'}",
             f"- **Trạng thái nguồn:** {item.get('source_read_status')}",
             f"- **Cần resolve/đọc lại nguồn:** {'CÓ' if item.get('needs_source_resolution') else 'KHÔNG'}",
             f"- **Tiêu đề nguồn:** {src.get('title') or 'N/A'}",
             f"- **URL nguồn:** {src.get('url') or 'N/A'}",
-            "",
         ])
+        for signal in social_signals[:4]:
+            lines.append(
+                f"- **Social signal:** {signal.get('source') or 'N/A'} — {signal.get('url') or 'N/A'}"
+            )
+        lines.append("")
 
     lines.extend([
         "---",
@@ -129,18 +179,22 @@ def main():
     parser.add_argument("--json-output", default=DEFAULT_JSON)
     parser.add_argument("--md-output", default=DEFAULT_MD)
     parser.add_argument("--limit", type=int, default=5)
+    parser.add_argument("--radar-results", default=DEFAULT_RADAR)
     args = parser.parse_args()
 
     context_payload = load_json(args.context)
     packets_payload = load_json(args.packets)
+    radar_payload = load_json(args.radar_results) if Path(args.radar_results).exists() else {}
+    social_health = build_social_health(radar_payload)
     candidates = build_candidates(context_payload, packets_payload, args.limit)
 
     save_json(args.json_output, {
         "version": "8.3-manual",
         "candidate_count": len(candidates),
+        "social_health": social_health,
         "items": candidates,
     })
-    save_text(args.md_output, build_markdown(candidates))
+    save_text(args.md_output, build_markdown(candidates, social_health))
     print(f"MANUAL_REVIEW_V83: {len(candidates)} candidates")
 
 if __name__ == "__main__":
