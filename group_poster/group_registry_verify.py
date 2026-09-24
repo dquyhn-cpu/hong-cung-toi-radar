@@ -19,7 +19,7 @@ def main():
     OUT.parent.mkdir(parents=True, exist_ok=True)
     results=[]
     with sync_playwright() as p:
-        context=p.chromium.launch_persistent_context(user_data_dir=PROFILE, headless=True, args=['--disable-notifications'])
+        context=p.chromium.launch_persistent_context(user_data_dir=PROFILE, headless=False, viewport={'width':1400,'height':1000}, args=['--disable-notifications'])
         page=context.pages[0] if context.pages else context.new_page()
         try:
             for i,g in enumerate(groups,1):
@@ -27,7 +27,15 @@ def main():
                 r={'id':g['id'],'group_id':g.get('group_id'),'url':g['url'],'status':'ERROR'}
                 try:
                     page.goto(g['url'], wait_until='domcontentloaded', timeout=45000)
-                    page.wait_for_timeout(1200)
+                    page.wait_for_timeout(2500)
+                    if 'login' in page.url.lower():
+                        # Headful persistent profile should preserve the same
+                        # Facebook session as Group Poster. Retry once in case
+                        # Facebook redirected during initial hydration.
+                        page.goto('https://www.facebook.com/', wait_until='domcontentloaded', timeout=45000)
+                        page.wait_for_timeout(1200)
+                        page.goto(g['url'], wait_until='domcontentloaded', timeout=45000)
+                        page.wait_for_timeout(2200)
                     txt=body_text(page)
                     r['final_url']=page.url
                     r['login_redirect']='login' in page.url.lower()
