@@ -28,9 +28,26 @@ def load_queue(path):
 
 
 def verify_exact_asset(item):
-    p = Path(str(item.get("image_path") or ""))
-    if not p.exists():
-        raise RuntimeError(f"Approved image missing: {p}")
+    image_url = str(item.get("image_url") or "").strip()
+    image_path = str(item.get("image_path") or "").strip()
+
+    if image_url:
+        if not image_url.startswith("https://"):
+            raise RuntimeError("Approved image_url must use https")
+        r = requests.get(image_url, timeout=90)
+        r.raise_for_status()
+        raw = r.content
+        if len(raw) < 1024:
+            raise RuntimeError("Remote approved image download returned too little data")
+        suffix = ".png" if (r.headers.get("content-type") or "").lower().startswith("image/png") else ".jpg"
+        p = Path("/tmp") / f"approved_remote_asset{suffix}"
+        p.write_bytes(raw)
+    else:
+        p = Path(image_path)
+        if not p.exists():
+            raise RuntimeError(f"Approved image missing: {p}")
+        raw = p.read_bytes()
+
     with Image.open(p) as im:
         im.verify()
     with Image.open(p) as im:
@@ -38,11 +55,12 @@ def verify_exact_asset(item):
         w, h = im.size
         if w < 900 or h < 900:
             raise RuntimeError(f"Approved master too small: {w}x{h}")
-    raw = p.read_bytes()
+
     sha = hashlib.sha256(raw).hexdigest()
     expected = str(item.get("asset_sha256") or "").strip()
     if expected and sha != expected:
         raise RuntimeError("Approved asset hash mismatch; refusing to publish")
+
     mime = "image/png" if p.suffix.lower() == ".png" else "image/jpeg"
     return p, raw, mime, sha
 
