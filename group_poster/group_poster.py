@@ -282,8 +282,8 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
 
 
 def add_comment(page, message, post_message=None):
-    # Top-level comment on the just-created post. Facebook may render the post
-    # asynchronously, so retry for up to ~25 seconds and verify persistence.
+    # Submit at most once. Facebook can materialize comments slowly; after Enter,
+    # only poll for verification instead of re-submitting and creating duplicates.
     selectors = [
         "[contenteditable='true'][aria-label*='Bình luận dưới tên']",
         "[contenteditable='true'][aria-label*='Viết bình luận']",
@@ -292,26 +292,39 @@ def add_comment(page, message, post_message=None):
     verify_text = " ".join(message.split())[:60]
     post_snippet = " ".join((post_message or "").split())[:55]
 
+    def resolve_scope():
+        scope = page.locator("body")
+        if post_snippet:
+            matches = page.get_by_text(post_snippet, exact=False)
+            for j in range(matches.count()):
+                try:
+                    hit = matches.nth(j)
+                    if not hit.is_visible():
+                        continue
+                    article = hit.locator("xpath=ancestor::*[@role='article'][1]")
+                    if article.count():
+                        return article
+                except Exception:
+                    pass
+        return scope
+
+    # Duplicate guard for reruns or delayed Facebook rendering.
+    try:
+        body = " ".join(page.locator("body").inner_text(timeout=5000).split())
+        if verify_text and verify_text in body:
+            print("COMMENT_ALREADY_PRESENT")
+            return True
+    except Exception:
+        pass
+
     deadline = time.time() + 25
     last_error = None
-    while time.time() < deadline:
-        try:
-            scope = page.locator("body")
-            if post_snippet:
-                matches = page.get_by_text(post_snippet, exact=False)
-                for j in range(matches.count()):
-                    try:
-                        hit = matches.nth(j)
-                        if not hit.is_visible():
-                            continue
-                        article = hit.locator("xpath=ancestor::*[@role='article'][1]")
-                        if article.count():
-                            scope = article
-                            break
-                    except Exception:
-                        pass
+    submitted = False
 
-            # If the comment box is not yet rendered, click the post's Comment action.
+    while time.time() < deadline and not submitted:
+        try:
+            scope = resolve_scope()
+
             if scope.locator("[contenteditable='true']").count() == 0:
                 for label in ["Bình luận", "Comment"]:
                     try:
@@ -333,24 +346,37 @@ def add_comment(page, message, post_message=None):
                         box.click(force=True)
                         page.keyboard.insert_text(message)
                         page.keyboard.press("Enter")
-                        page.wait_for_timeout(2500)
-
-                        body = " ".join(page.locator("body").inner_text(timeout=5000).split())
-                        if verify_text and verify_text not in body:
-                            raise RuntimeError("Comment submit was not verified on page")
-
-                        print("COMMENT_POSTED_VERIFIED")
-                        return True
+                        submitted = True
+                        print("COMMENT_SUBMITTED_ONCE")
+                        break
                     except Exception as exc:
                         last_error = exc
-
+                if submitted:
+                    break
         except Exception as exc:
             last_error = exc
 
-        page.wait_for_timeout(1800)
+        if not submitted:
+            page.wait_for_timeout(1200)
 
-    raise RuntimeError(f"Could not verify comment on submitted post: {last_error}")
+    if not submitted:
+        raise RuntimeError(f"Could not submit comment: {last_error}")
 
+    # Verification phase: never submit again.
+    verify_deadline = time.time() + 25
+    while time.time() < verify_deadline:
+        try:
+            body = " ".join(page.locator("body").inner_text(timeout=5000).split())
+            if verify_text and verify_text in body:
+                print("COMMENT_POSTED_VERIFIED")
+                return True
+        except Exception as exc:
+            last_error = exc
+        page.wait_for_timeout(1500)
+
+    raise RuntimeError(
+        f"Comment was submitted once but could not be verified within timeout: {last_error}"
+    )
 
 def comment_only_mode(page, post_url, comments, confirm_comments, output_dir):
     if not post_url.startswith("https://www.facebook.com/"):
