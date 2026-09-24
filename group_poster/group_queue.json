@@ -1,6 +1,6 @@
 {
   "action": "PUBLISH",
-  "command_id": "publish-highlands-g08-20260924-1428",
+  "command_id": "debug-highlands-g08-20260924-1431",
   "package": "group_poster/packages/highlands_20260924_g08.json",
-  "note": "Retry G08 after hardening composer detection."
+  "note": "Visible composer debug: keep Chromium open 120 seconds if composer cannot be detected."
 }
