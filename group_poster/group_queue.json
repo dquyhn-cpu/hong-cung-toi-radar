@@ -1,5 +1,6 @@
 {
-  "action": "LOGIN",
-  "command_id": "login-group-poster-20260924-1515",
-  "note": "Open the dedicated persistent Group Poster Chromium profile for Facebook login. Keep it open until the user confirms login."
+  "action": "PUBLISH",
+  "command_id": "publish-airfleet-g08-20260924-1522",
+  "package": "group_poster/packages/airfleet_258_20260924_g08.json",
+  "note": "Canary aviation post to G08 using restored single persistent Chromium profile after agent restart/login."
 }
