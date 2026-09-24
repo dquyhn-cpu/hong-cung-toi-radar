@@ -2,6 +2,8 @@ import argparse
 import json
 import sys
 import time
+import subprocess
+import os
 from pathlib import Path
 from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
 from urllib.request import Request, urlopen
@@ -168,6 +170,27 @@ def find_post_button(page):
         except Exception:
             pass
     return None
+
+
+def cleanup_stale_group_poster_chromium(profile_dir):
+    """Stop only stale Chromium processes launched with the dedicated Group Poster profile."""
+    if sys.platform != "win32":
+        return
+    profile_abs = str(Path(profile_dir).resolve()).lower()
+    ps = (
+        "$p = Get-CimInstance Win32_Process | Where-Object { "
+        "$_.Name -match 'chrome|chromium' -and $_.CommandLine -and "
+        "$_.CommandLine.ToLower().Contains('" + profile_abs.replace("'", "''") + "') }; "
+        "$p | ForEach-Object { try { Stop-Process -Id $_.ProcessId -Force -ErrorAction Stop } catch {} }"
+    )
+    try:
+        subprocess.run(
+            ["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command", ps],
+            capture_output=True, text=True, timeout=20, creationflags=0x08000000
+        )
+        time.sleep(1.0)
+    except Exception as exc:
+        print(f"PROFILE_CLEANUP_WARNING={exc}", file=sys.stderr)
 
 
 def login_mode(page):
@@ -499,6 +522,10 @@ def main():
     profile.mkdir(parents=True, exist_ok=True)
 
     with sync_playwright() as p:
+        # Clear only stale Chromium processes tied to this dedicated profile.
+        # This preserves login cookies/profile data while releasing Windows profile locks.
+        cleanup_stale_group_poster_chromium(profile)
+
         # Always use the single dedicated persistent Group Poster profile.
         # This preserves Facebook login/session state across publish runs.
         # Do not clone the profile; if it is currently open elsewhere, fail
