@@ -1,5 +1,6 @@
 {
-  "action": "PING",
-  "command_id": "ping-after-divergence-fix-20260925-0032",
-  "note": "Diagnostic only. Do not publish. Confirms Windows agent can sync after Git divergence repair."
+  "action": "PUBLISH",
+  "command_id": "test-meat-row36-after-safety-fix-20260925",
+  "package": "group_poster/packages/meat_imports_20260924_test_row36.json",
+  "note": "Single-group test only: row 36. No comments. Verify result before resuming remaining groups."
 }
