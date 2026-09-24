@@ -176,9 +176,11 @@ TRUSTED_DOMAINS = {
 MAX_FB_POSTS_PER_SOURCE = 8
 MAX_NEWS_PER_SOURCE = 2
 
-FB_SCROLL_ROUNDS = 8
-FB_SCROLL_WAIT_MS = 1800
-FB_INITIAL_WAIT_MS = 5000
+# Authenticated feeds usually expose enough posts quickly. Keep a bounded fallback
+# for slower pages, but avoid paying the old 8-round/5-second cost on every URL.
+FB_SCROLL_ROUNDS = 6
+FB_SCROLL_WAIT_MS = 1200
+FB_INITIAL_WAIT_MS = 3000
 
 NEWS_LOOKBACK_DAYS = 2
 
@@ -1225,6 +1227,18 @@ def collect_fb_source(
                 combined[
                     key
                 ] = post
+
+        # Fast path: authenticated desktop Facebook already returned a full
+        # batch, so the mobile mirror would only duplicate work and latency.
+        if (
+            label == "desktop"
+            and len(combined) >= MAX_FB_POSTS_PER_SOURCE
+        ):
+            print(
+                "  FAST PATH: desktop feed full; "
+                "skip mobile mirror"
+            )
+            break
 
     posts = list(
         combined.values()
