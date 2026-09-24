@@ -260,8 +260,24 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
 
     final = out / "group_post_after_submit.png"
     page.screenshot(path=str(final), full_page=False)
-    print(f"POST_CLICKED={final}")
-    return 0
+
+    status = "POST_CLICKED"
+    try:
+        body = " ".join(page.locator("body").inner_text(timeout=5000).split()).lower()
+        pending_markers = [
+            "đang chờ phê duyệt",
+            "chờ quản trị viên phê duyệt",
+            "bài viết đang chờ",
+            "pending approval",
+            "awaiting approval",
+        ]
+        if any(marker in body for marker in pending_markers):
+            status = "PENDING_APPROVAL"
+    except Exception:
+        pass
+
+    print(f"{status}={final}")
+    return status
 
 
 
@@ -492,7 +508,7 @@ def run_package(page, package_path, confirm_post, output_dir):
         print(f"GROUP_BATCH={idx}/{len(group_urls)}")
         try:
             rc = post_mode(page, group_url, message, image_path, confirm_post, output_dir)
-            status = "PREVIEW_OK" if not confirm_post else "POST_CLICKED"
+            status = "PREVIEW_OK" if not confirm_post else (rc if isinstance(rc, str) else "POST_CLICKED")
             if confirm_post:
                 # Keep comments deliberately simple and robust: all comments are
                 # posted at top level. reply_to metadata is ignored.
@@ -515,6 +531,12 @@ def run_package(page, package_path, confirm_post, output_dir):
             results.append({"group_url": group_url, "status": status, "error": err})
             print(f"GROUP_{status}={group_url} :: {err}", file=sys.stderr)
 
+        # Pace group submissions to avoid accidental burst-posting.
+        delay_sec = int(pkg.get("inter_group_delay_seconds") or 0)
+        if idx < len(group_urls) and delay_sec > 0:
+            print(f"GROUP_DELAY={delay_sec}s")
+            page.wait_for_timeout(delay_sec * 1000)
+
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
     report = out / "group_batch_report.json"
@@ -523,7 +545,7 @@ def run_package(page, package_path, confirm_post, output_dir):
 
     failures = [r for r in results if r["status"] == "ERROR"]
     skipped = [r for r in results if r["status"] == "SKIPPED"]
-    posted = [r for r in results if r["status"] in {"POST_CLICKED","POST_OK_COMMENT_WARNING","PREVIEW_OK"}]
+    posted = [r for r in results if r["status"] in {"POST_CLICKED","POST_OK_COMMENT_WARNING","PREVIEW_OK","PENDING_APPROVAL"}]
     print(f"BATCH_DONE total={len(results)} posted_or_preview={len(posted)} skipped={len(skipped)} errors={len(failures)}")
     return 1 if failures else 0
 
