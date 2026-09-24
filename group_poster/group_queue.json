@@ -1,6 +1,6 @@
 {
-  "action": "VERIFY_GROUPS",
-  "command_id": "verify-groups-session-persisted-20260924-1608",
-  "package": "",
-  "note": "Verify all groups only after Facebook session is confirmed; save cookies for future publish and verify runs. Read-only."
+  "action": "PUBLISH",
+  "command_id": "publish-airfleet-remaining-20260924-1619",
+  "package": "group_poster/packages/airfleet_258_20260924_round_remaining.json",
+  "note": "Round 1 aviation rollout to verified joined groups, excluding G08. 30-second pacing between groups; detect pending approval."
 }
