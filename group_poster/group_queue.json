@@ -1,6 +1,6 @@
 {
   "action": "VERIFY_GROUPS",
-  "command_id": "verify-groups-headful-session-20260924-1603",
+  "command_id": "verify-groups-session-persisted-20260924-1608",
   "package": "",
-  "note": "Re-verify groups using the same visible persistent Facebook profile as Group Poster. Read-only: no joins, no posts."
+  "note": "Verify all groups only after Facebook session is confirmed; save cookies for future publish and verify runs. Read-only."
 }
