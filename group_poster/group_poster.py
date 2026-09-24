@@ -219,7 +219,15 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
         return 0
 
     post_button.click()
-    page.wait_for_timeout(3500)
+
+    # Facebook often needs several seconds to close the composer and materialize
+    # the newly created group post. Do not attempt comments immediately.
+    try:
+        page.locator("div[role='dialog']").first.wait_for(state="hidden", timeout=12000)
+    except Exception:
+        pass
+    page.wait_for_timeout(6000)
+
     final = out / "group_post_after_submit.png"
     page.screenshot(path=str(final), full_page=False)
     print(f"POST_CLICKED={final}")
@@ -227,29 +235,75 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
 
 
 
-def add_comment(page, message):
-    # Top-level comment on the current post.
+def add_comment(page, message, post_message=None):
+    # Top-level comment on the just-created post. Facebook may render the post
+    # asynchronously, so retry for up to ~25 seconds and verify persistence.
     selectors = [
         "[contenteditable='true'][aria-label*='Bình luận dưới tên']",
         "[contenteditable='true'][aria-label*='Viết bình luận']",
         "[contenteditable='true'][aria-label*='Write a comment']",
     ]
-    for sel in selectors:
-        loc = page.locator(sel)
-        for i in range(loc.count() - 1, -1, -1):
-            box = loc.nth(i)
-            try:
-                if not box.is_visible():
-                    continue
-                box.click(force=True)
-                page.keyboard.insert_text(message)
-                page.keyboard.press("Enter")
-                page.wait_for_timeout(1400)
-                print("COMMENT_POSTED")
-                return True
-            except Exception:
-                pass
-    raise RuntimeError("Could not find comment box for the submitted post")
+    verify_text = " ".join(message.split())[:60]
+    post_snippet = " ".join((post_message or "").split())[:55]
+
+    deadline = time.time() + 25
+    last_error = None
+    while time.time() < deadline:
+        try:
+            scope = page.locator("body")
+            if post_snippet:
+                matches = page.get_by_text(post_snippet, exact=False)
+                for j in range(matches.count()):
+                    try:
+                        hit = matches.nth(j)
+                        if not hit.is_visible():
+                            continue
+                        article = hit.locator("xpath=ancestor::*[@role='article'][1]")
+                        if article.count():
+                            scope = article
+                            break
+                    except Exception:
+                        pass
+
+            # If the comment box is not yet rendered, click the post's Comment action.
+            if scope.locator("[contenteditable='true']").count() == 0:
+                for label in ["Bình luận", "Comment"]:
+                    try:
+                        btn = scope.get_by_text(label, exact=True)
+                        if btn.count() and btn.first.is_visible():
+                            btn.first.click(timeout=1500)
+                            page.wait_for_timeout(800)
+                            break
+                    except Exception:
+                        pass
+
+            for sel in selectors:
+                loc = scope.locator(sel)
+                for i in range(loc.count() - 1, -1, -1):
+                    box = loc.nth(i)
+                    try:
+                        if not box.is_visible():
+                            continue
+                        box.click(force=True)
+                        page.keyboard.insert_text(message)
+                        page.keyboard.press("Enter")
+                        page.wait_for_timeout(2500)
+
+                        body = " ".join(page.locator("body").inner_text(timeout=5000).split())
+                        if verify_text and verify_text not in body:
+                            raise RuntimeError("Comment submit was not verified on page")
+
+                        print("COMMENT_POSTED_VERIFIED")
+                        return True
+                    except Exception as exc:
+                        last_error = exc
+
+        except Exception as exc:
+            last_error = exc
+
+        page.wait_for_timeout(1800)
+
+    raise RuntimeError(f"Could not verify comment on submitted post: {last_error}")
 
 
 def comment_only_mode(page, post_url, comments, confirm_comments, output_dir):
@@ -414,7 +468,7 @@ def run_package(page, package_path, confirm_post, output_dir):
                 # posted at top level. reply_to metadata is ignored.
                 for spec in comments:
                     try:
-                        add_comment(page, spec["message"])
+                        add_comment(page, spec["message"], message)
                     except Exception as exc:
                         print(f"COMMENT_WARNING={exc}")
                         status = "POST_OK_COMMENT_WARNING"
