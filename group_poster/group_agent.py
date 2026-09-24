@@ -60,11 +60,17 @@ def publish_status_to_repo():
     """Commit lightweight agent status/report so ChatGPT can observe local runs."""
     targets = [STATE]
     report = HERE / "output" / "group_batch_report.json"
+    verify_report = HERE / "output" / "group_verify_report.json"
     if report.exists():
         targets.append(report)
+    if verify_report.exists():
+        targets.append(verify_report)
     rels = [str(p.relative_to(REPO)) for p in targets if p.exists()]
     if not rels:
         return
+    # Repo-local identity only; avoids global Git configuration changes on the user's PC.
+    subprocess.run(["git","-C",str(REPO),"config","user.name","HCT Group Agent"], capture_output=True, text=True, timeout=15, creationflags=CREATE_NO_WINDOW)
+    subprocess.run(["git","-C",str(REPO),"config","user.email","hct-group-agent@local"], capture_output=True, text=True, timeout=15, creationflags=CREATE_NO_WINDOW)
     subprocess.run(["git","-C",str(REPO),"add","-f",*rels], capture_output=True, text=True, timeout=30, creationflags=CREATE_NO_WINDOW)
     diff = subprocess.run(["git","-C",str(REPO),"diff","--cached","--quiet"], capture_output=True, text=True, timeout=30, creationflags=CREATE_NO_WINDOW)
     if diff.returncode == 0:
