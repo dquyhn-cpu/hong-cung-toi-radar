@@ -1464,6 +1464,86 @@ def google_news_search(
 
 
 # ============================================================
+# SOCIAL DISCOVERY FALLBACK
+# ============================================================
+
+SOCIAL_SEARCH_ALIASES = {
+    "BeatVN": ["Beatvn", "beatvn.network"],
+    "Theanh28": ["Theanh28", "Theanh28 Entertainment"],
+    "Top Comments": ["Top Comments", "topcomments.vn"],
+    "Bí Mật Showbiz": ["Bí Mật Showbiz", "bmsb.vnn"],
+}
+
+
+def collect_social_search_fallback(source_name, config, existing_posts):
+    """
+    Discover indexed Facebook post URLs when the direct public page is
+    login-walled. Search results are discovery signals only; downstream
+    verification still requires an official/trusted news source.
+    """
+    if config.get("tier") != "SOCIAL_RADAR":
+        return []
+
+    needed = max(0, MAX_FB_POSTS_PER_SOURCE - len(existing_posts))
+    if needed <= 0:
+        return []
+
+    aliases = SOCIAL_SEARCH_ALIASES.get(source_name, [source_name])
+    queries = []
+    for alias in aliases:
+        queries.extend([
+            f'site:facebook.com "{alias}" posts',
+            f'site:facebook.com "{alias}" reel',
+        ])
+
+    found = {}
+    for query in ordered_unique(queries):
+        print("  FALLBACK QUERY:", query)
+        for result in duckduckgo_search(query, max_results=12):
+            url = normalize_fb_url(result.get("url"))
+            if not is_fb_post_url(url):
+                continue
+
+            title = clean_text(result.get("title", ""))
+            title_norm = normalize_text(title)
+            alias_match = any(
+                normalize_text(alias) in title_norm
+                for alias in aliases
+            )
+            url_norm = normalize_text(url)
+            handle_match = any(
+                normalize_text(alias).replace(" ", "") in url_norm.replace(" ", "")
+                for alias in aliases
+            )
+            if not (alias_match or handle_match):
+                continue
+
+            post_id = fb_post_id(url)
+            if not post_id:
+                continue
+
+            found[post_id] = {
+                "post_id": post_id,
+                "url": url,
+                "text": title or f"{source_name} social post",
+                "time": None,
+                "extractor": "search_fallback",
+                "source": source_name,
+                "source_tier": config["tier"],
+                "signal_type": "FACEBOOK",
+            }
+
+            if len(found) >= needed:
+                break
+
+        if len(found) >= needed:
+            break
+
+    print("  FALLBACK FOUND:", len(found))
+    return list(found.values())[:needed]
+
+
+# ============================================================
 # ORIGINAL ARTICLE RESOLVER
 # ============================================================
 
@@ -3573,6 +3653,26 @@ def main():
                     config,
                 )
             )
+
+            if (
+                config.get("tier") == "SOCIAL_RADAR"
+                and len(posts) < MAX_FB_POSTS_PER_SOURCE
+            ):
+                fallback_posts = collect_social_search_fallback(
+                    source_name,
+                    config,
+                    posts,
+                )
+
+                existing_ids = {
+                    post.get("post_id")
+                    for post in posts
+                }
+
+                for fallback_post in fallback_posts:
+                    if fallback_post.get("post_id") not in existing_ids:
+                        posts.append(fallback_post)
+                        existing_ids.add(fallback_post.get("post_id"))
 
             fb_stats[
                 source_name
