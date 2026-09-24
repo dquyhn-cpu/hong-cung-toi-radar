@@ -1,6 +1,6 @@
 {
-  "action": "IDLE",
-  "command_id": "",
+  "action": "VERIFY_GROUPS",
+  "command_id": "verify-groups-20260924-1345",
   "package": "",
-  "note": "Idle after registry normalization. Next publish command will be created only after user approves a new article and says đăng Group."
+  "note": "Verify current Facebook Group membership/postability with the logged-in Page before gradual rollout. Do not auto-join any group."
 }
