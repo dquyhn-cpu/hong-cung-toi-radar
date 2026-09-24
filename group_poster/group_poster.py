@@ -11,6 +11,34 @@ from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeo
 DEFAULT_PROFILE = str(Path.home() / ".hong-cung-toi" / "facebook-group-profile")
 DEFAULT_OUTPUT = "output"
 DEFAULT_REGISTRY = Path(__file__).resolve().parent / "group_registry_normalized.json"
+SESSION_STATE = Path.home() / ".hong-cung-toi" / "facebook-group-session.json"
+
+
+def load_saved_session(context):
+    if not SESSION_STATE.exists():
+        return False
+    try:
+        data = json.loads(SESSION_STATE.read_text(encoding="utf-8"))
+        cookies = data.get("cookies") or []
+        if cookies:
+            context.add_cookies(cookies)
+            print(f"SESSION_RESTORED cookies={len(cookies)}")
+            return True
+    except Exception as exc:
+        print(f"SESSION_RESTORE_WARNING={exc}", file=sys.stderr)
+    return False
+
+
+def save_current_session(context):
+    try:
+        SESSION_STATE.parent.mkdir(parents=True, exist_ok=True)
+        cookies = context.cookies()
+        tmp = SESSION_STATE.with_suffix(".json.tmp")
+        tmp.write_text(json.dumps({"cookies": cookies}, ensure_ascii=False, indent=2), encoding="utf-8")
+        tmp.replace(SESSION_STATE)
+        print(f"SESSION_SAVED cookies={len(cookies)}")
+    except Exception as exc:
+        print(f"SESSION_SAVE_WARNING={exc}", file=sys.stderr)
 
 
 def read_text(path):
@@ -175,6 +203,7 @@ def login_mode(page):
     print("Facebook opened in the dedicated Group Poster browser.")
     print("Log in and switch this dedicated browser to Page 'Hóng Cùng Tôi' once.")
     input("Press ENTER after Facebook is ready... ")
+    save_current_session(page.context)
     print("LOGIN_PROFILE_READY")
     return 0
 
@@ -192,6 +221,7 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
     if "login" in page.url.lower():
         raise RuntimeError("Facebook session expired. Run --login again.")
 
+    save_current_session(page.context)
     print("GROUP_OPENED")
 
     if not open_group_composer(page):
