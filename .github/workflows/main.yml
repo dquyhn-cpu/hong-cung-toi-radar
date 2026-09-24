@@ -2,6 +2,8 @@ name: Test Hong Cung Toi Radar
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: "17 * * * *"
   pull_request:
     paths:
       - "radar.py"
@@ -17,6 +19,10 @@ on:
       - "test_editorial_pipeline_v82.py"
       - "test_monetization_preflight.py"
       - ".github/workflows/main.yml"
+
+concurrency:
+  group: hong-cung-toi-radar
+  cancel-in-progress: false
 
 jobs:
   test-radar:
@@ -66,6 +72,23 @@ jobs:
           FB_STORAGE_STATE_PATH: ${{ github.workspace }}/fb_storage_state.json
         run: python radar.py
 
+      - name: Show Facebook collector health
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path("radar_fb_diagnostics.json")
+          if p.exists():
+              d = json.loads(p.read_text(encoding="utf-8"))
+              print("FB SESSION:", d.get("session_mode"))
+              print("SOCIAL TARGET:", d.get("target_per_source"))
+              for name, item in d.get("sources", {}).items():
+                  print(f"{name}: {item.get('count')}/{d.get('target_per_source')} status={item.get('status')}")
+          else:
+              print("radar_fb_diagnostics.json not produced")
+          PY
+
       - name: Build editorial queue V8.2
         run: python editorial_pipeline.py
 
@@ -89,4 +112,5 @@ jobs:
             radar_editorial_context_v82.json
             radar_draft_packets_v82.json
             radar_history.json
+            radar_fb_diagnostics.json
           retention-days: 7
