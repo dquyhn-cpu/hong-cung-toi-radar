@@ -1,6 +1,6 @@
 {
-  "action": "PUBLISH",
-  "command_id": "publish-airfleet-g08-20260924-1536",
-  "package": "group_poster/packages/airfleet_258_20260924_g08.json",
-  "note": "Retry aviation G08 using the restored persistent Chromium profile and exact approved image reconstructed locally from GitHub base64 asset chunks. No Drive URL."
+  "action": "VERIFY_GROUPS",
+  "command_id": "verify-groups-before-airfleet-rollout-20260924-1555",
+  "package": "",
+  "note": "Read-only verification before continuing airfleet rollout. Do not join groups and do not publish during verification."
 }
