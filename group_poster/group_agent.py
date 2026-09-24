@@ -130,9 +130,17 @@ def run_command(queue):
         raise RuntimeError(f'Package not found: {package_path}')
     cmd = [sys.executable, str(HERE/'group_poster.py'), '--package', str(package_path), '--confirm-post', '--output-dir', str(HERE/'output')]
     log(f'START command_id={command_id} package={package}')
-    p = subprocess.run(cmd, cwd=str(HERE), text=True, creationflags=CREATE_NO_WINDOW)
+    p = subprocess.run(cmd, cwd=str(HERE), text=True, capture_output=True, creationflags=CREATE_NO_WINDOW)
+    if p.stdout:
+        for line in p.stdout.splitlines():
+            log(f'POSTER_OUT {line}')
+    if p.stderr:
+        for line in p.stderr.splitlines():
+            log(f'POSTER_ERR {line}')
     if p.returncode != 0:
-        raise RuntimeError(f'Group Poster exited with code {p.returncode}')
+        detail = (p.stderr or p.stdout or '').strip().splitlines()
+        tail = detail[-1] if detail else 'no detail'
+        raise RuntimeError(f'Group Poster exited with code {p.returncode}: {tail}')
     log(f'DONE command_id={command_id}')
     return command_id
 
