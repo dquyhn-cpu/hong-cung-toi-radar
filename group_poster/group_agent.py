@@ -81,6 +81,7 @@ def publish_status_to_repo():
         log("STATUS_PUSHED")
 
 
+def git_pull():
     p = subprocess.run(['git','-C',str(REPO),'pull','--ff-only'], capture_output=True, text=True, timeout=60, creationflags=CREATE_NO_WINDOW)
     if p.returncode != 0:
         raise RuntimeError((p.stderr or p.stdout or 'git pull failed').strip())
