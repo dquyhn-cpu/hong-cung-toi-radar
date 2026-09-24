@@ -4,6 +4,12 @@ on:
   workflow_dispatch:
   schedule:
     - cron: "17 * * * *"
+  push:
+    branches:
+      - main
+    paths:
+      - "radar.py"
+      - ".github/workflows/main.yml"
   pull_request:
     paths:
       - "radar.py"
