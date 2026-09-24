@@ -495,12 +495,41 @@ def main():
         launch_profile = profile
         if not args.login:
             run_profile = Path(tempfile.mkdtemp(prefix="hct-group-profile-"))
+            # Only copy stable login/profile data. Volatile Chromium runtime
+            # files (Sessions, Cookies journals, caches, locks) may remain held
+            # briefly even after the visible browser window closes.
             ignore = shutil.ignore_patterns(
-                "SingletonLock", "SingletonCookie", "SingletonSocket",
-                "lockfile", "*.lock", "Crashpad", "Cache", "Code Cache",
-                "GPUCache", "ShaderCache", "GrShaderCache"
+                "Singleton*", "lockfile", "*.lock", "*.tmp", "*-journal",
+                "Crashpad", "Cache", "Code Cache", "GPUCache", "ShaderCache",
+                "GrShaderCache", "Sessions", "Session Storage", "Service Worker",
+                "WebStorage", "Network Action Predictor", "TransportSecurity"
             )
-            shutil.copytree(profile, run_profile, dirs_exist_ok=True, ignore=ignore)
+            try:
+                shutil.copytree(profile, run_profile, dirs_exist_ok=True, ignore=ignore)
+            except shutil.Error as exc:
+                # Windows can transiently lock individual Chromium files.
+                # Retry with a targeted copy of the stable authentication state.
+                print(f"PROFILE_CLONE_WARNING={exc}", file=sys.stderr)
+                shutil.rmtree(run_profile, ignore_errors=True)
+                run_profile.mkdir(parents=True, exist_ok=True)
+                for rel in ["Local State", "Default/Preferences", "Default/Secure Preferences", "Default/Login Data"]:
+                    src = profile / rel
+                    dst = run_profile / rel
+                    if src.exists():
+                        dst.parent.mkdir(parents=True, exist_ok=True)
+                        try:
+                            shutil.copy2(src, dst)
+                        except OSError:
+                            pass
+                # Cookies are useful but optional; copy only when Windows releases them.
+                src = profile / "Default/Network/Cookies"
+                dst = run_profile / "Default/Network/Cookies"
+                if src.exists():
+                    dst.parent.mkdir(parents=True, exist_ok=True)
+                    try:
+                        shutil.copy2(src, dst)
+                    except OSError:
+                        pass
             launch_profile = run_profile
 
         context = p.chromium.launch_persistent_context(
