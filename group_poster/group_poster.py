@@ -208,6 +208,39 @@ def login_mode(page):
     return 0
 
 
+
+def group_already_has_post(page, message):
+    """Best-effort duplicate guard for recent group posts.
+
+    Uses a stable headline/snippet from the package message. This is intended
+    to prevent accidental reposts when a previous rollout was interrupted
+    before its batch report was written.
+    """
+    normalized = " ".join((message or "").split())
+    if not normalized:
+        return False
+    # Prefer the first logical line/headline; fall back to a stable prefix.
+    first_line = (message or "").strip().splitlines()[0].strip()
+    snippet = first_line if len(first_line) >= 20 else normalized[:70]
+    try:
+        body = " ".join(page.locator("body").inner_text(timeout=5000).split())
+        if snippet and snippet in body:
+            print(f"DUPLICATE_GUARD_HIT={snippet[:80]}")
+            return True
+    except Exception as exc:
+        print(f"DUPLICATE_GUARD_WARNING={exc}", file=sys.stderr)
+    return False
+
+
+def write_batch_report(results, output_dir):
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    report = out / "group_batch_report.json"
+    report.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
+    print(f"BATCH_REPORT_UPDATED={report} rows={len(results)}")
+    return report
+
+
 def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
     if not group_url.startswith("https://www.facebook.com/groups/"):
         raise RuntimeError("Invalid Facebook Group URL")
@@ -223,6 +256,10 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
 
     save_current_session(page.context)
     print("GROUP_OPENED")
+
+    if group_already_has_post(page, message):
+        print("SKIP_ALREADY_POSTED")
+        return "SKIP_ALREADY_POSTED"
 
     if not open_group_composer(page):
         raise RuntimeError("Could not open Facebook Group composer")
@@ -542,6 +579,7 @@ def run_package(page, package_path, confirm_post, output_dir):
                 # the main post package instead.
                 print(f"GROUP_COMMENTS_DISABLED count={len(comments)}")
             results.append({"group_url": group_url, "status": status})
+            write_batch_report(results, output_dir)
         except Exception as exc:
             err = str(exc)
             expected_skip = any(x in err for x in [
@@ -551,6 +589,7 @@ def run_package(page, package_path, confirm_post, output_dir):
             ])
             status = "SKIPPED" if expected_skip else "ERROR"
             results.append({"group_url": group_url, "status": status, "error": err})
+            write_batch_report(results, output_dir)
             print(f"GROUP_{status}={group_url} :: {err}", file=sys.stderr)
 
         # Pace group submissions to avoid accidental burst-posting.
@@ -567,7 +606,7 @@ def run_package(page, package_path, confirm_post, output_dir):
 
     failures = [r for r in results if r["status"] == "ERROR"]
     skipped = [r for r in results if r["status"] == "SKIPPED"]
-    posted = [r for r in results if r["status"] in {"POST_CLICKED","POST_OK_COMMENT_WARNING","PREVIEW_OK","PENDING_APPROVAL"}]
+    posted = [r for r in results if r["status"] in {"POST_CLICKED","POST_OK_COMMENT_WARNING","PREVIEW_OK","PENDING_APPROVAL","SKIP_ALREADY_POSTED"}]
     print(f"BATCH_DONE total={len(results)} posted_or_preview={len(posted)} skipped={len(skipped)} errors={len(failures)}")
     return 1 if failures else 0
 
