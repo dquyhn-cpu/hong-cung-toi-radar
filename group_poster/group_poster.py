@@ -2,6 +2,8 @@ import argparse
 import json
 import sys
 import time
+import shutil
+import tempfile
 from pathlib import Path
 from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
 from urllib.request import Request, urlopen
@@ -486,11 +488,26 @@ def main():
     profile.mkdir(parents=True, exist_ok=True)
 
     with sync_playwright() as p:
+        # Publish from a disposable clone of the saved login profile.
+        # This avoids Chromium ProcessSingleton/profile-lock crashes if a prior
+        # interactive login browser left background processes behind.
+        run_profile = None
+        launch_profile = profile
+        if not args.login:
+            run_profile = Path(tempfile.mkdtemp(prefix="hct-group-profile-"))
+            ignore = shutil.ignore_patterns(
+                "SingletonLock", "SingletonCookie", "SingletonSocket",
+                "lockfile", "*.lock", "Crashpad", "Cache", "Code Cache",
+                "GPUCache", "ShaderCache", "GrShaderCache"
+            )
+            shutil.copytree(profile, run_profile, dirs_exist_ok=True, ignore=ignore)
+            launch_profile = run_profile
+
         context = p.chromium.launch_persistent_context(
-            user_data_dir=str(profile),
+            user_data_dir=str(launch_profile),
             headless=False,
             viewport={"width": 1400, "height": 1000},
-            args=["--disable-notifications"],
+            args=["--disable-notifications", "--disable-background-mode", "--no-first-run"],
         )
         page = context.pages[0] if context.pages else context.new_page()
         try:
@@ -530,6 +547,11 @@ def main():
             return 1
         finally:
             context.close()
+            if run_profile is not None:
+                try:
+                    shutil.rmtree(run_profile, ignore_errors=True)
+                except Exception:
+                    pass
 
 
 if __name__ == "__main__":
