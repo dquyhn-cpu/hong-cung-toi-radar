@@ -160,6 +160,28 @@ def find_active_caption_editor(page):
                 pass
 
     if not candidates:
+        # Fallback for Facebook variants that omit aria-placeholder.
+        try:
+            dialogs = page.locator("div[role='dialog']")
+            for d_i in range(dialogs.count() - 1, -1, -1):
+                d = dialogs.nth(d_i)
+                if not d.is_visible():
+                    continue
+                loc = d.locator("[role='textbox'][contenteditable='true'], [contenteditable='true']")
+                for i in range(loc.count()):
+                    el = loc.nth(i)
+                    try:
+                        if not el.is_visible():
+                            continue
+                        box = el.bounding_box()
+                        if box and box["width"] >= 180 and box["height"] >= 18:
+                            candidates.append((box["y"], el))
+                    except Exception:
+                        pass
+        except Exception:
+            pass
+
+    if not candidates:
         return None
 
     candidates.sort(key=lambda x: x[0])
@@ -191,11 +213,39 @@ def enter_caption(page, message):
 
 
 def find_post_button(page):
-    for name in ["Đăng", "Post"]:
+    scopes = []
+    try:
+        dialogs = page.locator("div[role='dialog']")
+        for i in range(dialogs.count() - 1, -1, -1):
+            d = dialogs.nth(i)
+            if d.is_visible():
+                scopes.append(d)
+    except Exception:
+        pass
+    scopes.append(page)
+
+    for scope in scopes:
+        for name in ["Đăng", "Post"]:
+            try:
+                btn = scope.get_by_role("button", name=name, exact=True)
+                for i in range(btn.count()):
+                    el = btn.nth(i)
+                    if el.is_visible() and el.is_enabled():
+                        return el
+            except Exception:
+                pass
+
+    # Fallback for button text nested inside Facebook's role=button wrappers.
+    for scope in scopes:
         try:
-            btn = page.get_by_role("button", name=name)
-            btn.first.wait_for(state="visible", timeout=1600)
-            return btn.first
+            buttons = scope.locator("[role='button']")
+            for i in range(buttons.count()):
+                el = buttons.nth(i)
+                if not el.is_visible():
+                    continue
+                txt = " ".join((el.inner_text(timeout=1000) or "").split()).strip().lower()
+                if txt in {"đăng", "post"}:
+                    return el
         except Exception:
             pass
     return None
@@ -402,8 +452,25 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
 
-    page.goto(group_url, wait_until="domcontentloaded", timeout=60000)
-    page.wait_for_timeout(2500)
+    # Navigation retry: Facebook group pages can intermittently hang or fail DNS.
+    nav_error = None
+    for attempt in range(1, 3):
+        try:
+            page.goto(group_url, wait_until="domcontentloaded", timeout=60000)
+            page.wait_for_timeout(2500 if attempt == 1 else 4000)
+            nav_error = None
+            break
+        except Exception as exc:
+            nav_error = exc
+            print(f"NAV_RETRY attempt={attempt} error={exc}", file=sys.stderr)
+            if attempt < 2:
+                try:
+                    page.goto("https://www.facebook.com/", wait_until="domcontentloaded", timeout=30000)
+                except Exception:
+                    pass
+                page.wait_for_timeout(1800)
+    if nav_error is not None:
+        raise RuntimeError(f"Group navigation failed after retry: {nav_error}")
 
     if "login" in page.url.lower():
         raise RuntimeError("Facebook session expired. Run --login again.")
@@ -415,28 +482,58 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
         print("SKIP_ALREADY_POSTED")
         return "SKIP_ALREADY_POSTED"
 
-    if not open_group_composer(page):
-        raise RuntimeError("Could not open Facebook Group composer")
+    # Composer retry: first normal attempt, then reload + scroll + second attempt.
+    composer_ok = open_group_composer(page)
+    if not composer_ok:
+        print("COMPOSER_RETRY=reload")
+        try:
+            page.reload(wait_until="domcontentloaded", timeout=60000)
+            page.wait_for_timeout(3500)
+            page.mouse.wheel(0, 500)
+            page.wait_for_timeout(700)
+        except Exception as exc:
+            print(f"COMPOSER_RELOAD_WARNING={exc}", file=sys.stderr)
+        composer_ok = open_group_composer(page)
+
+    if not composer_ok:
+        raise RuntimeError("Could not open Facebook Group composer after retry")
 
     print("COMPOSER_OPENED")
 
     # Never publish as the user's personal profile by accident.
-    ensure_posting_identity(page, "Hóng Cùng Tôi")
+    try:
+        ensure_posting_identity(page, "Hóng Cùng Tôi")
+    except Exception as exc:
+        print(f"IDENTITY_RETRY={exc}", file=sys.stderr)
+        page.wait_for_timeout(1500)
+        ensure_posting_identity(page, "Hóng Cùng Tôi")
 
     # Important: media first, caption second.
     attach_image(page, image_path)
     if image_path:
         print("IMAGE_ATTACHED")
 
-    enter_caption(page, message)
+    try:
+        enter_caption(page, message)
+    except Exception as exc:
+        print(f"CAPTION_RETRY={exc}", file=sys.stderr)
+        page.wait_for_timeout(1200)
+        enter_caption(page, message)
 
     post_button = find_post_button(page)
     if post_button is None:
-        raise RuntimeError("Post button not found")
+        page.wait_for_timeout(1500)
+        post_button = find_post_button(page)
+    if post_button is None:
+        raise RuntimeError("Post button not found after retry")
 
     preview = out / "group_post_preview.png"
-    page.screenshot(path=str(preview), full_page=False)
-    print(f"PREVIEW={preview}")
+    try:
+        page.screenshot(path=str(preview), full_page=False, timeout=12000)
+        print(f"PREVIEW={preview}")
+    except Exception as exc:
+        # Screenshot is diagnostic only; never fail a valid post because it is slow.
+        print(f"PREVIEW_SCREENSHOT_WARNING={exc}", file=sys.stderr)
 
     if not confirm_post:
         print("DRY_RUN_OK")
