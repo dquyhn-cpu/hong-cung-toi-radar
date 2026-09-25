@@ -1,0 +1,495 @@
+{
+  "generated_at": "2026-09-25T03:25:46.148517+00:00",
+  "collector": "LOCAL_PERSISTENT_CHROMIUM",
+  "profile_dir": "C:\\Users\\AnhQuy\\.hong-cung-toi\\facebook-radar-profile",
+  "source_stats": {
+    "Thông tin Chính phủ": 8,
+    "Bộ Công an": 8,
+    "BeatVN": 8,
+    "Theanh28": 8,
+    "Top Comments": 8,
+    "Bí Mật Showbiz": 8
+  },
+  "facebook_posts": [
+    {
+      "post_id": "pfbid02NVVVprgxSQJH55HSt87HKQ6hRXgGPRXrgBqswj67aEJ4NHRyadZUJcRaSnhuGRrcl",
+      "url": "https://www.facebook.com/thongtinchinhphu/posts/pfbid02NVVVprgxSQJH55HSt87HKQ6hRXgGPRXrgBqswj67aEJ4NHRyadZUJcRaSnhuGRrcl",
+      "text": "Đỗ Quyên\nTrường Giang đồ đó he, nói 96 cũng tin luôn :))\n1 giờ\nTrả lời\nĐã chỉnh sửa\n21",
+      "time": "1 giờ",
+      "extractor": "role_article",
+      "source": "Thông tin Chính phủ",
+      "source_tier": "OFFICIAL_FB",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid031WEaBTshZHftxKMZ1Dvd9dqS3ecNEwNsYFrsqp5aJAVfbJqFGnuYXGQ7ggXtB1Eml",
+      "url": "https://www.facebook.com/thongtinchinhphu/posts/pfbid031WEaBTshZHftxKMZ1Dvd9dqS3ecNEwNsYFrsqp5aJAVfbJqFGnuYXGQ7ggXtB1Eml",
+      "text": "Tác giả\nThông tin Chính phủ\nPhát biểu chào mừng, Bộ trưởng Ngoại giao Canada Anita Anand nhấn mạnh đây là một thời điểm rất quan trọng đối với Việt Nam và Canada trong các cam kết về khu vực Ấn Độ Dương – Thái Bình Dương. Hai bên đã quyết định nâng cấp mối quan hệ lên Đối tác Chi… Xem thêm\n1 giờ\nTrả lời",
+      "time": "1 giờ",
+      "extractor": "role_article",
+      "source": "Thông tin Chính phủ",
+      "source_tier": "OFFICIAL_FB",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid02Yhr8A8NXusdkoUWw5PB8Qcwp5NwN1mvgu4f6nvsn5K2521RgYg5Hikn6pZDRhhkCl",
+      "url": "https://www.facebook.com/thongtinchinhphu/posts/pfbid02Yhr8A8NXusdkoUWw5PB8Qcwp5NwN1mvgu4f6nvsn5K2521RgYg5Hikn6pZDRhhkCl",
+      "text": "Tác giả\nThông tin Chính phủ\nToàn quyền Canada Louise Arbour bày tỏ vui mừng chào đón Tổng Bí thư, Chủ tịch nước Tô Lâm và Đoàn đại biểu cấp cao Việt Nam thăm cấp Nhà nước tới Canada, thể hiện mối quan hệ gắn bó khăng khít giữa hai quốc gia.\nToàn quyền Canada Louise Arbour nhấn m… Xem thêm\n2 giờ\nTrả lời\n7",
+      "time": "2 giờ",
+      "extractor": "role_article",
+      "source": "Thông tin Chính phủ",
+      "source_tier": "OFFICIAL_FB",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "2307335763424760",
+      "url": "https://www.facebook.com/reel/2307335763424760",
+      "text": "Tác giả\nThông tin Chính phủ\nĐội tuyển Naraka: Bladepoint Việt Nam vừa giành huy chương đồng tại ASIAD 20.\nĐây là tấm huy chương đầu tiên trong lịch sử thể thao điện tử Việt Nam ở đấu trường châu Á.… Xem thêm\n10 giờ\nTrả lời\nĐã chỉnh sửa\n173",
+      "time": "10 giờ",
+      "extractor": "role_article",
+      "source": "Thông tin Chính phủ",
+      "source_tier": "OFFICIAL_FB",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0JCPFgZQ6RBAcpurapU4JKpJkFCPf92TgvdCy1PjcDzRcSBxSpc7tJpq6VHBKcjPtl",
+      "url": "https://www.facebook.com/thongtinchinhphu/posts/pfbid0JCPFgZQ6RBAcpurapU4JKpJkFCPf92TgvdCy1PjcDzRcSBxSpc7tJpq6VHBKcjPtl",
+      "text": "Hải Âu\nthế phải mở ngoặc thêm là các cụ tập thể dục buổi sáng ở sân nhà văn hóa cũng phải sau 6h , chứ e con nhỏ quấy cả đêm. gần sáng chợp mắt dc tí thì 4h30-5h các cụ đã bật loa tập dưỡng sinh rồi\n8 giờ\nTrả lời\n89",
+      "time": "8 giờ",
+      "extractor": "role_article",
+      "source": "Thông tin Chính phủ",
+      "source_tier": "OFFICIAL_FB",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid09vJCJsDw9TseuAPBaHCacieZKDEiCV4HLhVexsiXjHzGc4GUyWyTMvcDwePw4YAil",
+      "url": "https://www.facebook.com/thongtinchinhphu/posts/pfbid09vJCJsDw9TseuAPBaHCacieZKDEiCV4HLhVexsiXjHzGc4GUyWyTMvcDwePw4YAil",
+      "text": "Tác giả\nThông tin Chính phủ\nTổng Bí thư, Chủ tịch nước Tô Lâm đánh giá cao sự quan tâm của công ty đã phối hợp với các cơ quan Việt Nam để triển khai thí điểm dịch vụ theo quy định.\nBà Gwynne Shotwell bày tỏ mong muốn hợp tác với các đối tác Việt Nam nhằm phục vụ tốt hơn việc gi… Xem thêm\n10 giờ\nTrả lời\n4",
+      "time": "10 giờ",
+      "extractor": "role_article",
+      "source": "Thông tin Chính phủ",
+      "source_tier": "OFFICIAL_FB",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0mXMKm7WMgiiZTy6kGQgXC4PjpmETrz2UM7xrN5Cv38x6RcVU5gHAziSQ2UPEaweNl",
+      "url": "https://www.facebook.com/thongtinchinhphu/posts/pfbid0mXMKm7WMgiiZTy6kGQgXC4PjpmETrz2UM7xrN5Cv38x6RcVU5gHAziSQ2UPEaweNl",
+      "text": "Tác giả\nThông tin Chính phủ\nTại hội nghị, Đoàn đại biểu Quốc hội Hải Phòng đã báo cáo về dự kiến chương trình, nội dung Kỳ họp thứ 2 và hoạt động của đoàn từ sau Kỳ họp thứ Nhất đến nay. Từ sau Kỳ họp thứ Nhất, đoàn đã nhận được 21 văn bản của các bộ, ngành, cơ quan Trung ương, t… Xem thêm\n14 giờ\nTrả lời\n28",
+      "time": "14 giờ",
+      "extractor": "role_article",
+      "source": "Thông tin Chính phủ",
+      "source_tier": "OFFICIAL_FB",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid02TisqpdhmcAKf1sZJ7RGEtanWc1cRPzDzXs14E4m2eRE6z4x1ioYWhnL7XhrzCr5yl",
+      "url": "https://www.facebook.com/thongtinchinhphu/posts/pfbid02TisqpdhmcAKf1sZJ7RGEtanWc1cRPzDzXs14E4m2eRE6z4x1ioYWhnL7XhrzCr5yl",
+      "text": "Tác giả\nThông tin Chính phủ\nTheo thống kê của các địa phương, tổng nhu cầu SGK phục vụ năm học 2026-2027 khoảng 245,94 triệu bản. Nhu cầu này không chỉ phục vụ trực tiếp học sinh mà còn bao gồm nhu cầu bổ sung cho thư viện nhà trường, thay thế sách mất, hư hỏng và chuẩn bị nguồn … Xem thêm\n14 giờ\nTrả lời\n134",
+      "time": "14 giờ",
+      "extractor": "role_article",
+      "source": "Thông tin Chính phủ",
+      "source_tier": "OFFICIAL_FB",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid02tMthFn3sAPNP3z6MuKpEBFFXT92G7ZkZgSZrGwi2LGF4hUMbJwckgurymS9FwjbHl",
+      "url": "https://www.facebook.com/mps.gov/posts/pfbid02tMthFn3sAPNP3z6MuKpEBFFXT92G7ZkZgSZrGwi2LGF4hUMbJwckgurymS9FwjbHl",
+      "text": "Tác giả\nBộ Công an\nTrong thời gian từ tháng 5/2026 đến tháng 8/2026, Cơ quan Cảnh sát điều tra Công an tỉnh Thái Nguyên đã khởi tố 04 vụ án, 04 bị can về tội “Xâm phạm quyền sở hữu công nghiệp” và ra Quyết định xử phạt vi phạm hành chính 15 vụ án, 15 đối tượng. Trọng tâm… Xem thêm\n2 giờ\nTrả lời\n5",
+      "time": "2 giờ",
+      "extractor": "role_article",
+      "source": "Bộ Công an",
+      "source_tier": "OFFICIAL_FB",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid02Aujtm1g8CRvszA8KnqXfc1jCFF7spMfMgoXEFwxqRrX9MJSGd3L2AqCbVygu66Xwl",
+      "url": "https://www.facebook.com/mps.gov/posts/pfbid02Aujtm1g8CRvszA8KnqXfc1jCFF7spMfMgoXEFwxqRrX9MJSGd3L2AqCbVygu66Xwl",
+      "text": "Tác giả\nBộ Công an\nKính mời Nhân dân đọc thêm tại đây: https://bocongan.gov.vn/.../bo-cong-an-viet-nam-day-manh...\nBOCONGAN.GOV.VN\nBộ Công an Việt Nam đẩy mạnh tham gia hoạt động gìn giữ hòa bình\n19 giờ\nTrả lời\n6",
+      "time": "19 giờ",
+      "extractor": "role_article",
+      "source": "Bộ Công an",
+      "source_tier": "OFFICIAL_FB",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0qGngvdBe4w4qW4T191yJZf5u5svqv3ERGyMnWgJcS6gPKM7mz9EoBGKpCzRFCPHyl",
+      "url": "https://www.facebook.com/mps.gov/posts/pfbid0qGngvdBe4w4qW4T191yJZf5u5svqv3ERGyMnWgJcS6gPKM7mz9EoBGKpCzRFCPHyl",
+      "text": "Tác giảBộ Công anTài khoản đã xác minh Qua đấu tranh chuyên án liên quan Công ty Thái Hưng và 34 doanh nghiệp, Cơ quan Cảnh sát điều tra Công an Thành phố (Phòng Cảnh sát kinh tế) xác định Lê Văn Hiền (sinh năm 1984, cư trú tại phường Tân Sơn Nhì) là đối tượng chủ mưu, cầm đầu, tổ chức thực… Xem thêm1 ngàyThíchTrả lời24",
+      "time": null,
+      "extractor": "role_article",
+      "source": "Bộ Công an",
+      "source_tier": "OFFICIAL_FB",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0pEqCL8CGZ9eky6nswdVkNyaoQeZuejNTDG2jaKou4pqXmHDB53VbYSZd2JuS8yuBl",
+      "url": "https://www.facebook.com/mps.gov/posts/pfbid0pEqCL8CGZ9eky6nswdVkNyaoQeZuejNTDG2jaKou4pqXmHDB53VbYSZd2JuS8yuBl",
+      "text": "Nguyễn Quyền\nHjhjhjjjj\n⚘️⚘️⚘️\n2 ngày\nTrả lời",
+      "time": "2 ngày",
+      "extractor": "role_article",
+      "source": "Bộ Công an",
+      "source_tier": "OFFICIAL_FB",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "1624794126025611",
+      "url": "https://www.facebook.com/reel/1624794126025611",
+      "text": "Khanh Toan Le\nChuẩn\n2 ngày\nTrả lời",
+      "time": "2 ngày",
+      "extractor": "role_article",
+      "source": "Bộ Công an",
+      "source_tier": "OFFICIAL_FB",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "940825822419406",
+      "url": "https://www.facebook.com/reel/940825822419406",
+      "text": "Minh Minh\nAI????\n3 ngày\n539",
+      "time": "3 ngày",
+      "extractor": "role_article",
+      "source": "Bộ Công an",
+      "source_tier": "OFFICIAL_FB",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "1977585542922716",
+      "url": "https://www.facebook.com/reel/1977585542922716",
+      "text": "Nguyễn Thắng\n5 ngày\nTrả lời",
+      "time": "5 ngày",
+      "extractor": "role_article",
+      "source": "Bộ Công an",
+      "source_tier": "OFFICIAL_FB",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid031b3H2P5nQV6q25FHQn8fmWsCjjsYRrMppA3K4YWjDzkcw98XkaaQxt1LxgdYhbDMl",
+      "url": "https://www.facebook.com/mps.gov/posts/pfbid031b3H2P5nQV6q25FHQn8fmWsCjjsYRrMppA3K4YWjDzkcw98XkaaQxt1LxgdYhbDMl",
+      "text": "Bảo Nam\nTiêm\n15 giờ\nTrả lời\n50",
+      "time": "15 giờ",
+      "extractor": "role_article",
+      "source": "Bộ Công an",
+      "source_tier": "OFFICIAL_FB",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0352TW2TEFcQ8JvrEtMDJwyhbmGC8QFbdpBFNfy8AJKWesiCy2JSfgQE1vJZfadxoLl",
+      "url": "https://www.facebook.com/beatvn.network/posts/pfbid0352TW2TEFcQ8JvrEtMDJwyhbmGC8QFbdpBFNfy8AJKWesiCy2JSfgQE1vJZfadxoLl",
+      "text": "Vĩnh Chuột\nMấy bà hàng xóm cứ so giá hàng ở vn vs hàng xách tay thì vào đây mà xem nhé\n8 phút\nTrả lời\n5",
+      "time": "8 phút",
+      "extractor": "role_article",
+      "source": "BeatVN",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid027Fevnfcu99KRqtccR6R2Zua9zXeaEhdWWNrNe8L4HdeYEiUf6eXrmgKh63wkZbsEl",
+      "url": "https://www.facebook.com/beatvn.network/posts/pfbid027Fevnfcu99KRqtccR6R2Zua9zXeaEhdWWNrNe8L4HdeYEiUf6eXrmgKh63wkZbsEl",
+      "text": "Fan cứng\nTuấn Anh Hoàng\nTưởng thế là ngầu :))\n50 phút\nTrả lời\n58",
+      "time": "50 phút",
+      "extractor": "role_article",
+      "source": "BeatVN",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "1639487454272597",
+      "url": "https://www.facebook.com/reel/1639487454272597",
+      "text": "thắng nguyễn\nTT mùa sau là bên dân chủ thì nó thay hình Trump bằng hình hoả tiễn thì hài\n1 giờ\nTrả lời\n112",
+      "time": "1 giờ",
+      "extractor": "role_article",
+      "source": "BeatVN",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "28768174482869971",
+      "url": "https://www.facebook.com/reel/28768174482869971",
+      "text": "Nguyễn Văn Nguyên\nPhí phóng tên lửa của Quý khách hết 2 tỏi\n2 giờ\nTrả lời\nĐã chỉnh sửa\n96",
+      "time": "2 giờ",
+      "extractor": "role_article",
+      "source": "BeatVN",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0Z6nN1umNJYkEXrcgwZSAw1bdPThpTmGNQYciqALnuUPxUaGxjJwdMz47nh91CRZCl",
+      "url": "https://www.facebook.com/beatvn.network/posts/pfbid0Z6nN1umNJYkEXrcgwZSAw1bdPThpTmGNQYciqALnuUPxUaGxjJwdMz47nh91CRZCl",
+      "text": "Trần Quang Linh\nNhờ có Drama Pubg tôi đã sử dụng điện thoại bằng 2 tay!\n11 giờ\nTrả lời\nĐã chỉnh sửa\n125",
+      "time": "11 giờ",
+      "extractor": "role_article",
+      "source": "BeatVN",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0qEpg2ybhMtW12C9oHk1VCVEwREDaBAe5bpMaQdKwMqGo2TnZePjwDHKsZDU8YygGl",
+      "url": "https://www.facebook.com/beatvn.network/posts/pfbid0qEpg2ybhMtW12C9oHk1VCVEwREDaBAe5bpMaQdKwMqGo2TnZePjwDHKsZDU8YygGl",
+      "text": "Nguyễn Thanh Tú\nWifi có bị deley ko mới là quan trọng ;)))\n14 giờ\nTrả lời\n4",
+      "time": "14 giờ",
+      "extractor": "role_article",
+      "source": "BeatVN",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid02pqtSBCCryDNx8FQQ3gu6dj4RnikYKeh4hPRwCHCGw7MNNAiNm6T4BAktAucpmFsRl",
+      "url": "https://www.facebook.com/beatvn.network/posts/pfbid02pqtSBCCryDNx8FQQ3gu6dj4RnikYKeh4hPRwCHCGw7MNNAiNm6T4BAktAucpmFsRl",
+      "text": "Phuc Hoang\nNguyen Van Chung quá hay cụ ơi\n14 giờ\nTrả lời",
+      "time": "14 giờ",
+      "extractor": "role_article",
+      "source": "BeatVN",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid02UGmT33j4Xn8sxTSuAdXciN7X42JXkbzF8aB2RFzy7ss6ufum5vmReGzYDyUZq833l",
+      "url": "https://www.facebook.com/beatvn.network/posts/pfbid02UGmT33j4Xn8sxTSuAdXciN7X42JXkbzF8aB2RFzy7ss6ufum5vmReGzYDyUZq833l",
+      "text": "Hương Nguyễn\n.\n13 giờ\nTrả lời",
+      "time": "13 giờ",
+      "extractor": "role_article",
+      "source": "BeatVN",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0xYSyw8DUWCRfE8fWzE7JfXARPxanx6N6zLBv1NCov2nuR7MQDPwcw9BFk7UVPu15l",
+      "url": "https://www.facebook.com/Theanh28/posts/pfbid0xYSyw8DUWCRfE8fWzE7JfXARPxanx6N6zLBv1NCov2nuR7MQDPwcw9BFk7UVPu15l",
+      "text": "SsVị. Đời’ss\nRồi sau này bả lấy ck mà ko tặng lại thì coi chừng với bả ak..ở đó mà mừng\n1 phút\nTrả lời",
+      "time": "1 phút",
+      "extractor": "role_article",
+      "source": "Theanh28",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0DPu5Xkpo5NELRSXudbidbjqRg9iS23knv2rc3a1qNkSupMZzcoN35EZqyrjNrNg5l",
+      "url": "https://www.facebook.com/Theanh28/posts/pfbid0DPu5Xkpo5NELRSXudbidbjqRg9iS23knv2rc3a1qNkSupMZzcoN35EZqyrjNrNg5l",
+      "text": "Trinh Tuan Anh\nRuless hồi sinh điii\n7 phút\nTrả lời\n1",
+      "time": "7 phút",
+      "extractor": "role_article",
+      "source": "Theanh28",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid02PMqZJHd4RAjNT633d5avgmcgWu5afZCKfLVEpyY5kSHEDU8srN8bgvrYT14qDxrCl",
+      "url": "https://www.facebook.com/Theanh28/posts/pfbid02PMqZJHd4RAjNT633d5avgmcgWu5afZCKfLVEpyY5kSHEDU8srN8bgvrYT14qDxrCl",
+      "text": "Nguyễn Việt Bđs\nU23 nam Việt Nam còn có 30% hi vọng chứ nữ thì cố gắng hạn chế bàn thua thôi cơ hội là 1%\n54 phút\nTrả lời\n3",
+      "time": "54 phút",
+      "extractor": "role_article",
+      "source": "Theanh28",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0QU47rgJhjLqcX6Jj8Y23EEcccGy1zLZcA3UDKZtpsn977EVVQAQ85PcXwHcVNEUtl",
+      "url": "https://www.facebook.com/Theanh28/posts/pfbid0QU47rgJhjLqcX6Jj8Y23EEcccGy1zLZcA3UDKZtpsn977EVVQAQ85PcXwHcVNEUtl",
+      "text": "Fan cứng\nConTrai ThầnGió\nHoàng Văn Hiếu có lý do cả\n8 phút\nTrả lời",
+      "time": "8 phút",
+      "extractor": "role_article",
+      "source": "Theanh28",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid02vH4sWrjLQXvCKxtWFMT6ojy55ba8GmSTbQ363YpjREjkWZ818Z5WiHeZ4J77tmP6l",
+      "url": "https://www.facebook.com/Theanh28/posts/pfbid02vH4sWrjLQXvCKxtWFMT6ojy55ba8GmSTbQ363YpjREjkWZ818Z5WiHeZ4J77tmP6l",
+      "text": "Lee Tỉnh\nBác mụ 39 rồi còn đang pha sữa cho con đây.\n49 phút\nTrả lời",
+      "time": "49 phút",
+      "extractor": "role_article",
+      "source": "Theanh28",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0iKNBQjZ4qApVFQsbddRjBR6FmR7m13YB5tLWJWsPXuFEe6UFSgQXWjnGqGjUCy3Kl",
+      "url": "https://www.facebook.com/Theanh28/posts/pfbid0iKNBQjZ4qApVFQsbddRjBR6FmR7m13YB5tLWJWsPXuFEe6UFSgQXWjnGqGjUCy3Kl",
+      "text": "Hai Viet Than\nMình không đậu thủ khoa nhưng đi học rất măy mắn học xong trường giữ lại luôn,mục đích để làm gương cho những khoá sau không ai thất bại như mình\n1 giờ\nTrả lời\n7",
+      "time": "1 giờ",
+      "extractor": "role_article",
+      "source": "Theanh28",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid02TD4cKJfJAVUNpRucLJo7y4ojrZB6N5DYhz6xoSw9c9eyycu3sdNCBFHTVjzEfdjol",
+      "url": "https://www.facebook.com/Theanh28/posts/pfbid02TD4cKJfJAVUNpRucLJo7y4ojrZB6N5DYhz6xoSw9c9eyycu3sdNCBFHTVjzEfdjol",
+      "text": "Fan cứng\nHậu Nguyễn\nĐã thế còn mưa to... Quá đã\n2 giờ\nTrả lời\n15",
+      "time": "2 giờ",
+      "extractor": "role_article",
+      "source": "Theanh28",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0318PjcvvmtJbbUwBxPMnJiVTc1QL5RgMgAuEQkkaT2fuw2LJ3pEQAckZHW1EsWauDl",
+      "url": "https://www.facebook.com/Theanh28/posts/pfbid0318PjcvvmtJbbUwBxPMnJiVTc1QL5RgMgAuEQkkaT2fuw2LJ3pEQAckZHW1EsWauDl",
+      "text": "Tác giả\nTheanh28 Entertainment\nGhi nhận của PV VietNamNet quanh khu vực chợ Bến Thành vào ngày 24/9, nhiều thương hiệu như Chính Tâm, Hoàng Thứ Jewelry hay Thiên Thiên Ngọc, Quế Jewelry đã mở cửa đón khách trở lại.\nTương tự, tại Trung tâm thương mại An Đông Plaza (phường An Đông, … Xem thêm\n2 giờ\nTrả lời\n7",
+      "time": "2 giờ",
+      "extractor": "role_article",
+      "source": "Theanh28",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid02Zd2r9bHgC6EfGxupK6VWoEvyDGFSvmVZrzEihxh8HWPa1zoYXmmZR4BJXRCRiPyFl",
+      "url": "https://www.facebook.com/topcomments.vn/posts/pfbid02Zd2r9bHgC6EfGxupK6VWoEvyDGFSvmVZrzEihxh8HWPa1zoYXmmZR4BJXRCRiPyFl",
+      "text": "Quang Pham\nNày là nó dự trù 2028 ly hôn à :))\n5 phút\nTrả lời",
+      "time": "5 phút",
+      "extractor": "role_article",
+      "source": "Top Comments",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "1414834944146720",
+      "url": "https://www.facebook.com/reel/1414834944146720",
+      "text": "Huỳnh Ty\nhèn chi xã cổ phiếu\n10 phút\nTrả lời\n1",
+      "time": "10 phút",
+      "extractor": "role_article",
+      "source": "Top Comments",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid06Zgg9iHYns7df23b6RvLnjeu4Lhu5d3Ki5mkMRB7C7VR8SR2aFy7UJhCP9hsjrzVl",
+      "url": "https://www.facebook.com/topcomments.vn/posts/pfbid06Zgg9iHYns7df23b6RvLnjeu4Lhu5d3Ki5mkMRB7C7VR8SR2aFy7UJhCP9hsjrzVl",
+      "text": "Huy Hoàng Tống\nSao đồn ông này bay màu rồi mà ? Chắc là thế thân thôi\n46 phút\nTrả lời\n9",
+      "time": "46 phút",
+      "extractor": "role_article",
+      "source": "Top Comments",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "912409958368958",
+      "url": "https://www.facebook.com/topcomments.vn/videos/912409958368958",
+      "text": "Sở Lạc Lạc\n???\n54 phút\nTrả lời",
+      "time": "54 phút",
+      "extractor": "role_article",
+      "source": "Top Comments",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid02rwf2Zw6UGErv4BfNjc3WKi6Vpj3rve6gzs2qLzVAWu7hvWhu3YrR66SLE77FDAtnl",
+      "url": "https://www.facebook.com/topcomments.vn/posts/pfbid02rwf2Zw6UGErv4BfNjc3WKi6Vpj3rve6gzs2qLzVAWu7hvWhu3YrR66SLE77FDAtnl",
+      "text": "Nguyễn Quốc Cường\nTinh Tinh nghĩ cũng tài kiểm soát đảo đảo greenland không tốn 1 viên đạn, điều mà các đời tổng thống trước không làm đc. Ổng kiểu ma ma phật phật không biết đâu mà lần\n1 giờ\nTrả lời",
+      "time": "1 giờ",
+      "extractor": "role_article",
+      "source": "Top Comments",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid02wRuRE8GWQZXb9E8p7PbesNm6ectZHgpdNY2RyTNpTAW2aXtvEVRjT8d95y34HMkwl",
+      "url": "https://www.facebook.com/topcomments.vn/posts/pfbid02wRuRE8GWQZXb9E8p7PbesNm6ectZHgpdNY2RyTNpTAW2aXtvEVRjT8d95y34HMkwl",
+      "text": "Duy Huấn\nCách lấy cúp nhanh nhất là kích tốp 1 khỏi cuộc chơi...y như đột kích..ae f11\n2 giờ\nTrả lời\n8",
+      "time": "2 giờ",
+      "extractor": "role_article",
+      "source": "Top Comments",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0r8NQidqKYmg1ZLw1dnNXxSUArqtSCDiQ6GsUyZUNdiQqffXn79BSuKPkDqdkf8zql",
+      "url": "https://www.facebook.com/topcomments.vn/posts/pfbid0r8NQidqKYmg1ZLw1dnNXxSUArqtSCDiQ6GsUyZUNdiQqffXn79BSuKPkDqdkf8zql",
+      "text": "Nguyễn Lý\nChỉ có thể là dell chơi nữa, ￼\n3 giờ\nTrả lời\n11",
+      "time": "3 giờ",
+      "extractor": "role_article",
+      "source": "Top Comments",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0TUgTXWVEMLw9AHdsdyqWqWBHjhXeFPyf2jou9NA1YFwNG9WUQe1xUVRtMH1ZMX2Ul",
+      "url": "https://www.facebook.com/topcomments.vn/posts/pfbid0TUgTXWVEMLw9AHdsdyqWqWBHjhXeFPyf2jou9NA1YFwNG9WUQe1xUVRtMH1ZMX2Ul",
+      "text": "Thiên Long\nDm khó quá thì tải game cờ tướng về chơi , hay chơi cờ caro đi.\n3 giờ\nTrả lời\n315",
+      "time": "3 giờ",
+      "extractor": "role_article",
+      "source": "Top Comments",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid022voJV8zagJ4bD3nmb5nR7hbzSfa9SAr5fLbzoMg9E3wkShJSLwk69N8M3DU8rKcgl",
+      "url": "https://www.facebook.com/bmsb.vnn/posts/pfbid022voJV8zagJ4bD3nmb5nR7hbzSfa9SAr5fLbzoMg9E3wkShJSLwk69N8M3DU8rKcgl",
+      "text": "Khang Dụ\nCháy nhà mới lòi ra mặt chuột hả chú 🫪\nLần này có thanh minh thanh nga , lý do lý trấu gì nữa không chú ??\n13 phút\nTrả lời\nĐã chỉnh sửa\n1",
+      "time": "13 phút",
+      "extractor": "role_article",
+      "source": "Bí Mật Showbiz",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0t1UG96pAzQGPfVebHZuJRG5aVMqrHaQv3Vub6Vw4t95dz2V1h9ZqkwFBjN7oVFdLl",
+      "url": "https://www.facebook.com/bmsb.vnn/posts/pfbid0t1UG96pAzQGPfVebHZuJRG5aVMqrHaQv3Vub6Vw4t95dz2V1h9ZqkwFBjN7oVFdLl",
+      "text": "Xuân Hiền\nLật bánh tráng còn ko nhanh bằng cách chị lật mặt , chị mà làm diễn viên chính trong phim \"Lật Mặt \" là bao hợp luôn :)))\n1 giờ\nTrả lời\nĐã chỉnh sửa\n181",
+      "time": "1 giờ",
+      "extractor": "role_article",
+      "source": "Bí Mật Showbiz",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid02hQHjLFVY43ASVKG5jKN7FeUi17373oqgD7nx4gYZN8MEo9DL2TQoWmHKkx8FQQikl",
+      "url": "https://www.facebook.com/bmsb.vnn/posts/pfbid02hQHjLFVY43ASVKG5jKN7FeUi17373oqgD7nx4gYZN8MEo9DL2TQoWmHKkx8FQQikl",
+      "text": "Lieu Nguyen\nNguyen Thanh Loan tới luôn nào bạn ơi\n14 giờ\nTrả lời",
+      "time": "14 giờ",
+      "extractor": "role_article",
+      "source": "Bí Mật Showbiz",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0hH5jY6aaDEzYfXPzXbjAxfy6heH8S5KYwETVaH88bggzHSyESihvoWeiBPULemXMl",
+      "url": "https://www.facebook.com/bmsb.vnn/posts/pfbid0hH5jY6aaDEzYfXPzXbjAxfy6heH8S5KYwETVaH88bggzHSyESihvoWeiBPULemXMl",
+      "text": "Xuân Hiền\ntại hồi chiều trời mưa, mưa nhiều quá nên cuốn luôn bay luôn cả tiểu sử :))))\n18 giờ\nTrả lời\nĐã chỉnh sửa\n279",
+      "time": "18 giờ",
+      "extractor": "role_article",
+      "source": "Bí Mật Showbiz",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0282ycemqNR1Yurz26SqcQkw5fySuWZTFMjrbU3ATsTQVi3BorrRLBgGTWLsuFyhF2l",
+      "url": "https://www.facebook.com/bmsb.vnn/posts/pfbid0282ycemqNR1Yurz26SqcQkw5fySuWZTFMjrbU3ATsTQVi3BorrRLBgGTWLsuFyhF2l",
+      "text": "Phong Văn\nPhần 3 bắt đầu xàm rồi. H P4 nữa\n23 giờ\nTrả lời\n13",
+      "time": "23 giờ",
+      "extractor": "role_article",
+      "source": "Bí Mật Showbiz",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "1029292533458337",
+      "url": "https://www.facebook.com/reel/1029292533458337",
+      "text": "Huy Hoàng\nChị Chi Pu của em chuẩn bị viral câu “em không muốn em chỉ là em gái”\n23 giờ\nTrả lời\n15",
+      "time": "23 giờ",
+      "extractor": "role_article",
+      "source": "Bí Mật Showbiz",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid0KkhdGAZiBRRXR8UMnJoaqccjZeJ4Wu2Pkyzb6PPQ6eW7nD8QpRasqrzxFT6tgUZ3l",
+      "url": "https://www.facebook.com/bmsb.vnn/posts/pfbid0KkhdGAZiBRRXR8UMnJoaqccjZeJ4Wu2Pkyzb6PPQ6eW7nD8QpRasqrzxFT6tgUZ3l",
+      "text": "Nguyễn Kim Ngân-Hoàng Bảo\nKo biết hay hok chứ đạo diễn là người làm ra siêu phẩm Thẩm mỹ viện âm phủ\n1 ngày\nTrả lời\n34",
+      "time": "1 ngày",
+      "extractor": "role_article",
+      "source": "Bí Mật Showbiz",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    },
+    {
+      "post_id": "pfbid02zCSeWp67Gi9t2HHPEghPYG7iVVpiEGuE1HBvNPhUhLfqExewcg75k5DHo2pQMoZ6l",
+      "url": "https://www.facebook.com/bmsb.vnn/posts/pfbid02zCSeWp67Gi9t2HHPEghPYG7iVVpiEGuE1HBvNPhUhLfqExewcg75k5DHo2pQMoZ6l",
+      "text": "Tác giả\nBí Mật Showbiz\nNguyên văn bài đăng của Thiên An:\n“Khép lại câu chuyện tại đây thôi ạ.… Xem thêm\n2 ngày\nTrả lời\n544",
+      "time": "2 ngày",
+      "extractor": "role_article",
+      "source": "Bí Mật Showbiz",
+      "source_tier": "SOCIAL_RADAR",
+      "signal_type": "FACEBOOK"
+    }
+  ]
+}
