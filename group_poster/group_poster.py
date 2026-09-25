@@ -550,10 +550,40 @@ def download_remote_image(url, output_dir):
     req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
     with urlopen(req, timeout=60) as resp:
         data = resp.read()
+        content_type = (resp.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+
     if len(data) < 1024:
         raise RuntimeError("Remote image download returned too little data")
+
+    # Validate by MIME + file signature. Google Drive can return an HTML
+    # confirmation/view page even when the URL looks like an image download.
+    signatures = {
+        b"\x89PNG\r\n\x1a\n": ".png",
+        b"\xff\xd8\xff": ".jpg",
+        b"RIFF": ".webp",
+    }
+    detected_suffix = None
+    if data.startswith(b"\x89PNG\r\n\x1a\n"):
+        detected_suffix = ".png"
+    elif data.startswith(b"\xff\xd8\xff"):
+        detected_suffix = ".jpg"
+    elif data.startswith(b"RIFF") and len(data) >= 12 and data[8:12] == b"WEBP":
+        detected_suffix = ".webp"
+
+    if not detected_suffix:
+        head = data[:200].lstrip().lower()
+        if "text/html" in content_type or head.startswith(b"<!doctype html") or head.startswith(b"<html"):
+            raise RuntimeError("Remote image URL returned HTML instead of an image")
+        raise RuntimeError(f"Remote asset is not a supported image (content-type={content_type or 'unknown'})")
+
+    if len(data) >= 10 * 1024 * 1024:
+        raise RuntimeError(f"Remote image is too large for Facebook upload: {len(data)} bytes")
+
+    if out_path.suffix.lower() != detected_suffix:
+        out_path = out_path.with_suffix(detected_suffix)
+
     out_path.write_bytes(data)
-    print(f"REMOTE_IMAGE_READY={out_path} bytes={len(data)}")
+    print(f"REMOTE_IMAGE_READY={out_path} bytes={len(data)} type={content_type or 'unknown'}")
     return str(out_path)
 
 
