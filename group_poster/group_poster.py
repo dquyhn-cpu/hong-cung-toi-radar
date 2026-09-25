@@ -297,6 +297,83 @@ def detect_facebook_safety_stop(page):
 
 
 
+def ensure_posting_identity(page, page_name="Hóng Cùng Tôi"):
+    """Best-effort but fail-closed guard: only allow posting when composer identity is the Page."""
+    target = page_name.strip()
+    target_lower = target.lower()
+
+    # First, inspect visible composer/dialog text. If the Page name is already
+    # shown in the active composer, identity is correct.
+    try:
+        dialogs = page.locator("div[role='dialog']")
+        for i in range(dialogs.count()):
+            d = dialogs.nth(i)
+            if not d.is_visible():
+                continue
+            txt = " ".join(d.inner_text(timeout=3000).split())
+            if target_lower in txt.lower():
+                print(f"IDENTITY_OK={target}")
+                return True
+    except Exception:
+        pass
+
+    # Facebook commonly exposes an identity selector around the composer.
+    # Try semantic labels/text in Vietnamese and English, then choose the Page.
+    selectors = [
+        "Đang tương tác dưới tên",
+        "Tương tác dưới tên",
+        "Đăng dưới tên",
+        "Post as",
+        "Posting as",
+        "Interact as",
+    ]
+    clicked = False
+    for label in selectors:
+        try:
+            loc = page.get_by_text(label, exact=False)
+            for i in range(loc.count()):
+                el = loc.nth(i)
+                if not el.is_visible():
+                    continue
+                el.click(timeout=2200, force=True)
+                page.wait_for_timeout(900)
+                clicked = True
+                break
+            if clicked:
+                break
+        except Exception:
+            pass
+
+    if clicked:
+        try:
+            choices = page.get_by_text(target, exact=False)
+            for i in range(choices.count()):
+                el = choices.nth(i)
+                if not el.is_visible():
+                    continue
+                el.click(timeout=2500, force=True)
+                page.wait_for_timeout(1200)
+                break
+        except Exception:
+            pass
+
+    # Re-check after attempting the switch.
+    try:
+        dialogs = page.locator("div[role='dialog']")
+        for i in range(dialogs.count()):
+            d = dialogs.nth(i)
+            if not d.is_visible():
+                continue
+            txt = " ".join(d.inner_text(timeout=3000).split())
+            if target_lower in txt.lower():
+                print(f"IDENTITY_OK={target}")
+                return True
+    except Exception:
+        pass
+
+    raise RuntimeError(f"IDENTITY_GUARD: composer is not confirmed as Page '{target}'")
+
+
 def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
     if not group_url.startswith("https://www.facebook.com/groups/"):
         raise RuntimeError("Invalid Facebook Group URL")
@@ -321,6 +398,9 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
         raise RuntimeError("Could not open Facebook Group composer")
 
     print("COMPOSER_OPENED")
+
+    # Never publish as the user's personal profile by accident.
+    ensure_posting_identity(page, "Hóng Cùng Tôi")
 
     # Important: media first, caption second.
     attach_image(page, image_path)
