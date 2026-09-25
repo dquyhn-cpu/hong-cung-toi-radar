@@ -1,112 +1,17 @@
 [
   {
-    "group_url": "https://www.facebook.com/groups/311643557326068/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/305987303176789/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/tinnongnhat24hnv/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/509491726725242/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1035435866999314/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1673504469489657/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/phunugiadinhcuocsong/",
-    "status": "PUBLISHED_VISIBLE"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/tinnongtinmoinhat24h/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/tinnongnhat24h/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/714762906376801/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/755877398632288/",
-    "status": "ERROR",
-    "error": "Caption box not found"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/103421799773301/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/evaphunuagiadinhthoihiendai/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/tintucnong24hhomnay/",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/766018404102389/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
     "group_url": "https://www.facebook.com/groups/2912905878746514/",
-    "status": "PUBLISHED_VISIBLE"
+    "status": "ERROR",
+    "error": "Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"Đăng\").first\n    - locator resolved to <div tabindex=\"0\" role=\"button\" aria-label=\"Đăng\" aria-disabled=\"true\" class=\"x1i10hfl xjbqb8w x1ejq31n x18oe1m7 x1sy0etr xstzfhl x972fbf x10w94by x1qhh985 x14e42zd x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak xexx8yu xyri2b x18d9i69 x1c1uobl x16tdsg8 x1hl2dhg xggy1nq x1h6gzvc x1fmog5m xu25z0z x140muxe xo1y3bh x87ps6o x1lku1pv x1a2a7pz x9f619 x3nfvp2 xdt5ytf xl56j7k x1n2onr6 xh8yej3\">…</div>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    56 × waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n"
   },
   {
     "group_url": "https://www.facebook.com/groups/782708824657028/",
-    "status": "PUBLISHED_VISIBLE"
+    "status": "ERROR",
+    "error": "Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"Đăng\").first\n    - locator resolved to <div tabindex=\"0\" role=\"button\" aria-label=\"Đăng\" aria-disabled=\"true\" class=\"x1i10hfl xjbqb8w x1ejq31n x18oe1m7 x1sy0etr xstzfhl x972fbf x10w94by x1qhh985 x14e42zd x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak xexx8yu xyri2b x18d9i69 x1c1uobl x16tdsg8 x1hl2dhg xggy1nq x1h6gzvc x1fmog5m xu25z0z x140muxe xo1y3bh x87ps6o x1lku1pv x1a2a7pz x9f619 x3nfvp2 xdt5ytf xl56j7k x1n2onr6 xh8yej3\">…</div>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    56 × waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n"
   },
   {
     "group_url": "https://www.facebook.com/groups/1320636581947237/",
-    "status": "PUBLISHED_VISIBLE"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1329989478977471/",
-    "status": "PUBLISHED_VISIBLE"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/200267450320206/",
-    "status": "PUBLISHED_VISIBLE"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/tintucnonghoicuchot/",
-    "status": "PUBLISHED_VISIBLE"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1510470162626661/",
-    "status": "PUBLISHED_VISIBLE"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1165734200820824/",
-    "status": "PUBLISHED_VISIBLE"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/2934085380204159/",
-    "status": "PUBLISHED_VISIBLE"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/5639899666127271/",
-    "status": "PUBLISHED_VISIBLE"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/965833877980346/",
-    "status": "PUBLISHED_VISIBLE"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/869991821428137/",
-    "status": "PUBLISHED_VISIBLE"
+    "status": "ERROR",
+    "error": "Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"Đăng\").first\n    - locator resolved to <div tabindex=\"0\" role=\"button\" aria-label=\"Đăng\" aria-disabled=\"true\" class=\"x1i10hfl xjbqb8w x1ejq31n x18oe1m7 x1sy0etr xstzfhl x972fbf x10w94by x1qhh985 x14e42zd x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak xexx8yu xyri2b x18d9i69 x1c1uobl x16tdsg8 x1hl2dhg xggy1nq x1h6gzvc x1fmog5m xu25z0z x140muxe xo1y3bh x87ps6o x1lku1pv x1a2a7pz x9f619 x3nfvp2 xdt5ytf xl56j7k x1n2onr6 xh8yej3\">…</div>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    56 × waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n"
   }
 ]
