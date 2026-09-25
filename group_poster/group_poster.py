@@ -11,6 +11,7 @@ from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeo
 DEFAULT_PROFILE = str(Path.home() / ".hong-cung-toi" / "facebook-group-profile")
 DEFAULT_OUTPUT = "output"
 DEFAULT_REGISTRY = Path(__file__).resolve().parent / "group_registry_normalized.json"
+DEFAULT_HOLD = Path(__file__).resolve().parent / "group_hold.json"
 SESSION_STATE = Path.home() / ".hong-cung-toi" / "facebook-group-session.json"
 
 
@@ -603,6 +604,25 @@ def run_package(page, package_path, confirm_post, output_dir):
 
     if not group_urls:
         raise RuntimeError("Package has no target groups")
+
+    # Global hold list: groups with a previous PENDING_APPROVAL result are
+    # temporarily excluded from later story rollouts until explicitly cleared.
+    hold_path = Path(pkg.get("hold_path") or DEFAULT_HOLD)
+    if not hold_path.is_absolute():
+        hold_path = Path(__file__).resolve().parent / hold_path
+    held_urls = set()
+    if hold_path.exists():
+        try:
+            hold_data = json.loads(hold_path.read_text(encoding="utf-8-sig"))
+            held_urls = {str(x).strip() for x in (hold_data.get("groups") or []) if str(x).strip()}
+        except Exception as exc:
+            print(f"HOLD_LIST_WARNING={exc}", file=sys.stderr)
+    if held_urls:
+        before = len(group_urls)
+        group_urls = [u for u in group_urls if u not in held_urls]
+        print(f"HOLD_FILTER excluded={before-len(group_urls)} remaining={len(group_urls)}")
+    if not group_urls:
+        raise RuntimeError("All target groups are currently on hold")
 
     message = pkg.get("message", "").strip()
     if not message:
