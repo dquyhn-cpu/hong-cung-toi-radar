@@ -22,6 +22,25 @@ def save_json(path, data):
     tmp.replace(path)
 
 
+
+def likely_page_authored(post, source_name):
+    """Filter nested comment/reply role=article nodes that inherit a parent post URL."""
+    text = radar.normalize_text(post.get("text", ""))[:500]
+    aliases = {
+        "Thông tin Chính phủ": ["thong tin chinh phu"],
+        "Bộ Công an": ["bo cong an"],
+        "BeatVN": ["beatvn"],
+        "Theanh28": ["theanh28"],
+        "Top Comments": ["top comments"],
+        "Bí Mật Showbiz": ["bi mat showbiz"],
+    }
+    keys = aliases.get(source_name, [radar.normalize_text(source_name)])
+    if any(key and key in text for key in keys):
+        return True
+    # Main page posts commonly include the explicit author marker in Facebook UI.
+    return text.startswith("tac gia")
+
+
 def collect_once(headless=False):
     generated_at = datetime.now(timezone.utc).isoformat()
     all_posts = []
@@ -53,9 +72,11 @@ def collect_once(headless=False):
             if config.get("tier") not in {"SOCIAL_RADAR", "OFFICIAL_FB"}:
                 continue
             try:
-                posts = radar.collect_fb_source(page, source_name, config)
+                raw_posts = radar.collect_fb_source(page, source_name, config)
+                posts = [p for p in raw_posts if likely_page_authored(p, source_name)]
                 source_stats[source_name] = len(posts)
                 all_posts.extend(posts)
+                print(f"AUTHORED_FILTER {source_name}: raw={len(raw_posts)} kept={len(posts)}")
             except Exception as exc:
                 source_stats[source_name] = 0
                 source_errors[source_name] = str(exc)
