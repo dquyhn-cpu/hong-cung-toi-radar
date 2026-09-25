@@ -527,13 +527,9 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
     if post_button is None:
         raise RuntimeError("Post button not found after retry")
 
-    preview = out / "group_post_preview.png"
-    try:
-        page.screenshot(path=str(preview), full_page=False, timeout=12000)
-        print(f"PREVIEW={preview}")
-    except Exception as exc:
-        # Screenshot is diagnostic only; never fail a valid post because it is slow.
-        print(f"PREVIEW_SCREENSHOT_WARNING={exc}", file=sys.stderr)
+    # Skip preview screenshots during production batches to reduce Chromium load.
+    # Text/image/button checks above already validate the composer before submit.
+    print("PREVIEW_SCREENSHOT_SKIPPED")
 
     if not confirm_post:
         print("DRY_RUN_OK")
@@ -549,8 +545,9 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
         pass
     page.wait_for_timeout(6000)
 
+    # Avoid full-page screenshots after every submit; they caused long font/render
+    # stalls in large batches. Verification below is text/state based.
     final = out / "group_post_after_submit.png"
-    page.screenshot(path=str(final), full_page=False)
 
     status = "POSTED_UNVERIFIED"
     safety_stop = detect_facebook_safety_stop(page)
@@ -576,7 +573,7 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
     except Exception:
         pass
 
-    print(f"{status}={final}")
+    print(f"{status}=verified_without_screenshot")
     return status
 
 
@@ -1031,6 +1028,20 @@ def run_package(page, package_path, confirm_post, output_dir):
                 print("BATCH_HALTED_FOR_SAFETY", file=sys.stderr)
                 break
 
+        # Recycle the tab every few groups. Facebook group pages accumulate large
+        # DOM trees/media and become sluggish in long runs; a fresh tab in the same
+        # browser context keeps cookies/Page identity but frees per-tab resources.
+        recycle_every = int(pkg.get("recycle_page_every") or 5)
+        if idx < len(group_urls) and recycle_every > 0 and idx % recycle_every == 0:
+            try:
+                context = page.context
+                old_page = page
+                page = context.new_page()
+                old_page.close()
+                print(f"PAGE_RECYCLED_AFTER={idx}")
+            except Exception as exc:
+                print(f"PAGE_RECYCLE_WARNING={exc}", file=sys.stderr)
+
         # Pace group submissions to avoid accidental burst-posting.
         delay_sec = int(pkg.get("inter_group_delay_seconds") or 0)
         if idx < len(group_urls) and delay_sec > 0:
@@ -1085,7 +1096,12 @@ def main():
             user_data_dir=str(profile),
             headless=False,
             viewport={"width": 1400, "height": 1000},
-            args=["--disable-notifications"],
+            args=[
+                "--disable-notifications",
+                "--disable-background-networking",
+                "--disable-background-timer-throttling",
+                "--disable-renderer-backgrounding",
+            ],
         )
         # Reuse the separately saved Facebook cookies in a clean Chromium profile.
         # This avoids persistent-profile corruption/version mismatches across Playwright upgrades.
