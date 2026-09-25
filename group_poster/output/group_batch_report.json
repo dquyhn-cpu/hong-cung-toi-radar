@@ -1,17 +1,132 @@
 [
   {
     "group_url": "https://www.facebook.com/groups/2912905878746514/",
-    "status": "ERROR",
-    "error": "Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"Đăng\").first\n    - locator resolved to <div tabindex=\"0\" role=\"button\" aria-label=\"Đăng\" aria-disabled=\"true\" class=\"x1i10hfl xjbqb8w x1ejq31n x18oe1m7 x1sy0etr xstzfhl x972fbf x10w94by x1qhh985 x14e42zd x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak xexx8yu xyri2b x18d9i69 x1c1uobl x16tdsg8 x1hl2dhg xggy1nq x1h6gzvc x1fmog5m xu25z0z x140muxe xo1y3bh x87ps6o x1lku1pv x1a2a7pz x9f619 x3nfvp2 xdt5ytf xl56j7k x1n2onr6 xh8yej3\">…</div>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    56 × waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n"
+    "status": "PUBLISHED_VISIBLE"
   },
   {
     "group_url": "https://www.facebook.com/groups/782708824657028/",
-    "status": "ERROR",
-    "error": "Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"Đăng\").first\n    - locator resolved to <div tabindex=\"0\" role=\"button\" aria-label=\"Đăng\" aria-disabled=\"true\" class=\"x1i10hfl xjbqb8w x1ejq31n x18oe1m7 x1sy0etr xstzfhl x972fbf x10w94by x1qhh985 x14e42zd x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak xexx8yu xyri2b x18d9i69 x1c1uobl x16tdsg8 x1hl2dhg xggy1nq x1h6gzvc x1fmog5m xu25z0z x140muxe xo1y3bh x87ps6o x1lku1pv x1a2a7pz x9f619 x3nfvp2 xdt5ytf xl56j7k x1n2onr6 xh8yej3\">…</div>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    56 × waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n"
+    "status": "PUBLISHED_VISIBLE"
   },
   {
     "group_url": "https://www.facebook.com/groups/1320636581947237/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1329989478977471/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/200267450320206/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/tintucnonghoicuchot/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1510470162626661/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1165734200820824/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/2934085380204159/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/5639899666127271/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/965833877980346/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/869991821428137/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/tinnongkhaimo24h/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/858695981006942/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/4785199321506879/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/189555589605037/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/813198727840069/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1542199290269092/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/289828632400848/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/2020995378659019/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/5169425079738845/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1601336573401036/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/568971424088793/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1499894274654005/",
     "status": "ERROR",
-    "error": "Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for get_by_role(\"button\", name=\"Đăng\").first\n    - locator resolved to <div tabindex=\"0\" role=\"button\" aria-label=\"Đăng\" aria-disabled=\"true\" class=\"x1i10hfl xjbqb8w x1ejq31n x18oe1m7 x1sy0etr xstzfhl x972fbf x10w94by x1qhh985 x14e42zd x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak xexx8yu xyri2b x18d9i69 x1c1uobl x16tdsg8 x1hl2dhg xggy1nq x1h6gzvc x1fmog5m xu25z0z x140muxe xo1y3bh x87ps6o x1lku1pv x1a2a7pz x9f619 x3nfvp2 xdt5ytf xl56j7k x1n2onr6 xh8yej3\">…</div>\n  - attempting click action\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n    - waiting 20ms\n    2 × waiting for element to be visible, enabled and stable\n      - element is not enabled\n    - retrying click action\n      - waiting 100ms\n    56 × waiting for element to be visible, enabled and stable\n       - element is not enabled\n     - retrying click action\n       - waiting 500ms\n"
+    "error": "Caption box not found"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/2893151890913313/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/tinnong360/",
+    "status": "ERROR",
+    "error": "Caption box not found"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/phunugiadinhcuocsong/",
+    "status": "POSTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/tinnongtinmoinhat24h/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/755877398632288/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/103421799773301/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/tintucnong24hhomnay/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer"
   }
 ]
