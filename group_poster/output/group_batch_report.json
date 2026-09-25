@@ -1,21 +1,142 @@
 [
   {
+    "group_url": "https://www.facebook.com/groups/2912905878746514/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/782708824657028/",
+    "status": "ERROR",
+    "error": "Page.screenshot: Timeout 30000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n  - fonts loaded\n"
+  },
+  {
     "group_url": "https://www.facebook.com/groups/1320636581947237/",
+    "status": "ERROR",
+    "error": "Page.goto: Timeout 60000ms exceeded.\nCall log:\n  - navigating to \"https://www.facebook.com/groups/1320636581947237/\", waiting until \"domcontentloaded\"\n"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1329989478977471/",
     "status": "PUBLISHED_VISIBLE"
   },
   {
-    "group_url": "https://www.facebook.com/groups/289828632400848/",
+    "group_url": "https://www.facebook.com/groups/200267450320206/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/tintucnonghoicuchot/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1510470162626661/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1165734200820824/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/2934085380204159/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/5639899666127271/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/965833877980346/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/869991821428137/",
+    "status": "PUBLISHED_VISIBLE"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/tinnongkhaimo24h/",
     "status": "ERROR",
-    "error": "Caption box not found"
+    "error": "Page.goto: Timeout 60000ms exceeded.\nCall log:\n  - navigating to \"https://www.facebook.com/groups/tinnongkhaimo24h/\", waiting until \"domcontentloaded\"\n"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/858695981006942/",
+    "status": "ERROR",
+    "error": "Page.goto: Timeout 60000ms exceeded.\nCall log:\n  - navigating to \"https://www.facebook.com/groups/858695981006942/\", waiting until \"domcontentloaded\"\n"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/4785199321506879/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/189555589605037/",
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/813198727840069/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1542199290269092/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/289828632400848/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/2020995378659019/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/5169425079738845/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1601336573401036/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/568971424088793/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1499894274654005/",
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
   },
   {
     "group_url": "https://www.facebook.com/groups/2893151890913313/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/tinnong360/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/phunugiadinhcuocsong/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/tinnongtinmoinhat24h/",
     "status": "PENDING_APPROVAL"
   },
   {
     "group_url": "https://www.facebook.com/groups/755877398632288/",
     "status": "ERROR",
     "error": "Caption box not found"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/103421799773301/",
+    "status": "ERROR",
+    "error": "Post button not found"
   },
   {
     "group_url": "https://www.facebook.com/groups/tintucnong24hhomnay/",

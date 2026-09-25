@@ -1,6 +1,6 @@
 {
-  "last_command_id": "publish-an-cung-page-retry5-20260925-1129",
+  "last_command_id": "publish-noxh-ly-thuong-kiet-20260925-2318",
   "last_status": "ERROR",
-  "error": "Group Poster exited with code 1: ERROR: Local temp image not found: C:\\Users\\Admin\\hong-cung-toi-radar\\group_poster\\temp_assets\\an_cung_gia_20260925.png",
-  "updated_at": "2026-09-25T18:40:23"
+  "error": "Group Poster exited with code 1: GROUP_SKIPPED=https://www.facebook.com/groups/tintucnong24hhomnay/ :: Could not open Facebook Group composer",
+  "updated_at": "2026-09-26T00:20:16"
 }
