@@ -8,7 +8,7 @@ from urllib.request import Request, urlopen
 
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 
-DEFAULT_PROFILE = str(Path.home() / ".hong-cung-toi" / "facebook-group-profile-v2")
+DEFAULT_PROFILE = str(Path.home() / ".hong-cung-toi" / "facebook-group-profile-v3")
 DEFAULT_OUTPUT = "output"
 DEFAULT_REGISTRY = Path(__file__).resolve().parent / "group_registry_normalized.json"
 DEFAULT_HOLD = Path(__file__).resolve().parent / "group_hold.json"
