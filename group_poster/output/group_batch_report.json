@@ -1,67 +1,21 @@
 [
   {
     "group_url": "https://www.facebook.com/groups/1320636581947237/",
-    "status": "ERROR",
-    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/tinnongkhaimo24h/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/858695981006942/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/4785199321506879/",
-    "status": "PENDING_APPROVAL"
+    "status": "PUBLISHED_VISIBLE"
   },
   {
     "group_url": "https://www.facebook.com/groups/289828632400848/",
     "status": "ERROR",
-    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/2020995378659019/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/5169425079738845/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1601336573401036/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1499894274654005/",
-    "status": "PUBLISHED_VISIBLE"
+    "error": "Caption box not found"
   },
   {
     "group_url": "https://www.facebook.com/groups/2893151890913313/",
-    "status": "ERROR",
-    "error": "Page.screenshot: Timeout 30000ms exceeded.\nCall log:\n  - taking page screenshot\n  - waiting for fonts to load...\n  - fonts loaded\n"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/tinnong360/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/phunugiadinhcuocsong/",
-    "status": "PUBLISHED_VISIBLE"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/tinnongtinmoinhat24h/",
     "status": "PENDING_APPROVAL"
   },
   {
     "group_url": "https://www.facebook.com/groups/755877398632288/",
     "status": "ERROR",
     "error": "Caption box not found"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/103421799773301/",
-    "status": "PENDING_APPROVAL"
   },
   {
     "group_url": "https://www.facebook.com/groups/tintucnong24hhomnay/",
