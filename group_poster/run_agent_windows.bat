@@ -2,11 +2,9 @@
 setlocal
 cd /d "%~dp0"
 
-if not exist ".venv\Scripts\python.exe" (
-  echo [ERROR] Virtual environment not found.
-  echo Run setup_windows.bat first.
-  pause
+if not exist ".venv\Scripts\pythonw.exe" (
   exit /b 1
 )
 
-".venv\Scripts\python.exe" group_agent.py
+start "" /b ".venv\Scripts\pythonw.exe" group_agent.py
+exit /b 0
