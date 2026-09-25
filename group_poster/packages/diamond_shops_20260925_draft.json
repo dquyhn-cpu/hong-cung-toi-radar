@@ -1,0 +1,26 @@
+{
+  "package_version": 2,
+  "publish_id": "diamond-shops-20260925-draft",
+  "event_id": "social_theanh28_diamond_reopen_20260925",
+  "group_urls": [
+    "https://www.facebook.com/groups/813198727840069/",
+    "https://www.facebook.com/groups/1499894274654005/",
+    "https://www.facebook.com/groups/phunugiadinhcuocsong/",
+    "https://www.facebook.com/groups/2912905878746514/",
+    "https://www.facebook.com/groups/782708824657028/",
+    "https://www.facebook.com/groups/1320636581947237/",
+    "https://www.facebook.com/groups/1329989478977471/",
+    "https://www.facebook.com/groups/200267450320206/",
+    "https://www.facebook.com/groups/tintucnonghoicuchot/",
+    "https://www.facebook.com/groups/1510470162626661/",
+    "https://www.facebook.com/groups/1165734200820824/",
+    "https://www.facebook.com/groups/2934085380204159/",
+    "https://www.facebook.com/groups/5639899666127271/",
+    "https://www.facebook.com/groups/965833877980346/",
+    "https://www.facebook.com/groups/869991821428137/"
+  ],
+  "message": "NHIỀU CỬA HÀNG KIM CƯƠNG Ở TP.HCM MỞ LẠI, CÓ NƠI HẸN THANH TOÁN ĐẾN CUỐI 2027\n\nTheo ghi nhận của VietNamNet ngày 24/9, nhiều cửa hàng kim cương, vàng bạc và đá quý quanh chợ Bến Thành và tại An Đông Plaza đã mở cửa trở lại sau thời gian hoạt động gián đoạn.\n\nTuy nhiên, chính sách thu đổi tại một số nơi được siết chặt. Cashion cho biết với một số hóa đơn cũ, khoản thanh toán thu mua được chia thành 5 đợt trong 120 ngày. Theo nhân viên Hoàng Thứ Jewelry được VietNamNet dẫn lời, khách đăng ký bán sản phẩm tại thời điểm hiện tại có thể được hẹn thanh toán vào tháng 11-12/2027.\n\nCác chuyên gia được bài báo dẫn lời lưu ý việc nhiều cửa hàng mở lại chưa đồng nghĩa thị trường kim cương đã phục hồi; giao dịch mua mới vẫn chậm và thanh khoản còn là vấn đề cần theo dõi.\n\nNguồn: VietNamNet\nhttps://vietnamnet.vn/nhieu-cua-hang-kim-cuong-mo-cua-tro-lai-co-noi-hen-thanh-toan-den-cuoi-2027-2558465.html",
+  "comments": [],
+  "inter_group_delay_seconds": 60,
+  "rollout_note": "Draft only. Targets are groups previously confirmed PUBLISHED_VISIBLE; pending-approval hold filter is also enforced globally. Source discovered via Theanh28 social signal and verified against VietNamNet. No image attached until exact source-photo reuse is verified."
+}
