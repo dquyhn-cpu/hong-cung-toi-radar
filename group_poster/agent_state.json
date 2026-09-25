@@ -1,6 +1,6 @@
 {
-  "last_command_id": "publish-an-cung-active-20260925-0715",
+  "last_command_id": "publish-an-cung-active-20260925-0729",
   "last_status": "ERROR",
-  "error": "Group Poster exited with code 1: ModuleNotFoundError: No module named 'playwright'",
-  "updated_at": "2026-09-25T14:23:03"
+  "error": "Group Poster exited with code 1:   - [pid=13952] <gracefully close end>",
+  "updated_at": "2026-09-25T14:30:10"
 }
