@@ -14,6 +14,7 @@ LOG = HERE / 'agent.log'
 POLL_SECONDS = 30
 ASSET_MANIFEST_DIR = REPO / 'facebook_assets_b64'
 ASSET_OUT_DIR = Path.home() / '.hong-cung-toi' / 'temp_assets'
+LEGACY_ASSET_OUT_DIR = Path.home() / '.hong-cung-toi' / 'temp_assets'
 CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0
 
 def log(msg):
@@ -50,10 +51,16 @@ def sync_binary_assets():
         out_path = ASSET_OUT_DIR / output_name
         b64 = "".join((ASSET_MANIFEST_DIR / name).read_text(encoding="ascii").strip() for name in chunks)
         raw = base64.b64decode(b64, validate=True)
-        if out_path.exists() and out_path.read_bytes() == raw:
-            continue
-        out_path.write_bytes(raw)
-        log(f"ASSET_SYNCED {output_name} bytes={len(raw)}")
+        if not (out_path.exists() and out_path.read_bytes() == raw):
+            out_path.write_bytes(raw)
+            log(f"ASSET_SYNCED {output_name} bytes={len(raw)}")
+        # Compatibility mirror: some Group Poster revisions resolve the temp
+        # folder as .hong-cung-toi while the agent historically used .hong-cung-toi.
+        LEGACY_ASSET_OUT_DIR.mkdir(parents=True, exist_ok=True)
+        legacy_path = LEGACY_ASSET_OUT_DIR / output_name
+        if not (legacy_path.exists() and legacy_path.read_bytes() == raw):
+            legacy_path.write_bytes(raw)
+            log(f"ASSET_MIRRORED {output_name} bytes={len(raw)}")
 
 
 def publish_status_to_repo():
