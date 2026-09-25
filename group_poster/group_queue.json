@@ -1,6 +1,6 @@
 {
-  "action": "IDLE",
-  "command_id": "halt-personal-profile-posting-20260925-1602",
-  "package": "group_poster/packages/an_cung_gia_20260925_active.json",
-  "note": "Emergency halt: current rollout posted as personal profile Quy Nguyen instead of Page Hóng Cùng Tôi. Do not publish until author identity verification/switch is fixed."
+  "action": "PUBLISH",
+  "command_id": "publish-an-cung-as-page-20260925-0913",
+  "package": "group_poster/packages/an_cung_gia_20260925_page_repost.json",
+  "note": "Repost deleted An Cung posts using Hóng Cùng Tôi Page identity only. Identity guard must confirm Page before submit; otherwise fail closed. Pending groups are not included."
 }
