@@ -1,6 +1,6 @@
 {
   "action": "PUBLISH",
-  "command_id": "publish-an-cung-active-20260925-0739",
+  "command_id": "publish-an-cung-active-20260925-0756",
   "package": "group_poster/packages/an_cung_gia_20260925_active.json",
-  "note": "Use local temp asset ~/.hong-cung-toi/temp_assets/an_cung_gia_20260925.png reconstructed by agent from GitHub base64. Skip 20 held groups. Education row 52 excluded."
+  "note": "Retry after unifying agent/poster temp asset directory under group_poster/temp_assets. Skip 20 held groups."
 }
