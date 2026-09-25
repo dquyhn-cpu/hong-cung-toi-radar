@@ -556,6 +556,66 @@ def download_remote_image(url, output_dir):
     return str(out_path)
 
 
+
+def audit_groups_mode(page, registry_path, message, output_dir):
+    """Recheck whether the previous story is visible or still pending in every registry group."""
+    registry_file = Path(registry_path or DEFAULT_REGISTRY)
+    if not registry_file.is_absolute():
+        registry_file = Path(__file__).resolve().parent / registry_file
+    registry = json.loads(registry_file.read_text(encoding="utf-8-sig"))
+    groups = registry.get("groups", [])
+    if not groups:
+        raise RuntimeError("Registry has no groups")
+    normalized = " ".join((message or "").split())
+    if not normalized:
+        raise RuntimeError("Audit message/snippet is empty")
+    first_line = (message or "").strip().splitlines()[0].strip()
+    snippet = first_line if len(first_line) >= 20 else normalized[:70]
+    results = []
+    pending_markers = [
+        "đang chờ phê duyệt",
+        "chờ quản trị viên phê duyệt",
+        "bài viết đang chờ",
+        "pending approval",
+        "awaiting approval",
+    ]
+    for idx, g in enumerate(groups, 1):
+        url = str(g.get("url") or "").strip()
+        gid = str(g.get("id") or "")
+        if not url:
+            continue
+        print(f"AUDIT_GROUP={idx}/{len(groups)} id={gid}")
+        row = {"id": gid, "group_url": url, "status": "ERROR"}
+        try:
+            page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            page.wait_for_timeout(3500)
+            if "login" in page.url.lower():
+                row["status"] = "SESSION_EXPIRED"
+            else:
+                body_raw = " ".join(page.locator("body").inner_text(timeout=7000).split())
+                body = body_raw.lower()
+                if snippet and snippet in body_raw:
+                    row["status"] = "ACTIVE"
+                elif any(x in body for x in pending_markers):
+                    row["status"] = "PENDING"
+                else:
+                    row["status"] = "NOT_FOUND"
+        except Exception as exc:
+            row["error"] = str(exc)
+        results.append(row)
+        print(f"AUDIT_RESULT={gid}:{row['status']}")
+    out = Path(output_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    report = out / "group_approval_audit.json"
+    report.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
+    active = sum(1 for r in results if r["status"] == "ACTIVE")
+    pending = sum(1 for r in results if r["status"] == "PENDING")
+    unknown = len(results) - active - pending
+    print(f"AUDIT_DONE total={len(results)} active={active} pending={pending} other={unknown}")
+    print(f"AUDIT_REPORT={report}")
+    return 0
+
+
 def run_package(page, package_path, confirm_post, output_dir):
     pkg_path = Path(package_path)
     pkg = json.loads(pkg_path.read_text(encoding="utf-8-sig"))
@@ -708,12 +768,15 @@ def main():
     ap.add_argument("--output-dir", default=DEFAULT_OUTPUT)
     ap.add_argument("--page-name", default="Hóng Cùng Tôi")
     ap.add_argument("--package", help="JSON package with message, image, comments and group_url/group_urls")
+    ap.add_argument("--audit-groups", action="store_true", help="Recheck previous story visibility/pending status across registry groups; never posts")
+    ap.add_argument("--registry", default=str(DEFAULT_REGISTRY), help="Registry JSON for --audit-groups")
+    ap.add_argument("--audit-message-file", help="Previous post text used to identify the story during --audit-groups")
     ap.add_argument("--comment-only-url", help="Existing Facebook post URL; never creates a new post")
     ap.add_argument("--confirm-comments", action="store_true", help="Actually submit comments in comment-only mode")
     args = ap.parse_args()
 
-    if not args.login and not args.group_url and not args.package and not args.comment_only_url:
-        ap.error("Use --login, --package, --comment-only-url, or provide --group-url")
+    if not args.login and not args.group_url and not args.package and not args.comment_only_url and not args.audit_groups:
+        ap.error("Use --login, --package, --comment-only-url, --audit-groups, or provide --group-url")
 
     message = args.message or (read_text(args.message_file) if args.message_file else "")
     if not args.login and not args.package and not args.comment_only_url and not message:
@@ -735,6 +798,9 @@ def main():
         try:
             if args.login:
                 return login_mode(page)
+            if args.audit_groups:
+                audit_message = read_text(args.audit_message_file) if args.audit_message_file else message
+                return audit_groups_mode(page, args.registry, audit_message, args.output_dir)
             if args.comment_only_url:
                 return comment_only_mode(
                     page,
