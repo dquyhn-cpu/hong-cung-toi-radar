@@ -14,6 +14,7 @@ DEFAULT_REGISTRY = Path(__file__).resolve().parent / "group_registry_normalized.
 DEFAULT_HOLD = Path(__file__).resolve().parent / "group_hold.json"
 DEFAULT_AUDIT_REGISTRY = Path(__file__).resolve().parent / "group_registry_52.json"
 SESSION_STATE = Path.home() / ".hong-cung-toi" / "facebook-group-session.json"
+LOCAL_ASSET_DIR = Path.home() / ".hong-cung-toi" / "temp_assets"
 
 
 def load_saved_session(context):
@@ -778,9 +779,14 @@ def run_package(page, package_path, confirm_post, output_dir):
         raise RuntimeError("Package message is empty")
 
     image_path = pkg.get("image_path")
+    image_asset_name = str(pkg.get("image_asset_name") or "").strip()
     image_url = str(pkg.get("image_url") or "").strip()
 
-    if image_url:
+    if image_asset_name:
+        image_path = str(LOCAL_ASSET_DIR / image_asset_name)
+        if not Path(image_path).exists():
+            raise RuntimeError(f"Local temp image not found: {image_path}")
+    elif image_url:
         image_path = download_remote_image(image_url, output_dir)
     elif image_path and not Path(image_path).exists():
         # Packages live in group_poster/packages; repo assets live one directory up.
