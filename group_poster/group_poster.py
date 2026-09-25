@@ -298,28 +298,35 @@ def detect_facebook_safety_stop(page):
 
 
 def ensure_posting_identity(page, page_name="Hóng Cùng Tôi"):
-    """Best-effort but fail-closed guard: only allow posting when composer identity is the Page."""
+    """Switch the first group composer to the requested Page, then verify it."""
     target = page_name.strip()
     target_lower = target.lower()
 
-    # First, inspect visible composer/dialog text. If the Page name is already
-    # shown in the active composer, identity is correct.
-    try:
-        dialogs = page.locator("div[role='dialog']")
-        for i in range(dialogs.count()):
-            d = dialogs.nth(i)
-            if not d.is_visible():
-                continue
-            txt = " ".join(d.inner_text(timeout=3000).split())
-            if target_lower in txt.lower():
-                print(f"IDENTITY_OK={target}")
-                return True
-    except Exception:
-        pass
+    def composer_has_target():
+        try:
+            dialogs = page.locator("div[role='dialog']")
+            for i in range(dialogs.count()):
+                d = dialogs.nth(i)
+                if not d.is_visible():
+                    continue
+                txt = " ".join(d.inner_text(timeout=3000).split())
+                if target_lower in txt.lower():
+                    return True
+        except Exception:
+            pass
+        return False
 
-    # Facebook commonly exposes an identity selector around the composer.
-    # Try semantic labels/text in Vietnamese and English, then choose the Page.
-    selectors = [
+    if composer_has_target():
+        print(f"IDENTITY_OK={target}")
+        return True
+
+    # Explicitly open Facebook's profile/Page selector when the composer starts
+    # as the personal profile. Once selected, Facebook normally keeps this
+    # identity for subsequent group composers in the same browser session.
+    trigger_texts = [
+        "Chọn trang cá nhân hoặc Trang",
+        "Chọn trang cá nhân hoặc trang",
+        "Chọn Trang",
         "Đang tương tác dưới tên",
         "Tương tác dưới tên",
         "Đăng dưới tên",
@@ -328,19 +335,42 @@ def ensure_posting_identity(page, page_name="Hóng Cùng Tôi"):
         "Interact as",
     ]
     clicked = False
-    for label in selectors:
+    for label in trigger_texts:
         try:
             loc = page.get_by_text(label, exact=False)
             for i in range(loc.count()):
                 el = loc.nth(i)
                 if not el.is_visible():
                     continue
-                el.click(timeout=2200, force=True)
-                page.wait_for_timeout(900)
+                el.click(timeout=2500, force=True)
+                page.wait_for_timeout(1000)
                 clicked = True
                 break
             if clicked:
                 break
+        except Exception:
+            pass
+
+    # Fallback: click visible buttons/controls in the active composer whose
+    # accessible text suggests an identity/profile selector.
+    if not clicked:
+        try:
+            dialog = page.locator("div[role='dialog']").last
+            controls = dialog.locator("[role='button']")
+            for i in range(controls.count()):
+                el = controls.nth(i)
+                if not el.is_visible():
+                    continue
+                label = " ".join([
+                    el.get_attribute("aria-label") or "",
+                    el.get_attribute("title") or "",
+                    el.inner_text(timeout=1000) or "",
+                ]).lower()
+                if any(k in label for k in ["trang cá nhân", "trang", "profile", "page", "tương tác", "đăng dưới"]):
+                    el.click(timeout=2200, force=True)
+                    page.wait_for_timeout(1000)
+                    clicked = True
+                    break
         except Exception:
             pass
 
@@ -351,27 +381,18 @@ def ensure_posting_identity(page, page_name="Hóng Cùng Tôi"):
                 el = choices.nth(i)
                 if not el.is_visible():
                     continue
-                el.click(timeout=2500, force=True)
-                page.wait_for_timeout(1200)
+                el.click(timeout=3000, force=True)
+                page.wait_for_timeout(1400)
                 break
         except Exception:
             pass
 
-    # Re-check after attempting the switch.
-    try:
-        dialogs = page.locator("div[role='dialog']")
-        for i in range(dialogs.count()):
-            d = dialogs.nth(i)
-            if not d.is_visible():
-                continue
-            txt = " ".join(d.inner_text(timeout=3000).split())
-            if target_lower in txt.lower():
-                print(f"IDENTITY_OK={target}")
-                return True
-    except Exception:
-        pass
+    if composer_has_target():
+        print(f"IDENTITY_SWITCHED={target}")
+        return True
 
-    raise RuntimeError(f"IDENTITY_GUARD: composer is not confirmed as Page '{target}'")
+    # Fail closed only after actively attempting the Page switch.
+    raise RuntimeError(f"IDENTITY_GUARD: could not switch composer to Page '{target}'")
 
 
 def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
