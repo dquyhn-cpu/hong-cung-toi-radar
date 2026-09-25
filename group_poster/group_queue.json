@@ -1,6 +1,6 @@
 {
   "action": "PUBLISH",
-  "command_id": "publish-an-cung-as-page-20260925-0913",
+  "command_id": "publish-an-cung-as-page-20260925-0917",
   "package": "group_poster/packages/an_cung_gia_20260925_page_repost.json",
-  "note": "Repost deleted An Cung posts using Hóng Cùng Tôi Page identity only. Identity guard must confirm Page before submit; otherwise fail closed. Pending groups are not included."
+  "note": "At first group composer, actively open Facebook profile/Page selector and switch to Hóng Cùng Tôi; verify identity, then continue batch. Fail closed only if switching cannot be completed."
 }
