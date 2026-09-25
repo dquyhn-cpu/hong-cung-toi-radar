@@ -1,6 +1,6 @@
 {
-  "last_command_id": "publish-meat-imports-resume-37-20260925",
+  "last_command_id": "publish-an-cung-active-20260925-0715",
   "last_status": "ERROR",
-  "error": "Group Poster exited with code 1: GROUP_SKIPPED=https://www.facebook.com/groups/tintucnong24hhomnay/ :: Could not open Facebook Group composer",
-  "updated_at": "2026-09-25T01:16:15"
+  "error": "Group Poster exited with code 1: ModuleNotFoundError: No module named 'playwright'",
+  "updated_at": "2026-09-25T14:23:03"
 }
