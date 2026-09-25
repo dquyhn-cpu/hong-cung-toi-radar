@@ -14,7 +14,7 @@ DEFAULT_REGISTRY = Path(__file__).resolve().parent / "group_registry_normalized.
 DEFAULT_HOLD = Path(__file__).resolve().parent / "group_hold.json"
 DEFAULT_AUDIT_REGISTRY = Path(__file__).resolve().parent / "group_registry_52.json"
 SESSION_STATE = Path.home() / ".hong-cung-toi" / "facebook-group-session.json"
-LOCAL_ASSET_DIR = Path.home() / ".hong-cung-toi" / "temp_assets"
+LOCAL_ASSET_DIR = Path(__file__).resolve().parent / "temp_assets"
 
 
 def load_saved_session(context):
