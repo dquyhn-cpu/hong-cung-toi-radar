@@ -116,3 +116,14 @@ or provide the `event_id`.
 ChatGPT then reads/validates the original source again and prepares the Facebook draft. Only after the user explicitly says **duyệt đăng** should the approved text be written into `facebook_publish_queue.json`.
 
 The existing Facebook publisher remains a separate workflow and can still be run in dry-run mode before a real Page post.
+
+
+## Windows laptop Facebook collector
+
+Authenticated Facebook collection is now separated from the always-on cloud radar.
+
+- Cloud radar continues news-first collection without the laptop.
+- A Windows laptop can run `facebook_collector_agent.py` with a persistent logged-in Chromium profile.
+- The collector writes `radar_fb_local.json`, which cloud Radar consumes as a fresh social-signal bridge.
+- Social captions remain discovery signals only; factual claims still require official/trusted-source verification.
+- The laptop setup/migration guide is in `LAPTOP_MIGRATION.md`.
