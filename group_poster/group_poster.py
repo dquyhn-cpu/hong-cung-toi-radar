@@ -8,7 +8,7 @@ from urllib.request import Request, urlopen
 
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 
-DEFAULT_PROFILE = str(Path.home() / ".hong-cung-toi" / "facebook-group-profile")
+DEFAULT_PROFILE = str(Path.home() / ".hong-cung-toi" / "facebook-group-profile-v2")
 DEFAULT_OUTPUT = "output"
 DEFAULT_REGISTRY = Path(__file__).resolve().parent / "group_registry_normalized.json"
 DEFAULT_HOLD = Path(__file__).resolve().parent / "group_hold.json"
@@ -853,6 +853,10 @@ def main():
             viewport={"width": 1400, "height": 1000},
             args=["--disable-notifications"],
         )
+        # Reuse the separately saved Facebook cookies in a clean Chromium profile.
+        # This avoids persistent-profile corruption/version mismatches across Playwright upgrades.
+        if not args.login:
+            load_saved_session(context)
         page = context.pages[0] if context.pages else context.new_page()
         try:
             if args.login:
