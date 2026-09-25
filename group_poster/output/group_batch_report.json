@@ -1,7 +1,8 @@
 [
   {
     "group_url": "https://www.facebook.com/groups/2912905878746514/",
-    "status": "PUBLISHED_VISIBLE"
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer"
   },
   {
     "group_url": "https://www.facebook.com/groups/782708824657028/",
@@ -17,11 +18,12 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/200267450320206/",
-    "status": "PUBLISHED_VISIBLE"
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: composer is not confirmed as Page 'Hóng Cùng Tôi'"
   },
   {
     "group_url": "https://www.facebook.com/groups/tintucnonghoicuchot/",
-    "status": "PUBLISHED_VISIBLE"
+    "status": "POSTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/1510470162626661/",
@@ -33,7 +35,8 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/2934085380204159/",
-    "status": "PUBLISHED_VISIBLE"
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: composer is not confirmed as Page 'Hóng Cùng Tôi'"
   },
   {
     "group_url": "https://www.facebook.com/groups/5639899666127271/",
@@ -45,24 +48,12 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/869991821428137/",
-    "status": "PUBLISHED_VISIBLE"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/tinnongkhaimo24h/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/858695981006942/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/4785199321506879/",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer"
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: composer is not confirmed as Page 'Hóng Cùng Tôi'"
   },
   {
     "group_url": "https://www.facebook.com/groups/189555589605037/",
-    "status": "PUBLISHED_VISIBLE"
+    "status": "PENDING_APPROVAL"
   },
   {
     "group_url": "https://www.facebook.com/groups/813198727840069/",
@@ -70,63 +61,15 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/1542199290269092/",
-    "status": "PUBLISHED_VISIBLE"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/289828632400848/",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/2020995378659019/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/5169425079738845/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1601336573401036/",
-    "status": "PENDING_APPROVAL"
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: composer is not confirmed as Page 'Hóng Cùng Tôi'"
   },
   {
     "group_url": "https://www.facebook.com/groups/568971424088793/",
-    "status": "PUBLISHED_VISIBLE"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1499894274654005/",
-    "status": "ERROR",
-    "error": "Caption box not found"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/2893151890913313/",
     "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/tinnong360/",
-    "status": "ERROR",
-    "error": "Caption box not found"
   },
   {
     "group_url": "https://www.facebook.com/groups/phunugiadinhcuocsong/",
-    "status": "POSTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/tinnongtinmoinhat24h/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/755877398632288/",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/103421799773301/",
-    "status": "PENDING_APPROVAL"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/tintucnong24hhomnay/",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer"
+    "status": "PUBLISHED_VISIBLE"
   }
 ]
