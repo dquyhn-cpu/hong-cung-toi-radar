@@ -1,8 +1,7 @@
 [
   {
     "group_url": "https://www.facebook.com/groups/2912905878746514/",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer"
+    "status": "PUBLISHED_VISIBLE"
   },
   {
     "group_url": "https://www.facebook.com/groups/782708824657028/",
@@ -10,7 +9,8 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/1320636581947237/",
-    "status": "PUBLISHED_VISIBLE"
+    "status": "ERROR",
+    "error": "Page.goto: net::ERR_NAME_NOT_RESOLVED at https://www.facebook.com/groups/1320636581947237/\nCall log:\n  - navigating to \"https://www.facebook.com/groups/1320636581947237/\", waiting until \"domcontentloaded\"\n"
   },
   {
     "group_url": "https://www.facebook.com/groups/1329989478977471/",
@@ -18,12 +18,11 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/200267450320206/",
-    "status": "ERROR",
-    "error": "IDENTITY_GUARD: composer is not confirmed as Page 'Hóng Cùng Tôi'"
+    "status": "PUBLISHED_VISIBLE"
   },
   {
     "group_url": "https://www.facebook.com/groups/tintucnonghoicuchot/",
-    "status": "POSTED_UNVERIFIED"
+    "status": "PUBLISHED_VISIBLE"
   },
   {
     "group_url": "https://www.facebook.com/groups/1510470162626661/",
@@ -35,8 +34,7 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/2934085380204159/",
-    "status": "ERROR",
-    "error": "IDENTITY_GUARD: composer is not confirmed as Page 'Hóng Cùng Tôi'"
+    "status": "PUBLISHED_VISIBLE"
   },
   {
     "group_url": "https://www.facebook.com/groups/5639899666127271/",
@@ -48,8 +46,7 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/869991821428137/",
-    "status": "ERROR",
-    "error": "IDENTITY_GUARD: composer is not confirmed as Page 'Hóng Cùng Tôi'"
+    "status": "PUBLISHED_VISIBLE"
   },
   {
     "group_url": "https://www.facebook.com/groups/189555589605037/",
@@ -61,8 +58,7 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/1542199290269092/",
-    "status": "ERROR",
-    "error": "IDENTITY_GUARD: composer is not confirmed as Page 'Hóng Cùng Tôi'"
+    "status": "PENDING_APPROVAL"
   },
   {
     "group_url": "https://www.facebook.com/groups/568971424088793/",
@@ -70,6 +66,7 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/phunugiadinhcuocsong/",
-    "status": "PUBLISHED_VISIBLE"
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
   }
 ]

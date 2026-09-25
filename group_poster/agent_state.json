@@ -1,6 +1,6 @@
 {
-  "last_command_id": "publish-an-cung-as-page-20260925-0913",
+  "last_command_id": "publish-an-cung-as-page-20260925-0917",
   "last_status": "ERROR",
-  "error": "Group Poster exited with code 1: GROUP_ERROR=https://www.facebook.com/groups/1542199290269092/ :: IDENTITY_GUARD: composer is not confirmed as Page 'Hóng Cùng Tôi'",
-  "updated_at": "2026-09-25T16:35:32"
+  "error": "Group Poster exited with code 1: GROUP_ERROR=https://www.facebook.com/groups/phunugiadinhcuocsong/ :: IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'",
+  "updated_at": "2026-09-25T17:01:00"
 }
