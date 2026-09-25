@@ -1,0 +1,423 @@
+{
+  "version": 1,
+  "source": "danh_sach_group tin tuc đã tham gia(1).xlsx",
+  "generated_at": "2026-09-25",
+  "groups": [
+    {
+      "row": 1,
+      "code": "G07",
+      "name": "TIN MỚI MỖI NGÀY",
+      "url": "https://www.facebook.com/groups/2912905878746514/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 2,
+      "code": "G08",
+      "name": "Thông Tin Chính Phủ nhỏ",
+      "url": "https://www.facebook.com/groups/782708824657028/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 3,
+      "code": "G09",
+      "name": "chính phủ và nhân dân",
+      "url": "https://www.facebook.com/groups/1320636581947237/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 4,
+      "code": "G10",
+      "name": "TIN TỨC CHÍNH PHỦ",
+      "url": "https://www.facebook.com/groups/1329989478977471/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 5,
+      "code": "G12",
+      "name": "Tin Tức Online 24H",
+      "url": "https://www.facebook.com/groups/200267450320206/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 6,
+      "code": "G14",
+      "name": "Tin tức mới nhất Việt Nam",
+      "url": "https://www.facebook.com/groups/tintucnonghoicuchot/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 7,
+      "code": "G15",
+      "name": "TIN NÓNG 24 GIỜ",
+      "url": "https://www.facebook.com/groups/1510470162626661/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 8,
+      "code": "G16",
+      "name": "TIN TỨC 24H MỚI NHẤT",
+      "url": "https://www.facebook.com/groups/1165734200820824/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 9,
+      "code": "G19",
+      "name": "Fan Tổng Bí Thư Tô Lâm",
+      "url": "https://www.facebook.com/groups/2934085380204159/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 10,
+      "code": "G23",
+      "name": "Thiếu Tướng Đinh Văn Nơi - Vì Dân Phục Vụ",
+      "url": "https://www.facebook.com/groups/5639899666127271/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 11,
+      "code": "G25",
+      "name": "Hội Người Việt Nam Tại Đài Loan - TaiWan",
+      "url": "https://www.facebook.com/groups/965833877980346/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 12,
+      "code": "G26",
+      "name": "Tin Tức - Chiến Sự Thế Giới",
+      "url": "https://www.facebook.com/groups/869991821428137/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 13,
+      "code": null,
+      "name": "Tin Nóng Khai Mở 24h",
+      "url": "https://www.facebook.com/groups/tinnongkhaimo24h/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 14,
+      "code": null,
+      "name": "Hóng Biến Genz",
+      "url": "https://www.facebook.com/groups/858695981006942/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 15,
+      "code": null,
+      "name": "Tin Thời Sự 24h",
+      "url": "https://www.facebook.com/groups/4785199321506879/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 16,
+      "code": null,
+      "name": "Tin Tức 24h",
+      "url": "https://www.facebook.com/groups/189555589605037/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 17,
+      "code": null,
+      "name": "Hóng Hớt Đường Phố",
+      "url": "https://www.facebook.com/groups/313891421000437/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 18,
+      "code": null,
+      "name": "Dân hỏi - Chính phủ trả lời",
+      "url": "https://www.facebook.com/groups/813198727840069/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 19,
+      "code": null,
+      "name": "TIN NÓNG 🔥 24H",
+      "url": "https://www.facebook.com/groups/1542199290269092/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 20,
+      "code": null,
+      "name": "LUẬT NHÂN QUẢ🙏",
+      "url": "https://www.facebook.com/groups/289828632400848/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 21,
+      "code": null,
+      "name": "TIN TỨC 24H/7",
+      "url": "https://www.facebook.com/groups/2020995378659019/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 22,
+      "code": null,
+      "name": "Tin Tức Nóng 24h",
+      "url": "https://www.facebook.com/groups/5169425079738845/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 23,
+      "code": null,
+      "name": "Báo Mới - Tin Tức 24H",
+      "url": "https://www.facebook.com/groups/1501143240712883/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 24,
+      "code": null,
+      "name": "HÓNG BIẾN 24H",
+      "url": "https://www.facebook.com/groups/1132728431108278/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 25,
+      "code": null,
+      "name": "TIN TỨC MỚI 24H",
+      "url": "https://www.facebook.com/groups/1601336573401036/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 26,
+      "code": null,
+      "name": "THỜI SỰ - TIN TỨC NÓNG 24h",
+      "url": "https://www.facebook.com/groups/568971424088793/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 27,
+      "code": null,
+      "name": "Thời Sự - Tin Nóng 24H",
+      "url": "https://www.facebook.com/groups/baomoitintucnong24h/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 28,
+      "code": null,
+      "name": "TIN MỚI - TIN NÓNG 24H",
+      "url": "https://www.facebook.com/groups/328514250915651/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 29,
+      "code": null,
+      "name": "TIN TỨC 24H MỚI NHẤT",
+      "url": "https://www.facebook.com/groups/643861650428907/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 30,
+      "code": null,
+      "name": "Tin Tức Mới Nhất",
+      "url": "https://www.facebook.com/groups/1499894274654005/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 31,
+      "code": null,
+      "name": "Chuyện từ nhà ra ngõ",
+      "url": "https://www.facebook.com/groups/3229476007288096/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 32,
+      "code": null,
+      "name": "TIN NÓNG 24H+",
+      "url": "https://www.facebook.com/groups/389574876630641/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 33,
+      "code": null,
+      "name": "TIN NÓNG 24H",
+      "url": "https://www.facebook.com/groups/369023907144154/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 34,
+      "code": null,
+      "name": "Tin Nóng 24h",
+      "url": "https://www.facebook.com/groups/2325663947564626/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 35,
+      "code": null,
+      "name": "TIN TỨC MỚI 24H MỖI NGÀY",
+      "url": "https://www.facebook.com/groups/2893151890913313/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 36,
+      "code": null,
+      "name": "Tin Nóng 360",
+      "url": "https://www.facebook.com/groups/tinnong360/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 37,
+      "code": null,
+      "name": "TIN TỨC MỚI NHẤT 24H",
+      "url": "https://www.facebook.com/groups/311643557326068/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 38,
+      "code": null,
+      "name": "TIN TỨC 24H HÔM NAY",
+      "url": "https://www.facebook.com/groups/305987303176789/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 39,
+      "code": null,
+      "name": "TIN NÓNG THỜI SỰ 24H",
+      "url": "https://www.facebook.com/groups/tinnongnhat24hnv/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 40,
+      "code": null,
+      "name": "Tin Nóng 24h Mới nhất",
+      "url": "https://www.facebook.com/groups/509491726725242/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 41,
+      "code": null,
+      "name": "CẬP NHẬT TIN NÓNG 24/7",
+      "url": "https://www.facebook.com/groups/1035435866999314/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 42,
+      "code": null,
+      "name": "TIN TỨC 24H MỚI NHẤT",
+      "url": "https://www.facebook.com/groups/1673504469489657/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 43,
+      "code": null,
+      "name": "Tin Tức Toàn Quốc 24/7",
+      "url": "https://www.facebook.com/groups/phunugiadinhcuocsong/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 44,
+      "code": null,
+      "name": "TIN NÓNG-TIN MỚI NHẤT 24H",
+      "url": "https://www.facebook.com/groups/tinnongtinmoinhat24h/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 45,
+      "code": null,
+      "name": "TIN NÓNG NHẤT 24H",
+      "url": "https://www.facebook.com/groups/tinnongnhat24h/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 46,
+      "code": null,
+      "name": "TIN MỚI NHẤT 24H",
+      "url": "https://www.facebook.com/groups/714762906376801/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 47,
+      "code": null,
+      "name": "Tin Tức Nhanh Nhất 24h",
+      "url": "https://www.facebook.com/groups/755877398632288/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 48,
+      "code": null,
+      "name": "Tin Nóng 24h",
+      "url": "https://www.facebook.com/groups/103421799773301/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 49,
+      "code": null,
+      "name": "Điểm Tin 24/7",
+      "url": "https://www.facebook.com/groups/evaphunuagiadinhthoihiendai/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 50,
+      "code": null,
+      "name": "Tin Nóng 24h - Tin Tức 24h",
+      "url": "https://www.facebook.com/groups/tintucnong24hhomnay/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 51,
+      "code": null,
+      "name": "TIN TỨC MỚI NHẤT 24H",
+      "url": "https://www.facebook.com/groups/766018404102389/",
+      "note": null,
+      "enabled_for_general_news": true
+    },
+    {
+      "row": 52,
+      "code": null,
+      "name": "Giáo dục Việt Nam",
+      "url": "https://www.facebook.com/groups/thiepngan/",
+      "note": "chỉ đăng tin liên quan đến giáo dục",
+      "enabled_for_general_news": false
+    }
+  ]
+}
