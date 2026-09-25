@@ -12,6 +12,7 @@ DEFAULT_PROFILE = str(Path.home() / ".hong-cung-toi" / "facebook-group-profile")
 DEFAULT_OUTPUT = "output"
 DEFAULT_REGISTRY = Path(__file__).resolve().parent / "group_registry_normalized.json"
 DEFAULT_HOLD = Path(__file__).resolve().parent / "group_hold.json"
+DEFAULT_AUDIT_REGISTRY = Path(__file__).resolve().parent / "group_registry_52.json"
 SESSION_STATE = Path.home() / ".hong-cung-toi" / "facebook-group-session.json"
 
 
@@ -558,19 +559,31 @@ def download_remote_image(url, output_dir):
 
 
 def audit_groups_mode(page, registry_path, message, output_dir):
-    """Recheck whether the previous story is visible or still pending in every registry group."""
-    registry_file = Path(registry_path or DEFAULT_REGISTRY)
+    """Read-only recheck of the previous story across the canonical group list.
+
+    Strategy:
+    1) Open group home and look for the exact post headline/snippet.
+    2) If absent, use Facebook group search for the headline and scroll results.
+    3) Mark PENDING only when Facebook explicitly shows a pending-approval marker.
+    4) Otherwise return UNKNOWN, never assume rejection from a missing DOM match.
+    """
+    from urllib.parse import quote
+
+    registry_file = Path(registry_path or DEFAULT_AUDIT_REGISTRY)
     if not registry_file.is_absolute():
         registry_file = Path(__file__).resolve().parent / registry_file
     registry = json.loads(registry_file.read_text(encoding="utf-8-sig"))
     groups = registry.get("groups", [])
     if not groups:
         raise RuntimeError("Registry has no groups")
+
     normalized = " ".join((message or "").split())
     if not normalized:
         raise RuntimeError("Audit message/snippet is empty")
+
     first_line = (message or "").strip().splitlines()[0].strip()
-    snippet = first_line if len(first_line) >= 20 else normalized[:70]
+    snippet = first_line if len(first_line) >= 20 else normalized[:90]
+    search_query = first_line[:120]
     results = []
     pending_markers = [
         "đang chờ phê duyệt",
@@ -579,39 +592,85 @@ def audit_groups_mode(page, registry_path, message, output_dir):
         "pending approval",
         "awaiting approval",
     ]
+
+    def inspect_current_page():
+        body_raw = " ".join(page.locator("body").inner_text(timeout=7000).split())
+        body = body_raw.lower()
+        if snippet and snippet in body_raw:
+            return "ACTIVE"
+        if any(x in body for x in pending_markers):
+            return "PENDING"
+        return None
+
     for idx, g in enumerate(groups, 1):
         url = str(g.get("url") or "").strip()
-        gid = str(g.get("id") or "")
         if not url:
             continue
-        print(f"AUDIT_GROUP={idx}/{len(groups)} id={gid}")
-        row = {"id": gid, "group_url": url, "status": "ERROR"}
+        row_no = g.get("row", idx)
+        code = str(g.get("code") or f"ROW{row_no}")
+        name = str(g.get("name") or "")
+        print(f"AUDIT_GROUP={idx}/{len(groups)} row={row_no} id={code} name={name}")
+
+        row = {
+            "row": row_no,
+            "id": code,
+            "name": name,
+            "group_url": url,
+            "status": "UNKNOWN",
+        }
+
         try:
             page.goto(url, wait_until="domcontentloaded", timeout=60000)
-            page.wait_for_timeout(3500)
+            page.wait_for_timeout(2600)
+
             if "login" in page.url.lower():
                 row["status"] = "SESSION_EXPIRED"
             else:
-                body_raw = " ".join(page.locator("body").inner_text(timeout=7000).split())
-                body = body_raw.lower()
-                if snippet and snippet in body_raw:
-                    row["status"] = "ACTIVE"
-                elif any(x in body for x in pending_markers):
-                    row["status"] = "PENDING"
+                status = inspect_current_page()
+                if status:
+                    row["status"] = status
                 else:
-                    row["status"] = "NOT_FOUND"
+                    # Search inside this group for the exact headline.
+                    search_url = url.rstrip("/") + "/search/?q=" + quote(search_query)
+                    page.goto(search_url, wait_until="domcontentloaded", timeout=60000)
+                    page.wait_for_timeout(3000)
+
+                    for _ in range(3):
+                        status = inspect_current_page()
+                        if status:
+                            row["status"] = status
+                            break
+                        try:
+                            page.mouse.wheel(0, 3200)
+                        except Exception:
+                            pass
+                        page.wait_for_timeout(1500)
+
+                    if row["status"] == "UNKNOWN":
+                        # Do not label as rejected: Facebook may hide older posts
+                        # from search or paginate differently for Page identities.
+                        row["status"] = "UNKNOWN"
         except Exception as exc:
+            row["status"] = "ERROR"
             row["error"] = str(exc)
+
         results.append(row)
-        print(f"AUDIT_RESULT={gid}:{row['status']}")
+        print(f"AUDIT_RESULT=row{row_no}:{row['status']}")
+
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
     report = out / "group_approval_audit.json"
     report.write_text(json.dumps(results, ensure_ascii=False, indent=2), encoding="utf-8")
+
     active = sum(1 for r in results if r["status"] == "ACTIVE")
     pending = sum(1 for r in results if r["status"] == "PENDING")
-    unknown = len(results) - active - pending
-    print(f"AUDIT_DONE total={len(results)} active={active} pending={pending} other={unknown}")
+    unknown = sum(1 for r in results if r["status"] == "UNKNOWN")
+    errors = len(results) - active - pending - unknown
+
+    print(
+        f"AUDIT_DONE total={len(results)} active={active} "
+        f"pending={pending} unknown={unknown} errors={errors}"
+    )
     print(f"AUDIT_REPORT={report}")
     return 0
 
@@ -769,7 +828,7 @@ def main():
     ap.add_argument("--page-name", default="Hóng Cùng Tôi")
     ap.add_argument("--package", help="JSON package with message, image, comments and group_url/group_urls")
     ap.add_argument("--audit-groups", action="store_true", help="Recheck previous story visibility/pending status across registry groups; never posts")
-    ap.add_argument("--registry", default=str(DEFAULT_REGISTRY), help="Registry JSON for --audit-groups")
+    ap.add_argument("--registry", default=str(DEFAULT_AUDIT_REGISTRY), help="Registry JSON for --audit-groups")
     ap.add_argument("--audit-message-file", help="Previous post text used to identify the story during --audit-groups")
     ap.add_argument("--comment-only-url", help="Existing Facebook post URL; never creates a new post")
     ap.add_argument("--confirm-comments", action="store_true", help="Actually submit comments in comment-only mode")
@@ -779,7 +838,7 @@ def main():
         ap.error("Use --login, --package, --comment-only-url, --audit-groups, or provide --group-url")
 
     message = args.message or (read_text(args.message_file) if args.message_file else "")
-    if not args.login and not args.package and not args.comment_only_url and not message:
+    if not args.login and not args.package and not args.comment_only_url and not args.audit_groups and not message:
         ap.error("Provide --message or --message-file")
     if args.comment_only_url and not args.package:
         ap.error("--comment-only-url requires --package for comment text")
