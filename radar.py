@@ -195,6 +195,8 @@ VERIFIED_FILE = "radar_verified.json"
 EDITOR_QUEUE_FILE = "radar_editor_queue.json"
 HISTORY_FILE = "radar_history.json"
 FB_DIAGNOSTICS_FILE = "radar_fb_diagnostics.json"
+LOCAL_FB_BRIDGE_FILE = "radar_fb_local.json"
+LOCAL_FB_BRIDGE_MAX_AGE_HOURS = 8
 
 
 # ============================================================
@@ -3578,15 +3580,68 @@ def save_json(
 
 
 # ============================================================
+# LOCAL FACEBOOK BRIDGE
+# ============================================================
+
+def load_local_fb_bridge(now_dt):
+    """Load social signals collected by the user's Windows laptop.
+
+    The local collector uses a persistent, logged-in Chromium profile, then
+    pushes radar_fb_local.json to GitHub. Cloud Radar can consume that file
+    without needing a Facebook login itself.
+    """
+    if not os.path.exists(LOCAL_FB_BRIDGE_FILE):
+        return [], {"status": "MISSING", "count": 0}
+
+    try:
+        with open(LOCAL_FB_BRIDGE_FILE, "r", encoding="utf-8") as f:
+            payload = json.load(f)
+
+        generated_at = payload.get("generated_at")
+        posts = payload.get("facebook_posts") or []
+        if not generated_at:
+            return [], {"status": "NO_TIMESTAMP", "count": 0}
+
+        stamp = datetime.fromisoformat(generated_at.replace("Z", "+00:00"))
+        if stamp.tzinfo is None:
+            stamp = stamp.replace(tzinfo=timezone.utc)
+
+        age_hours = max(0.0, (now_dt - stamp.astimezone(timezone.utc)).total_seconds() / 3600.0)
+        if age_hours > LOCAL_FB_BRIDGE_MAX_AGE_HOURS:
+            return [], {
+                "status": "STALE",
+                "count": len(posts),
+                "age_hours": round(age_hours, 2),
+            }
+
+        usable = []
+        for post in posts:
+            if not isinstance(post, dict):
+                continue
+            if not post.get("post_id") or not post.get("url") or not post.get("text"):
+                continue
+            copy = dict(post)
+            copy["collector"] = "LOCAL_PERSISTENT_CHROMIUM"
+            usable.append(copy)
+
+        return usable, {
+            "status": "LOADED",
+            "count": len(usable),
+            "age_hours": round(age_hours, 2),
+        }
+
+    except Exception as exc:
+        print("LOCAL FB BRIDGE WARNING:", exc)
+        return [], {"status": "ERROR", "count": 0, "error": str(exc)}
+
+
+# ============================================================
 # MAIN
 # ============================================================
 
 def main():
-    now = (
-        datetime.now(
-            timezone.utc
-        ).isoformat()
-    )
+    now_dt = datetime.now(timezone.utc)
+    now = now_dt.isoformat()
 
     print(
         "=" * 78
@@ -3718,6 +3773,26 @@ def main():
             )
 
         browser.close()
+
+    # Merge in the most recent authenticated laptop collector snapshot.
+    local_fb_posts, local_fb_bridge = load_local_fb_bridge(now_dt)
+    if local_fb_posts:
+        print(
+            "LOCAL FACEBOOK BRIDGE:",
+            local_fb_bridge.get("status"),
+            local_fb_bridge.get("count"),
+            "posts",
+        )
+        facebook_posts.extend(local_fb_posts)
+        for post in local_fb_posts:
+            source_name = post.get("source")
+            if source_name:
+                fb_stats[source_name] = max(
+                    int(fb_stats.get(source_name, 0)),
+                    sum(1 for item in local_fb_posts if item.get("source") == source_name),
+                )
+    else:
+        print("LOCAL FACEBOOK BRIDGE:", local_fb_bridge)
 
     # FB dedup
     fb_unique = {}
@@ -3949,6 +4024,9 @@ def main():
 
             "facebook_stats":
                 fb_stats,
+
+            "local_facebook_bridge":
+                local_fb_bridge,
 
             "history_stats":
                 history_stats,
