@@ -1,5 +1,6 @@
 {
-  "action": "IDLE",
-  "command_id": "pause-for-performance-tuning-20260926-0103",
-  "note": "Pause current retry batch while Group Poster performance is tuned. Do not auto-start until a new PUBLISH command is issued."
+  "action": "PUBLISH",
+  "command_id": "publish-noxh-resume20-lean-20260926-0114",
+  "package": "group_poster/packages/noxh_ly_thuong_kiet_20260925_resume20_lean.json",
+  "note": "Resume unresolved NOXH groups with lean Chromium build. Existing successful/pending groups excluded. Duplicate guard enabled. Hóng Cùng Tôi Page identity required."
 }
