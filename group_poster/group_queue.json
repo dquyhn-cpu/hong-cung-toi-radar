@@ -1,6 +1,6 @@
 {
   "action": "PUBLISH",
-  "command_id": "publish-noxh-ly-thuong-kiet-20260925-2318",
-  "package": "group_poster/packages/noxh_ly_thuong_kiet_20260925_active.json",
-  "note": "Publish NOXH Lý Thường Kiệt story to all 31 eligible general-news groups. Must use Hóng Cùng Tôi Page identity. 20 hold groups and education-only group excluded."
+  "command_id": "publish-noxh-retry19-20260926-0052",
+  "package": "group_poster/packages/noxh_ly_thuong_kiet_20260925_retry19.json",
+  "note": "Retry only 19 previously failed/skipped NOXH groups using hardened poster retries. Must use Hóng Cùng Tôi Page identity; do not repost successful/pending groups."
 }
