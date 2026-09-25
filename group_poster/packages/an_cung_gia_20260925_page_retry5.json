@@ -1,0 +1,19 @@
+{
+  "package_version": 2,
+  "publish_id": "an-cung-gia-20260925-page-retry5",
+  "event_id": "an_cung_fake_20260925",
+  "group_urls": [
+    "https://www.facebook.com/groups/1320636581947237/",
+    "https://www.facebook.com/groups/289828632400848/",
+    "https://www.facebook.com/groups/2893151890913313/",
+    "https://www.facebook.com/groups/755877398632288/",
+    "https://www.facebook.com/groups/tintucnong24hhomnay/"
+  ],
+  "message": "AN CUNG GIẢ TỪ BỘT MÌ, HÓA CHẤT: GIÁ HOÀN THIỆN 105.000 ĐỒNG, BÁN GẦN 3 TRIỆU/HỘP\n\nCông an tỉnh Thanh Hóa cho biết vừa triệt phá một đường dây sản xuất, buôn bán An Cung giả quy mô lớn.\n\nKết quả điều tra bước đầu cho thấy các đối tượng mua viên hoàn, nguyên liệu trôi nổi, vỏ hộp, tem nhãn từ Trung Quốc rồi đưa về Việt Nam để đóng gói, hoàn thiện. Thành phần dùng để sản xuất viên hoàn chủ yếu gồm bột mì, hóa chất, chất tạo màu và một số nguyên liệu khác.\n\nMỗi hộp An Cung giả sau khi hoàn thiện có giá khoảng 105.000 đồng. Qua nhiều tầng trung gian, sản phẩm khi đến tay người tiêu dùng được bán với giá gần 3 triệu đồng/hộp.\n\nCơ quan chức năng đã thu giữ 10.000 hộp An Cung, khoảng 300 kg viên hoàn chưa thành phẩm, tương đương hơn 1 triệu viên, cùng hàng nghìn vỏ hộp, tem nhãn và máy móc đóng gói.\n\nĐiều đáng lo là nhóm khách hàng tìm mua loại sản phẩm này phần lớn là người cao tuổi, người có bệnh lý tim mạch, huyết áp. Với các sản phẩm liên quan trực tiếp đến sức khỏe, nguồn gốc và kiểm soát chất lượng cần được đặt lên trước lời quảng cáo.\n\nGóc nhìn Hóng Cùng Tôi:\nĐiểm đáng chú ý ở vụ này không chỉ là mức chênh lệch giá gần 30 lần. Rủi ro lớn hơn nằm ở việc người mua tin rằng mình đang sử dụng một sản phẩm có nguồn gốc và công dụng khác hoàn toàn thực tế.\n\nHóng Cùng Tôi | Cập nhật & tổng hợp thông tin\n\nNguồn: Công an tỉnh Thanh Hóa; Tuổi Trẻ Online.\nhttps://conganthanhhoa.gov.vn/tin-tuc-su-kien/tin-an-ninh-trat-tu/cong-an-thanh-hoa-triet-pha-duong-day-san-xuat-buon-ban-thuoc-an-cung-va-my-pham-nhap-ngoai-gia-lon-nhat-tu-truoc-den-na.html",
+  "comments": [],
+  "asset_policy": "LOCAL_TEMP_ASSET",
+  "approved_source": "Local temp asset reconstructed from GitHub text chunks",
+  "inter_group_delay_seconds": 60,
+  "rollout_note": "Retry only the 5 remaining eligible groups. Must post as Hóng Cùng Tôi Page.",
+  "image_asset_name": "an_cung_gia_20260925.png"
+}
