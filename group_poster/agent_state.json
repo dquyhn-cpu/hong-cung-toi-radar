@@ -1,6 +1,6 @@
 {
-  "last_command_id": "publish-noxh-retry19-20260926-0052",
+  "last_command_id": "publish-noxh-resume20-lean-20260926-0114",
   "last_status": "ERROR",
-  "error": "Group Poster exited with code 1: ERROR: Page.wait_for_timeout: Target page, context or browser has been closed",
-  "updated_at": "2026-09-26T01:06:09"
+  "error": "Group Poster exited with code 1:   - [pid=7120] <gracefully close end>",
+  "updated_at": "2026-09-26T01:24:27"
 }
