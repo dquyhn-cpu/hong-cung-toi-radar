@@ -1,6 +1,6 @@
 {
-  "last_command_id": "publish-xang-dau-active-20260926-0454",
+  "last_command_id": "publish-xang-dau-active-20260926-1223",
   "last_status": "ERROR",
-  "error": "Group Poster exited with code 1:   - [pid=3448] <gracefully close end>",
-  "updated_at": "2026-09-26T12:02:38"
+  "error": "Group Poster exited with code 1: ERROR: Page.wait_for_timeout: Target page, context or browser has been closed",
+  "updated_at": "2026-09-26T12:30:19"
 }
