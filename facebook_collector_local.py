@@ -14,6 +14,16 @@ PROFILE_DIR = Path.home() / ".hong-cung-toi" / "facebook-radar-profile"
 OUTPUT_FILE = HERE / "radar_fb_local.json"
 DIAG_FILE = HERE / "radar_fb_local_diagnostics.json"
 CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
+STATUS_FILE = HERE / "facebook_collector_status.json"
+
+# Windows Task Scheduler/CMD may start Python with a legacy code page (for
+# example cp1252). Facebook text is Unicode, so force UTF-8 before any debug
+# output from radar.collect_fb_source can reach stdout/stderr.
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8", errors="backslashreplace")
+    except Exception:
+        pass
 
 
 def save_json(path, data):
@@ -43,6 +53,12 @@ def likely_page_authored(post, source_name):
 
 def collect_once(headless=False):
     generated_at = datetime.now(timezone.utc).isoformat()
+    save_json(STATUS_FILE, {
+        "updated_at": generated_at,
+        "state": "RUNNING",
+        "stage": "COLLECTING",
+        "message": "Facebook collector started",
+    })
     all_posts = []
     source_stats = {}
     source_errors = {}
@@ -106,6 +122,14 @@ def collect_once(headless=False):
         "source_errors": source_errors,
         "post_count": len(unique),
     })
+    save_json(STATUS_FILE, {
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "state": "COLLECTED",
+        "stage": "READY_TO_PUSH",
+        "post_count": len(unique),
+        "source_stats": source_stats,
+        "source_errors": source_errors,
+    })
     print(f"LOCAL_FB_COLLECTOR_OK posts={len(unique)} output={OUTPUT_FILE.name}")
     for name, count in source_stats.items():
         print(f" - {name}: {count}")
@@ -132,13 +156,13 @@ def login():
 
 
 def git_sync_outputs():
-    paths = [OUTPUT_FILE, DIAG_FILE]
+    paths = [OUTPUT_FILE, DIAG_FILE, STATUS_FILE]
     rels = [str(p.relative_to(HERE)) for p in paths if p.exists()]
     if not rels:
         return
 
     def run(args, timeout=90):
-        return subprocess.run(args, cwd=str(HERE), capture_output=True, text=True, timeout=timeout, creationflags=CREATE_NO_WINDOW)
+        return subprocess.run(args, cwd=str(HERE), capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=timeout, creationflags=CREATE_NO_WINDOW)
 
     run(["git", "config", "user.name", "HCT Facebook Collector"])
     run(["git", "config", "user.email", "hct-fb-collector@local"])
@@ -160,6 +184,20 @@ def git_sync_outputs():
     if push.returncode != 0:
         raise RuntimeError((push.stderr or push.stdout).strip())
 
+    save_json(STATUS_FILE, {
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+        "state": "OK",
+        "stage": "PUSHED",
+        "message": "Facebook collector snapshot pushed to GitHub",
+    })
+    # Push the final status update as a tiny follow-up commit so remote
+    # monitoring can distinguish a completed run from a stale snapshot.
+    run(["git", "add", "-f", str(STATUS_FILE.relative_to(HERE))])
+    status_diff = run(["git", "diff", "--cached", "--quiet"])
+    if status_diff.returncode != 0:
+        status_commit = run(["git", "commit", "-m", f"Facebook collector status {datetime.now().isoformat(timespec='seconds')}"])
+        if status_commit.returncode == 0:
+            run(["git", "push", "origin", "HEAD:main"])
     print("GIT_SYNC: pushed radar_fb_local.json")
 
 
