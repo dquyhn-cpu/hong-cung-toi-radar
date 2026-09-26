@@ -1,6 +1,6 @@
 {
   "action": "PUBLISH",
-  "command_id": "publish-noxh-resume20-lean-v3-20260926-0126",
-  "package": "group_poster/packages/noxh_ly_thuong_kiet_20260925_resume20_lean.json",
-  "note": "Retry unresolved NOXH groups with fresh Chromium profile v3. Saved Facebook cookies will be restored. Duplicate guard enabled; Hóng Cùng Tôi Page identity required."
+  "command_id": "publish-xang-dau-active-20260926-0454",
+  "package": "group_poster/packages/xang_dau_20260926_active.json",
+  "note": "Publish approved fuel-price post with approved no-logo image. Use Hóng Cùng Tôi Page identity. Hold-filter 20 pending groups; education-only group excluded."
 }
