@@ -1,6 +1,5 @@
 {
-  "action": "PUBLISH",
-  "command_id": "publish-xang-dau-active-20260926-1223",
-  "package": "group_poster/packages/xang_dau_20260926_active.json",
-  "note": "Retry fuel-price post after shared Git lock + clean Chromium context fix. Use Hóng Cùng Tôi Page identity. Hold-filter 20 pending groups; education-only group excluded."
+  "action": "IDLE",
+  "command_id": "pause-multi-browser-20260926-1233",
+  "note": "Emergency pause: user reports 3 Chromium windows and PC freeze. Do not publish until single-instance guard is fixed."
 }
