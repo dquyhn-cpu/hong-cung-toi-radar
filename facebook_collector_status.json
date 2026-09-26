@@ -1,6 +1,15 @@
 {
-  "updated_at": "2026-09-26T04:24:04.842913+00:00",
-  "state": "RUNNING",
-  "stage": "AGENT_STARTED",
-  "message": "Facebook collector agent is running"
+  "updated_at": "2026-09-26T04:44:01.664858+00:00",
+  "state": "COLLECTED",
+  "stage": "READY_TO_PUSH",
+  "post_count": 20,
+  "source_stats": {
+    "Thông tin Chính phủ": 5,
+    "Bộ Công an": 6,
+    "BeatVN": 2,
+    "Theanh28": 2,
+    "Top Comments": 1,
+    "Bí Mật Showbiz": 4
+  },
+  "source_errors": {}
 }
