@@ -1,5 +1,6 @@
 import base64
 import json
+import os
 import subprocess
 import sys
 import time
@@ -16,6 +17,41 @@ ASSET_MANIFEST_DIR = REPO / 'facebook_assets_b64'
 ASSET_OUT_DIR = HERE / 'temp_assets'
 LEGACY_ASSET_OUT_DIR = Path.home() / '.hong-cung-toi' / 'temp_assets'
 CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0
+GIT_LOCK = Path.home() / '.hong-cung-toi' / 'repo_git.lock'
+
+class GitLock:
+    def __init__(self, timeout=120, stale_after=300):
+        self.timeout = timeout
+        self.stale_after = stale_after
+        self.fd = None
+    def __enter__(self):
+        GIT_LOCK.parent.mkdir(parents=True, exist_ok=True)
+        deadline = time.time() + self.timeout
+        while True:
+            try:
+                self.fd = os.open(str(GIT_LOCK), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.write(self.fd, f"{os.getpid()} {time.time()}".encode("ascii"))
+                return self
+            except FileExistsError:
+                try:
+                    if time.time() - GIT_LOCK.stat().st_mtime > self.stale_after:
+                        GIT_LOCK.unlink(missing_ok=True)
+                        continue
+                except FileNotFoundError:
+                    continue
+                if time.time() >= deadline:
+                    raise RuntimeError("Timed out waiting for shared Git lock")
+                time.sleep(1)
+    def __exit__(self, exc_type, exc, tb):
+        try:
+            if self.fd is not None:
+                os.close(self.fd)
+        finally:
+            try:
+                GIT_LOCK.unlink(missing_ok=True)
+            except Exception:
+                pass
+
 
 def log(msg):
     line = f"[{datetime.now().isoformat(timespec='seconds')}] {msg}"
@@ -76,36 +112,36 @@ def publish_status_to_repo():
     if not rels:
         return
     # Repo-local identity only; avoids global Git configuration changes on the user's PC.
-    subprocess.run(["git","-C",str(REPO),"config","user.name","HCT Group Agent"], capture_output=True, text=True, timeout=15, creationflags=CREATE_NO_WINDOW)
-    subprocess.run(["git","-C",str(REPO),"config","user.email","hct-group-agent@local"], capture_output=True, text=True, timeout=15, creationflags=CREATE_NO_WINDOW)
-    subprocess.run(["git","-C",str(REPO),"add","-f",*rels], capture_output=True, text=True, timeout=30, creationflags=CREATE_NO_WINDOW)
-    diff = subprocess.run(["git","-C",str(REPO),"diff","--cached","--quiet"], capture_output=True, text=True, timeout=30, creationflags=CREATE_NO_WINDOW)
-    if diff.returncode == 0:
-        return
-    msg = f"Agent status {datetime.now().isoformat(timespec='seconds')}"
-    c = subprocess.run(["git","-C",str(REPO),"commit","-m",msg], capture_output=True, text=True, timeout=60, creationflags=CREATE_NO_WINDOW)
-    if c.returncode != 0:
-        log(f"STATUS_COMMIT_WARNING {(c.stderr or c.stdout).strip()}")
-        return
-    # Rebase lightweight local status commits onto the latest remote main before pushing.
-    # This prevents queue/package commits made remotely from making the agent branch diverge.
-    r = subprocess.run(["git","-C",str(REPO),"pull","--rebase","--autostash","origin","main"], capture_output=True, text=True, timeout=90, creationflags=CREATE_NO_WINDOW)
-    if r.returncode != 0:
-        log(f"STATUS_REBASE_WARNING {(r.stderr or r.stdout).strip()}")
-        return
-    p = subprocess.run(["git","-C",str(REPO),"push","origin","HEAD:main"], capture_output=True, text=True, timeout=90, creationflags=CREATE_NO_WINDOW)
-    if p.returncode != 0:
-        log(f"STATUS_PUSH_WARNING {(p.stderr or p.stdout).strip()}")
-    else:
-        log("STATUS_PUSHED")
+    with GitLock():
+        subprocess.run(["git","-C",str(REPO),"config","user.name","HCT Group Agent"], capture_output=True, text=True, timeout=15, creationflags=CREATE_NO_WINDOW)
+        subprocess.run(["git","-C",str(REPO),"config","user.email","hct-group-agent@local"], capture_output=True, text=True, timeout=15, creationflags=CREATE_NO_WINDOW)
+        subprocess.run(["git","-C",str(REPO),"add","-f",*rels], capture_output=True, text=True, timeout=30, creationflags=CREATE_NO_WINDOW)
+        diff = subprocess.run(["git","-C",str(REPO),"diff","--cached","--quiet"], capture_output=True, text=True, timeout=30, creationflags=CREATE_NO_WINDOW)
+        if diff.returncode == 0:
+            return
+        msg = f"Agent status {datetime.now().isoformat(timespec='seconds')}"
+        c = subprocess.run(["git","-C",str(REPO),"commit","-m",msg], capture_output=True, text=True, timeout=60, creationflags=CREATE_NO_WINDOW)
+        if c.returncode != 0:
+            log(f"STATUS_COMMIT_WARNING {(c.stderr or c.stdout).strip()}")
+            return
+        # Rebase lightweight local status commits onto the latest remote main before pushing.
+        # This prevents queue/package commits made remotely from making the agent branch diverge.
+        r = subprocess.run(["git","-C",str(REPO),"pull","--rebase","--autostash","origin","main"], capture_output=True, text=True, timeout=90, creationflags=CREATE_NO_WINDOW)
+        if r.returncode != 0:
+            log(f"STATUS_REBASE_WARNING {(r.stderr or r.stdout).strip()}")
+            return
+        p = subprocess.run(["git","-C",str(REPO),"push","origin","HEAD:main"], capture_output=True, text=True, timeout=90, creationflags=CREATE_NO_WINDOW)
+        if p.returncode != 0:
+            log(f"STATUS_PUSH_WARNING {(p.stderr or p.stdout).strip()}")
+        else:
+            log("STATUS_PUSHED")
 
 
 def git_pull():
-    # Agent may have its own local status commit while queue/package commits land remotely.
-    # Rebase keeps both histories without the permanent --ff-only deadlock seen on 2026-09-25.
-    p = subprocess.run(['git','-C',str(REPO),'pull','--rebase','--autostash','origin','main'], capture_output=True, text=True, timeout=90, creationflags=CREATE_NO_WINDOW)
-    if p.returncode != 0:
-        raise RuntimeError((p.stderr or p.stdout or 'git pull failed').strip())
+    with GitLock():
+        p = subprocess.run(['git','-C',str(REPO),'pull','--rebase','--autostash','origin','main'], capture_output=True, text=True, timeout=90, creationflags=CREATE_NO_WINDOW)
+        if p.returncode != 0:
+            raise RuntimeError((p.stderr or p.stdout or 'git pull failed').strip())
 
 def run_command(queue):
     command_id = str(queue.get('command_id') or '').strip()
