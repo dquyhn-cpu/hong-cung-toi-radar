@@ -1,5 +1,6 @@
 {
-  "action": "IDLE",
-  "command_id": "hold-after-runtime-fix-20260926-1212",
-  "note": "Pause Group Poster until local agents restart onto shared Git-lock and clean Chromium-context revision. Fuel post will be requeued after restart."
+  "action": "PUBLISH",
+  "command_id": "publish-xang-dau-active-20260926-1223",
+  "package": "group_poster/packages/xang_dau_20260926_active.json",
+  "note": "Retry fuel-price post after shared Git lock + clean Chromium context fix. Use Hóng Cùng Tôi Page identity. Hold-filter 20 pending groups; education-only group excluded."
 }
