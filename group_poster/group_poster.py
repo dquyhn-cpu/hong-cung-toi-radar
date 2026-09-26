@@ -1057,8 +1057,12 @@ def run_package(page, package_path, confirm_post, output_dir):
     failures = [r for r in results if r["status"] == "ERROR"]
     skipped = [r for r in results if r["status"] == "SKIPPED"]
     posted = [r for r in results if r["status"] in {"POST_CLICKED","POSTED_UNVERIFIED","PUBLISHED_VISIBLE","POST_OK_COMMENT_WARNING","PREVIEW_OK","PENDING_APPROVAL","SKIP_ALREADY_POSTED"}]
+    safety_stops = [r for r in results if r["status"] == "SAFETY_STOP"]
     print(f"BATCH_DONE total={len(results)} posted_or_preview={len(posted)} skipped={len(skipped)} errors={len(failures)}")
-    return 1 if failures else 0
+    # Keep the queue alive when only a few groups fail. The per-group report is
+    # authoritative for selective retries. Fail the command only if nothing
+    # posted or Facebook raised a safety stop.
+    return 1 if safety_stops or (not posted and failures) else 0
 
 def main():
     ap = argparse.ArgumentParser(description="Hóng Cùng Tôi - Facebook Group Poster")
@@ -1088,26 +1092,51 @@ def main():
     if args.comment_only_url and not args.package:
         ap.error("--comment-only-url requires --package for comment text")
 
-    profile = Path(args.profile_dir)
-    profile.mkdir(parents=True, exist_ok=True)
-
+    # Cookies are saved separately, so Group Poster does not need a persistent
+    # Chromium user-data directory. A fresh context per batch avoids profile
+    # locks/corruption and the long hangs seen with launch_persistent_context.
     with sync_playwright() as p:
-        context = p.chromium.launch_persistent_context(
-            user_data_dir=str(profile),
-            headless=False,
-            viewport={"width": 1400, "height": 1000},
-            args=[
-                "--disable-notifications",
-                "--disable-background-networking",
-                "--disable-background-timer-throttling",
-                "--disable-renderer-backgrounding",
-            ],
-        )
-        # Reuse the separately saved Facebook cookies in a clean Chromium profile.
-        # This avoids persistent-profile corruption/version mismatches across Playwright upgrades.
+        browser = None
+        context = None
+        launch_error = None
+        for attempt in range(1, 3):
+            try:
+                browser = p.chromium.launch(
+                    headless=False,
+                    args=[
+                        "--disable-notifications",
+                        "--disable-background-networking",
+                        "--disable-background-timer-throttling",
+                        "--disable-renderer-backgrounding",
+                        "--disable-extensions",
+                        "--disable-component-extensions-with-background-pages",
+                    ],
+                )
+                context = browser.new_context(
+                    viewport={"width": 1400, "height": 1000},
+                    locale="vi-VN",
+                )
+                launch_error = None
+                break
+            except Exception as exc:
+                launch_error = exc
+                print(f"BROWSER_LAUNCH_RETRY attempt={attempt} error={exc}", file=sys.stderr)
+                try:
+                    if browser is not None:
+                        browser.close()
+                except Exception:
+                    pass
+                browser = None
+                context = None
+                if attempt < 2:
+                    time.sleep(2)
+
+        if launch_error is not None or context is None:
+            raise RuntimeError(f"Could not launch clean Chromium context: {launch_error}")
+
         if not args.login:
             load_saved_session(context)
-        page = context.pages[0] if context.pages else context.new_page()
+        page = context.new_page()
         try:
             if args.login:
                 return login_mode(page)
@@ -1147,7 +1176,15 @@ def main():
             print(f"ERROR: {exc}", file=sys.stderr)
             return 1
         finally:
-            context.close()
+            try:
+                if context is not None:
+                    context.close()
+            finally:
+                try:
+                    if browser is not None:
+                        browser.close()
+                except Exception:
+                    pass
 
 
 if __name__ == "__main__":
