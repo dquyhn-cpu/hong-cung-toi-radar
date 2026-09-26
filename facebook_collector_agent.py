@@ -1,3 +1,4 @@
+import os
 import subprocess
 import sys
 import time
@@ -10,6 +11,41 @@ LOG = HERE / "facebook_collector_agent.log"
 POLL_SECONDS = 1800
 CREATE_NO_WINDOW = 0x08000000 if sys.platform == "win32" else 0
 STATUS_FILE = HERE / "facebook_collector_status.json"
+GIT_LOCK = Path.home() / ".hong-cung-toi" / "repo_git.lock"
+
+class GitLock:
+    def __init__(self, timeout=120, stale_after=300):
+        self.timeout = timeout
+        self.stale_after = stale_after
+        self.fd = None
+    def __enter__(self):
+        GIT_LOCK.parent.mkdir(parents=True, exist_ok=True)
+        deadline = time.time() + self.timeout
+        while True:
+            try:
+                self.fd = os.open(str(GIT_LOCK), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+                os.write(self.fd, f"{os.getpid()} {time.time()}".encode("ascii"))
+                return self
+            except FileExistsError:
+                try:
+                    if time.time() - GIT_LOCK.stat().st_mtime > self.stale_after:
+                        GIT_LOCK.unlink(missing_ok=True)
+                        continue
+                except FileNotFoundError:
+                    continue
+                if time.time() >= deadline:
+                    raise RuntimeError("Timed out waiting for shared Git lock")
+                time.sleep(1)
+    def __exit__(self, exc_type, exc, tb):
+        try:
+            if self.fd is not None:
+                os.close(self.fd)
+        finally:
+            try:
+                GIT_LOCK.unlink(missing_ok=True)
+            except Exception:
+                pass
+
 
 for _stream in (sys.stdout, sys.stderr):
     try:
@@ -39,16 +75,17 @@ def push_status_best_effort():
             creationflags=CREATE_NO_WINDOW,
         )
     try:
-        run(["git", "config", "user.name", "HCT Facebook Collector"])
-        run(["git", "config", "user.email", "hct-fb-collector@local"])
-        run(["git", "add", "-f", STATUS_FILE.name])
-        if run(["git", "diff", "--cached", "--quiet"]).returncode == 0:
-            return
-        if run(["git", "commit", "-m", f"Facebook collector heartbeat {datetime.now().isoformat(timespec='seconds')}"]).returncode != 0:
-            return
-        if run(["git", "pull", "--rebase", "--autostash", "origin", "main"]).returncode != 0:
-            return
-        run(["git", "push", "origin", "HEAD:main"])
+        with GitLock():
+            run(["git", "config", "user.name", "HCT Facebook Collector"])
+            run(["git", "config", "user.email", "hct-fb-collector@local"])
+            run(["git", "add", "-f", STATUS_FILE.name])
+            if run(["git", "diff", "--cached", "--quiet"]).returncode == 0:
+                return
+            if run(["git", "commit", "-m", f"Facebook collector heartbeat {datetime.now().isoformat(timespec='seconds')}"]).returncode != 0:
+                return
+            if run(["git", "pull", "--rebase", "--autostash", "origin", "main"]).returncode != 0:
+                return
+            run(["git", "push", "origin", "HEAD:main"])
     except Exception:
         pass
 
