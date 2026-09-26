@@ -1,7 +1,6 @@
 {
-  "updated_at": "2026-09-26T04:44:14.613475+00:00",
-  "state": "OK",
-  "stage": "WAITING",
-  "message": "Collector run completed; waiting for next cycle",
-  "poll_seconds": 1800
+  "updated_at": "2026-09-26T05:22:08.154604+00:00",
+  "state": "RUNNING",
+  "stage": "AGENT_STARTED",
+  "message": "Facebook collector agent is running"
 }
