@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-09-26T05:54:08.961864+00:00",
-  "state": "OK",
-  "stage": "PUSHED",
-  "message": "Facebook collector snapshot pushed to GitHub"
+  "updated_at": "2026-09-26T14:12:31.342911+00:00",
+  "state": "RUNNING",
+  "stage": "AGENT_STARTED",
+  "message": "Facebook collector agent is running"
 }
