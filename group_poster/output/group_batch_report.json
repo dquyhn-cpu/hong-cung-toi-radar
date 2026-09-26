@@ -6,7 +6,127 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/782708824657028/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer after retry"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1320636581947237/",
     "status": "ERROR",
-    "error": "Locator.count: Target page, context or browser has been closed"
+    "error": "Group navigation failed after retry: Page.goto: Page crashed\nCall log:\n  - navigating to \"https://www.facebook.com/groups/1320636581947237/\", waiting until \"domcontentloaded\"\n"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1329989478977471/",
+    "status": "ERROR",
+    "error": "Group navigation failed after retry: Page.goto: Page crashed\nCall log:\n  - navigating to \"https://www.facebook.com/groups/1329989478977471/\", waiting until \"domcontentloaded\"\n"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/200267450320206/",
+    "status": "ERROR",
+    "error": "Group navigation failed after retry: Page.goto: Page crashed\nCall log:\n  - navigating to \"https://www.facebook.com/groups/200267450320206/\", waiting until \"domcontentloaded\"\n"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/tintucnonghoicuchot/",
+    "status": "POSTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1510470162626661/",
+    "status": "POSTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1165734200820824/",
+    "status": "POSTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/2934085380204159/",
+    "status": "POSTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/5639899666127271/",
+    "status": "POSTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/965833877980346/",
+    "status": "POSTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/869991821428137/",
+    "status": "POSTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/tinnongkhaimo24h/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/858695981006942/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/4785199321506879/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/189555589605037/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/813198727840069/",
+    "status": "POSTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1542199290269092/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/289828632400848/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/2020995378659019/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/5169425079738845/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1601336573401036/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/568971424088793/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1499894274654005/",
+    "status": "POSTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/2893151890913313/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/tinnong360/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/phunugiadinhcuocsong/",
+    "status": "POSTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/tinnongtinmoinhat24h/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/755877398632288/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/103421799773301/",
+    "status": "PENDING_APPROVAL"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/tintucnong24hhomnay/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer after retry"
   }
 ]
