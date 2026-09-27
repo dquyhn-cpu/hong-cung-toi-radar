@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-09-27T06:14:50.649154+00:00",
+  "updated_at": "2026-09-27T07:11:36.331092+00:00",
   "state": "ERROR",
   "stage": "COLLECTOR_FAILED",
   "message": "collector exited 1"
