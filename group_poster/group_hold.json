@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-09-25T07:12:00Z",
-  "policy": "Temporarily exclude the 20 groups manually confirmed by screenshots as pending approval. Remove only after explicit recheck confirms approval/visibility.",
+  "updated_at": "2026-09-28T03:18:30Z",
+  "policy": "Temporarily exclude groups manually confirmed by screenshots as pending approval. Now 22 groups total. Remove only after explicit recheck confirms approval/visibility.",
   "groups": [
     "https://www.facebook.com/groups/313891421000437/",
     "https://www.facebook.com/groups/1501143240712883/",
@@ -21,6 +21,8 @@
     "https://www.facebook.com/groups/tinnongnhat24h/",
     "https://www.facebook.com/groups/714762906376801/",
     "https://www.facebook.com/groups/evaphunuagiadinhthoihiendai/",
-    "https://www.facebook.com/groups/766018404102389/"
+    "https://www.facebook.com/groups/766018404102389/",
+    "https://www.facebook.com/groups/2893151890913313/",
+    "https://www.facebook.com/groups/103421799773301/"
   ]
 }
