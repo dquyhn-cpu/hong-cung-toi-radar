@@ -578,33 +578,16 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
     # stalls in large batches. Verification below is text/state based.
     final = out / "group_post_after_submit.png"
 
-    status = "POSTED_UNVERIFIED"
+    # Lightweight submit result. Do not scan the whole group page for generic
+    # pending markers: they can belong to other posts and caused false positives.
+    # Explicit visibility/pending can be audited separately only when needed.
+    status = "SUBMITTED_UNVERIFIED"
     safety_stop = detect_facebook_safety_stop(page)
     if safety_stop:
         raise RuntimeError(f"SAFETY_STOP:{safety_stop}")
 
-    try:
-        body_raw = " ".join(page.locator("body").inner_text(timeout=5000).split())
-        body = body_raw.lower()
-        pending_markers = [
-            "đang chờ phê duyệt",
-            "chờ quản trị viên phê duyệt",
-            "bài viết đang chờ",
-            "pending approval",
-            "awaiting approval",
-        ]
-        if any(marker in body for marker in pending_markers):
-            status = "PENDING_APPROVAL"
-        else:
-            snippet = " ".join((message or "").split())[:70]
-            if snippet and snippet in body_raw:
-                status = "PUBLISHED_VISIBLE"
-    except Exception:
-        pass
-
-    print(f"{status}=verified_without_screenshot")
+    print(f"{status}=lightweight_no_page_scan")
     return status
-
 
 
 def add_comment(page, message, post_message=None):
@@ -1085,7 +1068,7 @@ def run_package(page, package_path, confirm_post, output_dir):
 
     failures = [r for r in results if r["status"] == "ERROR"]
     skipped = [r for r in results if r["status"] == "SKIPPED"]
-    posted = [r for r in results if r["status"] in {"POST_CLICKED","POSTED_UNVERIFIED","PUBLISHED_VISIBLE","POST_OK_COMMENT_WARNING","PREVIEW_OK","PENDING_APPROVAL","SKIP_ALREADY_POSTED"}]
+    posted = [r for r in results if r["status"] in {"POST_CLICKED","POSTED_UNVERIFIED","SUBMITTED_UNVERIFIED","PUBLISHED_VISIBLE","POST_OK_COMMENT_WARNING","PREVIEW_OK","PENDING_APPROVAL","SKIP_ALREADY_POSTED"}]
     safety_stops = [r for r in results if r["status"] == "SAFETY_STOP"]
     print(f"BATCH_DONE total={len(results)} posted_or_preview={len(posted)} skipped={len(skipped)} errors={len(failures)}")
     # Keep the queue alive when only a few groups fail. The per-group report is
