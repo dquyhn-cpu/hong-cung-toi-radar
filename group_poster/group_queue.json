@@ -1,5 +1,6 @@
 {
-  "action": "IDLE",
-  "command_id": "clear-bao-hiem-20260928-1711",
-  "note": "Insurance post completed. Clear old publish queue; no further posting requested by this command."
+  "action": "PUBLISH",
+  "command_id": "publish-mercedes-bich-ngoc-20260928-1722",
+  "package": "group_poster/packages/mercedes_bich_ngoc_20260928_active.json",
+  "note": "Publish Mercedes case update to active general-news groups only. Hold-filter 20 pending groups; education-only excluded. Use Hóng Cùng Tôi Page identity."
 }
