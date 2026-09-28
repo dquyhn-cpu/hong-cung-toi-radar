@@ -1,32 +1,27 @@
 [
   {
     "group_url": "https://www.facebook.com/groups/2912905878746514/",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
+    "status": "POSTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/782708824657028/",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
+    "status": "PUBLISHED_VISIBLE"
   },
   {
     "group_url": "https://www.facebook.com/groups/1320636581947237/",
-    "status": "ERROR",
-    "error": "Group navigation failed after retry: Page.goto: Page crashed\nCall log:\n  - navigating to \"https://www.facebook.com/groups/1320636581947237/\", waiting until \"domcontentloaded\"\n"
+    "status": "POSTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/1329989478977471/",
-    "status": "ERROR",
-    "error": "Group navigation failed after retry: Page.goto: Page crashed\nCall log:\n  - navigating to \"https://www.facebook.com/groups/1329989478977471/\", waiting until \"domcontentloaded\"\n"
+    "status": "POSTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/200267450320206/",
-    "status": "ERROR",
-    "error": "Group navigation failed after retry: Page.goto: Page crashed\nCall log:\n  - navigating to \"https://www.facebook.com/groups/200267450320206/\", waiting until \"domcontentloaded\"\n"
+    "status": "POSTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/tintucnonghoicuchot/",
-    "status": "POSTED_UNVERIFIED"
+    "status": "PUBLISHED_VISIBLE"
   },
   {
     "group_url": "https://www.facebook.com/groups/1510470162626661/",
@@ -46,7 +41,7 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/965833877980346/",
-    "status": "POSTED_UNVERIFIED"
+    "status": "PUBLISHED_VISIBLE"
   },
   {
     "group_url": "https://www.facebook.com/groups/869991821428137/",
