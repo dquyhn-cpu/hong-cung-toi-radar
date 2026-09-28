@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-09-28T02:17:19.145545+00:00",
-  "state": "ERROR",
-  "stage": "COLLECTOR_FAILED",
-  "message": "collector exited 1"
+  "updated_at": "2026-09-28T12:45:39.147846+00:00",
+  "state": "RUNNING",
+  "stage": "AGENT_STARTED",
+  "message": "Facebook collector agent is running"
 }
