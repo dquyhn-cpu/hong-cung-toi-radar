@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "source": "danh_sach_group tin tuc đã tham gia(1).xlsx",
-  "generated_at": "2026-09-25",
+  "source": "danh_sach_group tin tuc đã tham gia(1).xlsx + bổ sung thủ công",
+  "generated_at": "2026-09-28",
   "groups": [
     {
       "row": 1,
@@ -418,6 +418,14 @@
       "url": "https://www.facebook.com/groups/thiepngan/",
       "note": "chỉ đăng tin liên quan đến giáo dục",
       "enabled_for_general_news": false
+    },
+    {
+      "row": 53,
+      "code": null,
+      "name": null,
+      "url": "https://www.facebook.com/groups/2293910490828783/",
+      "note": "Bổ sung thủ công ngày 2026-09-28; dùng cho tin tổng hợp",
+      "enabled_for_general_news": true
     }
   ]
 }
