@@ -8,6 +8,35 @@ from urllib.request import Request, urlopen
 
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 
+GROUP_POSTER_MUTEX = "Global\\HongCungToiGroupPoster"
+_SINGLE_INSTANCE_HANDLE = None
+
+def acquire_single_instance():
+    global _SINGLE_INSTANCE_HANDLE
+    if sys.platform == "win32":
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        handle = kernel32.CreateMutexW(None, False, GROUP_POSTER_MUTEX)
+        if not handle:
+            raise RuntimeError("Could not create Group Poster mutex")
+        ERROR_ALREADY_EXISTS = 183
+        if kernel32.GetLastError() == ERROR_ALREADY_EXISTS:
+            kernel32.CloseHandle(handle)
+            return False
+        _SINGLE_INSTANCE_HANDLE = handle
+        return True
+
+    lock_path = Path.home() / ".hong-cung-toi" / "group_poster.instance.lock"
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        fd = os.open(str(lock_path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        os.write(fd, str(os.getpid()).encode("ascii"))
+        _SINGLE_INSTANCE_HANDLE = (fd, lock_path)
+        return True
+    except FileExistsError:
+        return False
+
+
 DEFAULT_PROFILE = str(Path.home() / ".hong-cung-toi" / "facebook-group-profile-v3")
 DEFAULT_OUTPUT = "output"
 DEFAULT_REGISTRY = Path(__file__).resolve().parent / "group_registry_normalized.json"
@@ -1065,6 +1094,10 @@ def run_package(page, package_path, confirm_post, output_dir):
     return 1 if safety_stops or (not posted and failures) else 0
 
 def main():
+    if not acquire_single_instance():
+        print("GROUP_POSTER_ALREADY_RUNNING", file=sys.stderr)
+        return 3
+
     ap = argparse.ArgumentParser(description="Hóng Cùng Tôi - Facebook Group Poster")
     ap.add_argument("--profile-dir", default=DEFAULT_PROFILE)
     ap.add_argument("--login", action="store_true")
