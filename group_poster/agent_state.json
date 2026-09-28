@@ -1,5 +1,6 @@
 {
-  "last_command_id": "publish-xang-dau-active-20260926-1223",
-  "last_status": "SUCCESS",
-  "updated_at": "2026-09-26T13:08:53"
+  "last_command_id": "publish-bao-hiem-150tr-21tr-20260928-1016",
+  "last_status": "ERROR",
+  "error": "Group Poster exited with code 3: GROUP_POSTER_ALREADY_RUNNING",
+  "updated_at": "2026-09-28T10:16:40"
 }
