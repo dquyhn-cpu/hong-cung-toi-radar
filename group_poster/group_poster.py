@@ -44,6 +44,41 @@ DEFAULT_HOLD = Path(__file__).resolve().parent / "group_hold.json"
 DEFAULT_AUDIT_REGISTRY = Path(__file__).resolve().parent / "group_registry_52.json"
 SESSION_STATE = Path.home() / ".hong-cung-toi" / "facebook-group-session.json"
 LOCAL_ASSET_DIR = Path(__file__).resolve().parent / "temp_assets"
+PUBLISH_LEDGER = Path.home() / ".hong-cung-toi" / "group_publish_ledger.json"
+
+
+def _group_key(url):
+    return str(url or "").strip().rstrip("/")
+
+
+def load_publish_ledger():
+    if not PUBLISH_LEDGER.exists():
+        return {}
+    try:
+        data = json.loads(PUBLISH_LEDGER.read_text(encoding="utf-8-sig"))
+        return data if isinstance(data, dict) else {}
+    except Exception as exc:
+        print(f"LEDGER_READ_WARNING={exc}", file=sys.stderr)
+        return {}
+
+
+def save_publish_ledger(data):
+    PUBLISH_LEDGER.parent.mkdir(parents=True, exist_ok=True)
+    tmp = PUBLISH_LEDGER.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp.replace(PUBLISH_LEDGER)
+
+
+def ledger_has_submission(ledger, publish_id, group_url):
+    return _group_key(group_url) in set(ledger.get(str(publish_id), []))
+
+
+def ledger_mark_submission(ledger, publish_id, group_url):
+    key = str(publish_id)
+    rows = set(ledger.get(key, []))
+    rows.add(_group_key(group_url))
+    ledger[key] = sorted(rows)
+    save_publish_ledger(ledger)
 
 
 def load_saved_session(context):
@@ -1010,8 +1045,15 @@ def run_package(page, package_path, confirm_post, output_dir):
         if x.get("message", "").strip()
     ]
     results = []
+    publish_id = str(pkg.get("publish_id") or pkg.get("event_id") or pkg_path.stem)
+    publish_ledger = load_publish_ledger()
 
     for idx, group_url in enumerate(group_urls, 1):
+        if confirm_post and ledger_has_submission(publish_ledger, publish_id, group_url):
+            print(f"LEDGER_SKIP_ALREADY_SUBMITTED={publish_id}::{group_url}")
+            results.append({"group_url": group_url, "status": "SKIP_ALREADY_POSTED", "reason": "local_publish_ledger"})
+            write_batch_report(results, output_dir)
+            continue
         print(f"GROUP_BATCH={idx}/{len(group_urls)}")
         try:
             rc = post_mode(page, group_url, message, image_path, confirm_post, output_dir)
@@ -1023,6 +1065,11 @@ def run_package(page, package_path, confirm_post, output_dir):
                 # the main post package instead.
                 print(f"GROUP_COMMENTS_DISABLED count={len(comments)}")
             results.append({"group_url": group_url, "status": status})
+            # Once Facebook accepted/clicked the submission, persist the story+group
+            # pair locally. This prevents a repeated command from posting again even
+            # when the first post is still pending approval and not publicly visible.
+            if confirm_post and status in {"POST_CLICKED","POSTED_UNVERIFIED","SUBMITTED_UNVERIFIED","PUBLISHED_VISIBLE","POST_OK_COMMENT_WARNING","PENDING_APPROVAL"}:
+                ledger_mark_submission(publish_ledger, publish_id, group_url)
             write_batch_report(results, output_dir)
         except Exception as exc:
             err = str(exc)
