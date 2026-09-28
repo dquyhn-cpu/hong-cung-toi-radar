@@ -17,6 +17,34 @@ ASSET_MANIFEST_DIR = REPO / 'facebook_assets_b64'
 ASSET_OUT_DIR = HERE / 'temp_assets'
 LEGACY_ASSET_OUT_DIR = Path.home() / '.hong-cung-toi' / 'temp_assets'
 CREATE_NO_WINDOW = 0x08000000 if sys.platform == 'win32' else 0
+GROUP_AGENT_MUTEX = "Global\\HongCungToiGroupAgent"
+_SINGLE_INSTANCE_HANDLE = None
+
+def acquire_single_instance():
+    global _SINGLE_INSTANCE_HANDLE
+    if sys.platform == "win32":
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        handle = kernel32.CreateMutexW(None, False, GROUP_AGENT_MUTEX)
+        if not handle:
+            raise RuntimeError("Could not create Group Agent mutex")
+        ERROR_ALREADY_EXISTS = 183
+        if kernel32.GetLastError() == ERROR_ALREADY_EXISTS:
+            kernel32.CloseHandle(handle)
+            return False
+        _SINGLE_INSTANCE_HANDLE = handle
+        return True
+
+    lock_path = Path.home() / ".hong-cung-toi" / "group_agent.instance.lock"
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        fd = os.open(str(lock_path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+        os.write(fd, str(os.getpid()).encode("ascii"))
+        _SINGLE_INSTANCE_HANDLE = (fd, lock_path)
+        return True
+    except FileExistsError:
+        return False
+
 GIT_LOCK = Path.home() / '.hong-cung-toi' / 'repo_git.lock'
 
 class GitLock:
@@ -220,6 +248,9 @@ def run_command(queue):
     return command_id
 
 def main():
+    if not acquire_single_instance():
+        log('AGENT_ALREADY_RUNNING')
+        return 0
     log('AGENT_STARTED')
     state = load_json(STATE, {'last_command_id': None, 'last_status': None})
     while True:
