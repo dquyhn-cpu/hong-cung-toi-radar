@@ -1,6 +1,15 @@
 {
-  "updated_at": "2026-09-29T04:58:24.986557+00:00",
-  "state": "ERROR",
-  "stage": "COLLECTOR_FAILED",
-  "message": "collector exited 1"
+  "updated_at": "2026-09-29T07:48:05.757349+00:00",
+  "state": "COLLECTED",
+  "stage": "READY_TO_PUSH",
+  "post_count": 16,
+  "source_stats": {
+    "Thông tin Chính phủ": 5,
+    "Bộ Công an": 4,
+    "BeatVN": 1,
+    "Theanh28": 1,
+    "Top Comments": 3,
+    "Bí Mật Showbiz": 2
+  },
+  "source_errors": {}
 }
