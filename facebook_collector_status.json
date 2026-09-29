@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-09-29T07:48:11.314496+00:00",
-  "state": "OK",
-  "stage": "PUSHED",
-  "message": "Facebook collector snapshot pushed to GitHub"
+  "updated_at": "2026-09-29T09:06:20.384615+00:00",
+  "state": "ERROR",
+  "stage": "COLLECTOR_FAILED",
+  "message": "collector exited 1"
 }
