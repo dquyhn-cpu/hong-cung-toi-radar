@@ -9,8 +9,7 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/1320636581947237/",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
+    "status": "SUBMITTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/1329989478977471/",
@@ -22,13 +21,11 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/tintucnonghoicuchot/",
-    "status": "ERROR",
-    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
+    "status": "SUBMITTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/1510470162626661/",
-    "status": "ERROR",
-    "error": "Locator.inner_text: Timeout 3000ms exceeded.\nCall log:\n  - waiting for locator(\"body\")\n"
+    "status": "SUBMITTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/1165734200820824/",
@@ -52,18 +49,15 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/tinnongkhaimo24h/",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
+    "status": "SUBMITTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/858695981006942/",
-    "status": "ERROR",
-    "error": "Group navigation failed after retry: Page.goto: Navigation to \"https://www.facebook.com/groups/858695981006942/\" is interrupted by another navigation to \"https://www.facebook.com/\"\nCall log:\n  - navigating to \"https://www.facebook.com/groups/858695981006942/\", waiting until \"domcontentloaded\"\n"
+    "status": "SUBMITTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/4785199321506879/",
-    "status": "ERROR",
-    "error": "Group navigation failed after retry: Page.goto: Timeout 60000ms exceeded.\nCall log:\n  - navigating to \"https://www.facebook.com/groups/4785199321506879/\", waiting until \"domcontentloaded\"\n"
+    "status": "SUBMITTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/189555589605037/",
@@ -83,21 +77,16 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/2020995378659019/",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
+    "status": "SUBMITTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/5169425079738845/",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1601336573401036/",
     "status": "SUBMITTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/568971424088793/",
-    "status": "SUBMITTED_UNVERIFIED"
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
   },
   {
     "group_url": "https://www.facebook.com/groups/1499894274654005/",
@@ -113,17 +102,65 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/tinnongtinmoinhat24h/",
-    "status": "ERROR",
-    "error": "Group navigation failed after retry: Page.goto: Navigation to \"https://www.facebook.com/groups/tinnongtinmoinhat24h/\" is interrupted by another navigation to \"https://www.facebook.com/groups/tinnongtinmoinhat24h/\"\nCall log:\n  - navigating to \"https://www.facebook.com/groups/tinnongtinmoinhat24h/\", waiting until \"domcontentloaded\"\n"
+    "status": "SUBMITTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/755877398632288/",
-    "status": "ERROR",
-    "error": "Group navigation failed after retry: Page.goto: Timeout 60000ms exceeded.\nCall log:\n  - navigating to \"https://www.facebook.com/groups/755877398632288/\", waiting until \"domcontentloaded\"\n"
+    "status": "SUBMITTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/tintucnong24hhomnay/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer after retry"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/2293910490828783/",
+    "status": "SUBMITTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/981079245730615/",
+    "status": "SUBMITTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/914041269017742/",
+    "status": "SUBMITTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/882439598498949/",
+    "status": "SUBMITTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/4180105168741397/",
+    "status": "SUBMITTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1563824158067319/",
     "status": "ERROR",
-    "error": "Group navigation failed after retry: Page.goto: Timeout 60000ms exceeded.\nCall log:\n  - navigating to \"https://www.facebook.com/groups/tintucnong24hhomnay/\", waiting until \"domcontentloaded\"\n"
+    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/191960949542902/",
+    "status": "SUBMITTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/510324326306876/",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer after retry"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1964712687005977/",
+    "status": "SUBMITTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/278488853436728/",
+    "status": "SUBMITTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/299915580482719/",
+    "status": "SUBMITTED_UNVERIFIED"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/735590394019281/",
+    "status": "SUBMITTED_UNVERIFIED"
   }
 ]
