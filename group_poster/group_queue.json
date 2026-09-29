@@ -1,5 +1,5 @@
 {
-  "action": "IDLE",
-  "command_id": "stop-mercedes-replay-20260928-1902",
-  "note": "Mercedes batch already produced a report. Stop queue replay to prevent duplicate posting while reviewing completion state."
+  "action": "PUBLISH",
+  "command_id": "publish-gia-vang-20260929-1459",
+  "package": "group_poster/packages/gia_vang_20260929_active.json"
 }
