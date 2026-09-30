@@ -2,9 +2,7 @@
 setlocal
 cd /d "%~dp0"
 
-if not exist ".venv\Scripts\pythonw.exe" (
-  exit /b 1
-)
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$t=Get-ScheduledTask -TaskName 'HongCungToiGroupPosterAgent' -ErrorAction SilentlyContinue; if(-not $t){& '%~dp0install_agent_task.ps1'} else {Start-ScheduledTask -TaskName 'HongCungToiGroupPosterAgent'}"
 
-start "" /b ".venv\Scripts\pythonw.exe" group_agent.py
-exit /b 0
+exit /b %ERRORLEVEL%
