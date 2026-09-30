@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-09-28T11:45:14Z",
-  "policy": "Temporarily exclude groups manually confirmed as pending/not approved. Now 23 groups total. Remove only after explicit recheck confirms approval/visibility.",
+  "updated_at": "2026-09-30T03:03:00Z",
+  "policy": "Exclude groups manually confirmed as pending/not approved plus groups explicitly excluded by the user. Now 24 groups total. Remove only after explicit user instruction or recheck confirms approval/visibility for pending groups.",
   "groups": [
     "https://www.facebook.com/groups/313891421000437/",
     "https://www.facebook.com/groups/1501143240712883/",
@@ -24,6 +24,7 @@
     "https://www.facebook.com/groups/766018404102389/",
     "https://www.facebook.com/groups/2893151890913313/",
     "https://www.facebook.com/groups/103421799773301/",
-    "https://www.facebook.com/groups/1601336573401036/"
+    "https://www.facebook.com/groups/1601336573401036/",
+    "https://www.facebook.com/groups/755877398632288/"
   ]
 }
