@@ -9,7 +9,8 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/1320636581947237/",
-    "status": "SUBMITTED_UNVERIFIED"
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
   },
   {
     "group_url": "https://www.facebook.com/groups/1329989478977471/",
@@ -85,8 +86,7 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/568971424088793/",
-    "status": "ERROR",
-    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
+    "status": "SUBMITTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/1499894274654005/",
@@ -105,10 +105,6 @@
     "status": "SUBMITTED_UNVERIFIED"
   },
   {
-    "group_url": "https://www.facebook.com/groups/755877398632288/",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
     "group_url": "https://www.facebook.com/groups/tintucnong24hhomnay/",
     "status": "SKIPPED",
     "error": "Could not open Facebook Group composer after retry"
@@ -123,15 +119,18 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/914041269017742/",
-    "status": "SUBMITTED_UNVERIFIED"
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer after retry"
   },
   {
     "group_url": "https://www.facebook.com/groups/882439598498949/",
-    "status": "SUBMITTED_UNVERIFIED"
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
   },
   {
     "group_url": "https://www.facebook.com/groups/4180105168741397/",
-    "status": "SUBMITTED_UNVERIFIED"
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
   },
   {
     "group_url": "https://www.facebook.com/groups/1563824158067319/",
@@ -140,7 +139,8 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/191960949542902/",
-    "status": "SUBMITTED_UNVERIFIED"
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer after retry"
   },
   {
     "group_url": "https://www.facebook.com/groups/510324326306876/",
