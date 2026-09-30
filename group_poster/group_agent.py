@@ -253,6 +253,15 @@ def main():
         return 0
     log('AGENT_STARTED')
     state = load_json(STATE, {'last_command_id': None, 'last_status': None})
+    state['agent_status'] = 'RUNNING'
+    state['agent_started_at'] = datetime.now().isoformat(timespec='seconds')
+    state['agent_pid'] = os.getpid()
+    state['agent_python'] = sys.executable
+    save_json(STATE, state)
+    try:
+        publish_status_to_repo()
+    except Exception as exc:
+        log(f'STARTUP_STATUS_WARNING {exc}')
     while True:
         try:
             git_pull()
