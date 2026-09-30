@@ -1,5 +1,6 @@
 {
-  "last_command_id": "publish-gia-vang-20260929-1459",
-  "last_status": "SUCCESS",
-  "updated_at": "2026-09-29T16:04:38"
+  "last_command_id": "publish-nu-sinh-vinh-long-20260930-1004",
+  "last_status": "ERROR",
+  "error": "Group Poster exited with code 1: ERROR: HTTP Error 400: Bad Request",
+  "updated_at": "2026-09-30T10:40:23"
 }
