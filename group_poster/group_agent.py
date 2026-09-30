@@ -166,10 +166,31 @@ def publish_status_to_repo():
 
 
 def git_pull():
-    with GitLock():
-        p = subprocess.run(['git','-C',str(REPO),'pull','--rebase','--autostash','origin','main'], capture_output=True, text=True, timeout=90, creationflags=CREATE_NO_WINDOW)
+    """Best-effort remote sync.
+
+    Posting must never be blocked for a long time by GitHub/network trouble.
+    The local queue is authoritative for immediate execution; remote sync only
+    refreshes it when GitHub is reachable.
+    """
+    try:
+        with GitLock(timeout=5):
+            p = subprocess.run(
+                ['git','-C',str(REPO),'pull','--rebase','--autostash','origin','main'],
+                capture_output=True,
+                text=True,
+                timeout=15,
+                creationflags=CREATE_NO_WINDOW,
+            )
         if p.returncode != 0:
-            raise RuntimeError((p.stderr or p.stdout or 'git pull failed').strip())
+            log(f"GIT_PULL_WARNING {(p.stderr or p.stdout or 'git pull failed').strip()}")
+            return False
+        return True
+    except subprocess.TimeoutExpired:
+        log("GIT_PULL_WARNING timed out after 15 seconds; continuing with local queue")
+        return False
+    except Exception as exc:
+        log(f"GIT_PULL_WARNING {exc}; continuing with local queue")
+        return False
 
 def run_command(queue):
     command_id = str(queue.get('command_id') or '').strip()
@@ -247,10 +268,50 @@ def run_command(queue):
     log(f'DONE command_id={command_id}')
     return command_id
 
+def process_local_queue(state):
+    """Execute the queue already present on disk without waiting for GitHub."""
+    sync_binary_assets()
+    queue = load_json(QUEUE, {'action':'IDLE'})
+    command_id = str(queue.get('command_id') or '').strip()
+    action = str(queue.get('action') or 'IDLE').upper()
+    if action not in {'PUBLISH','PING','SCAN_GROUPS','VERIFY_GROUPS','LOGIN'}:
+        return state
+    if not command_id or command_id == state.get('last_command_id'):
+        return state
+
+    try:
+        done_id = run_command(queue)
+        state = {
+            'last_command_id': done_id,
+            'last_status': 'SUCCESS',
+            'updated_at': datetime.now().isoformat(timespec='seconds'),
+        }
+        save_json(STATE, state)
+        try:
+            publish_status_to_repo()
+        except Exception as exc:
+            log(f'STATUS_PUBLISH_WARNING {exc}')
+    except Exception as exc:
+        state = {
+            'last_command_id': command_id,
+            'last_status': 'ERROR',
+            'error': str(exc),
+            'updated_at': datetime.now().isoformat(timespec='seconds'),
+        }
+        save_json(STATE, state)
+        log(f'COMMAND_ERROR command_id={command_id} error={exc}')
+        try:
+            publish_status_to_repo()
+        except Exception as status_exc:
+            log(f'STATUS_PUBLISH_WARNING {status_exc}')
+    return state
+
+
 def main():
     if not acquire_single_instance():
         log('AGENT_ALREADY_RUNNING')
         return 0
+
     log('AGENT_STARTED')
     state = load_json(STATE, {'last_command_id': None, 'last_status': None})
     state['agent_status'] = 'RUNNING'
@@ -258,27 +319,25 @@ def main():
     state['agent_pid'] = os.getpid()
     state['agent_python'] = sys.executable
     save_json(STATE, state)
+
+    # Critical path: run whatever queue is already on disk immediately.
+    # Do not let startup status publishing or GitHub connectivity delay Chromium.
     try:
-        publish_status_to_repo()
+        state = process_local_queue(state)
     except Exception as exc:
-        log(f'STARTUP_STATUS_WARNING {exc}')
+        log(f'LOCAL_QUEUE_WARNING {exc}')
+
     while True:
         try:
-            git_pull()
-            sync_binary_assets()
-            queue = load_json(QUEUE, {'action':'IDLE'})
-            command_id = str(queue.get('command_id') or '').strip()
-            if str(queue.get('action') or 'IDLE').upper() in {'PUBLISH','PING','SCAN_GROUPS','VERIFY_GROUPS','LOGIN'} and command_id and command_id != state.get('last_command_id'):
-                try:
-                    done_id = run_command(queue)
-                    state = {'last_command_id': done_id, 'last_status':'SUCCESS', 'updated_at':datetime.now().isoformat(timespec='seconds')}
-                    save_json(STATE, state)
-                    publish_status_to_repo()
-                except Exception as exc:
-                    state = {'last_command_id': command_id, 'last_status':'ERROR', 'error':str(exc), 'updated_at':datetime.now().isoformat(timespec='seconds')}
-                    save_json(STATE, state)
-                    log(f'COMMAND_ERROR command_id={command_id} error={exc}')
-                    publish_status_to_repo()
+            # Refresh from GitHub when possible, but a Git failure is non-fatal.
+            # If a new queue arrives, execute it immediately in this same cycle.
+            pulled = git_pull()
+            if pulled:
+                state = process_local_queue(state)
+
+            # Also re-check local queue every cycle so manually/local-written
+            # commands do not depend on a successful network sync.
+            state = process_local_queue(state)
             time.sleep(POLL_SECONDS)
         except KeyboardInterrupt:
             log('AGENT_STOPPED')
