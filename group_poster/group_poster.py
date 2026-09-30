@@ -1,10 +1,12 @@
 import argparse
+import hashlib
 import json
 import sys
 import time
 from pathlib import Path
 from urllib.parse import urlparse, parse_qsl, urlencode, urlunparse
 from urllib.request import Request, urlopen
+from urllib.error import HTTPError, URLError
 
 from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeoutError
 
@@ -765,16 +767,14 @@ def load_package_comments(package_path):
     ]
 
 def download_remote_image(url, output_dir):
-    """Download a remotely hosted approved image for a package.
+    """Download an approved remote image into a stable local cache.
 
-    Supports normal HTTPS URLs and Dropbox share links. The downloaded file is
-    stored locally before Facebook upload, so the posting core still receives a
-    normal filesystem path.
+    This runs during package preflight, before Chromium opens. Network/image
+    failures therefore never cause the visible browser to flash open and close.
     """
     if not url.startswith("https://"):
-        raise RuntimeError("image_url must use https")
+        raise RuntimeError("ASSET_DOWNLOAD_FAILED: image_url must use https")
 
-    # Dropbox share links should force the original file download.
     parsed = urlparse(url)
     if "dropbox.com" in parsed.netloc.lower():
         q = dict(parse_qsl(parsed.query, keep_blank_values=True))
@@ -784,27 +784,50 @@ def download_remote_image(url, output_dir):
 
     out_dir = Path(output_dir) / "remote_assets"
     out_dir.mkdir(parents=True, exist_ok=True)
-    suffix = Path(urlparse(url).path).suffix.lower()
-    if suffix not in {".jpg", ".jpeg", ".png", ".webp"}:
-        suffix = ".jpg"
-    name = f"remote_asset_{abs(hash(url))}{suffix}"
-    out_path = out_dir / name
 
-    req = Request(url, headers={"User-Agent": "Mozilla/5.0"})
-    with urlopen(req, timeout=60) as resp:
-        data = resp.read()
-        content_type = (resp.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+    cache_key = hashlib.sha256(url.encode("utf-8")).hexdigest()[:24]
+    cached = list(out_dir.glob(f"remote_asset_{cache_key}.*"))
+    for candidate in cached:
+        try:
+            data = candidate.read_bytes()
+            if data.startswith(b"\x89PNG\r\n\x1a\n") or data.startswith(b"\xff\xd8\xff") or (
+                data.startswith(b"RIFF") and len(data) >= 12 and data[8:12] == b"WEBP"
+            ):
+                print(f"REMOTE_IMAGE_CACHE_HIT={candidate} bytes={len(data)}")
+                return str(candidate)
+        except Exception:
+            pass
+
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/154 Safari/537.36",
+        "Accept": "image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8",
+        "Accept-Language": "vi-VN,vi;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Referer": "https://docs.google.com/",
+    }
+
+    data = None
+    content_type = ""
+    last_error = None
+    for attempt in range(1, 4):
+        try:
+            req = Request(url, headers=headers)
+            with urlopen(req, timeout=25) as resp:
+                data = resp.read()
+                content_type = (resp.headers.get("Content-Type") or "").split(";")[0].strip().lower()
+            last_error = None
+            break
+        except (HTTPError, URLError, TimeoutError) as exc:
+            last_error = exc
+            print(f"REMOTE_IMAGE_RETRY attempt={attempt} error={exc}", file=sys.stderr)
+            if attempt < 3:
+                time.sleep(attempt * 2)
+
+    if last_error is not None or data is None:
+        raise RuntimeError(f"ASSET_DOWNLOAD_FAILED: {last_error}")
 
     if len(data) < 1024:
-        raise RuntimeError("Remote image download returned too little data")
+        raise RuntimeError("ASSET_DOWNLOAD_FAILED: remote image returned too little data")
 
-    # Validate by MIME + file signature. Google Drive can return an HTML
-    # confirmation/view page even when the URL looks like an image download.
-    signatures = {
-        b"\x89PNG\r\n\x1a\n": ".png",
-        b"\xff\xd8\xff": ".jpg",
-        b"RIFF": ".webp",
-    }
     detected_suffix = None
     if data.startswith(b"\x89PNG\r\n\x1a\n"):
         detected_suffix = ".png"
@@ -816,18 +839,56 @@ def download_remote_image(url, output_dir):
     if not detected_suffix:
         head = data[:200].lstrip().lower()
         if "text/html" in content_type or head.startswith(b"<!doctype html") or head.startswith(b"<html"):
-            raise RuntimeError("Remote image URL returned HTML instead of an image")
-        raise RuntimeError(f"Remote asset is not a supported image (content-type={content_type or 'unknown'})")
+            raise RuntimeError("ASSET_DOWNLOAD_FAILED: remote URL returned HTML instead of an image")
+        raise RuntimeError(f"ASSET_DOWNLOAD_FAILED: unsupported image content-type={content_type or 'unknown'}")
 
     if len(data) >= 10 * 1024 * 1024:
-        raise RuntimeError(f"Remote image is too large for Facebook upload: {len(data)} bytes")
+        raise RuntimeError(f"ASSET_DOWNLOAD_FAILED: image too large ({len(data)} bytes)")
 
-    if out_path.suffix.lower() != detected_suffix:
-        out_path = out_path.with_suffix(detected_suffix)
-
+    out_path = out_dir / f"remote_asset_{cache_key}{detected_suffix}"
     out_path.write_bytes(data)
     print(f"REMOTE_IMAGE_READY={out_path} bytes={len(data)} type={content_type or 'unknown'}")
     return str(out_path)
+
+
+def preflight_package(package_path, output_dir):
+    """Validate package and resolve its image before launching Chromium."""
+    pkg_path = Path(package_path)
+    if not pkg_path.exists():
+        raise RuntimeError(f"PREFLIGHT_FAILED: package not found: {pkg_path}")
+
+    pkg = json.loads(pkg_path.read_text(encoding="utf-8-sig"))
+    message = str(pkg.get("message") or "").strip()
+    if not message:
+        raise RuntimeError("PREFLIGHT_FAILED: package message is empty")
+
+    group_urls = pkg.get("group_urls") or ([pkg["group_url"]] if pkg.get("group_url") else [])
+    if not group_urls and not pkg.get("use_registry"):
+        raise RuntimeError("PREFLIGHT_FAILED: package has no target groups")
+
+    image_asset_name = str(pkg.get("image_asset_name") or "").strip()
+    image_url = str(pkg.get("image_url") or "").strip()
+    image_path = pkg.get("image_path")
+    resolved = None
+
+    if image_asset_name:
+        resolved = LOCAL_ASSET_DIR / image_asset_name
+        if not resolved.exists():
+            raise RuntimeError(f"PREFLIGHT_FAILED: local temp image not found: {resolved}")
+        resolved = str(resolved)
+    elif image_url:
+        resolved = download_remote_image(image_url, output_dir)
+    elif image_path:
+        candidate = Path(image_path)
+        if not candidate.exists():
+            alt = Path("..") / candidate
+            candidate = alt if alt.exists() else candidate
+        if not candidate.exists():
+            raise RuntimeError(f"PREFLIGHT_FAILED: image not found: {candidate}")
+        resolved = str(candidate)
+
+    print(f"PREFLIGHT_OK groups={len(group_urls) if group_urls else 'registry'} image={'yes' if resolved else 'no'}")
+    return resolved
 
 
 
@@ -948,7 +1009,7 @@ def audit_groups_mode(page, registry_path, message, output_dir):
     return 0
 
 
-def run_package(page, package_path, confirm_post, output_dir):
+def run_package(page, package_path, confirm_post, output_dir, prepared_image_path=None):
     pkg_path = Path(package_path)
     pkg = json.loads(pkg_path.read_text(encoding="utf-8-sig"))
     group_urls = pkg.get("group_urls") or ([pkg["group_url"]] if pkg.get("group_url") else [])
@@ -1020,21 +1081,22 @@ def run_package(page, package_path, confirm_post, output_dir):
     if not message:
         raise RuntimeError("Package message is empty")
 
-    image_path = pkg.get("image_path")
-    image_asset_name = str(pkg.get("image_asset_name") or "").strip()
-    image_url = str(pkg.get("image_url") or "").strip()
+    image_path = prepared_image_path
+    if image_path is None:
+        image_path = pkg.get("image_path")
+        image_asset_name = str(pkg.get("image_asset_name") or "").strip()
+        image_url = str(pkg.get("image_url") or "").strip()
 
-    if image_asset_name:
-        image_path = str(LOCAL_ASSET_DIR / image_asset_name)
-        if not Path(image_path).exists():
-            raise RuntimeError(f"Local temp image not found: {image_path}")
-    elif image_url:
-        image_path = download_remote_image(image_url, output_dir)
-    elif image_path and not Path(image_path).exists():
-        # Packages live in group_poster/packages; repo assets live one directory up.
-        alt = Path("..") / image_path
-        if alt.exists():
-            image_path = str(alt)
+        if image_asset_name:
+            image_path = str(LOCAL_ASSET_DIR / image_asset_name)
+            if not Path(image_path).exists():
+                raise RuntimeError(f"Local temp image not found: {image_path}")
+        elif image_url:
+            image_path = download_remote_image(image_url, output_dir)
+        elif image_path and not Path(image_path).exists():
+            alt = Path("..") / image_path
+            if alt.exists():
+                image_path = str(alt)
 
     comments = [
         {
@@ -1155,6 +1217,14 @@ def main():
     if args.comment_only_url and not args.package:
         ap.error("--comment-only-url requires --package for comment text")
 
+    prepared_image_path = None
+    if args.package and not args.comment_only_url:
+        try:
+            prepared_image_path = preflight_package(args.package, args.output_dir)
+        except Exception as exc:
+            print(f"ERROR: {exc}", file=sys.stderr)
+            return 1
+
     # Cookies are saved separately, so Group Poster does not need a persistent
     # Chromium user-data directory. A fresh context per batch avoids profile
     # locks/corruption and the long hangs seen with launch_persistent_context.
@@ -1215,7 +1285,7 @@ def main():
                     args.output_dir,
                 )
             if args.package:
-                return run_package(page, args.package, args.confirm_post, args.output_dir)
+                return run_package(page, args.package, args.confirm_post, args.output_dir, prepared_image_path=prepared_image_path)
             return post_mode(
                 page,
                 args.group_url,
