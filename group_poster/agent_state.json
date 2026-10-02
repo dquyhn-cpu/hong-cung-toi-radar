@@ -1,6 +1,5 @@
 {
-  "last_command_id": "publish-tuyen-quang-exam-20261002-0941",
-  "last_status": "ERROR",
-  "error": "Group Poster exited with code 1: ERROR: ASSET_DOWNLOAD_FAILED: <urlopen error [SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: self-signed certificate in certificate chain (_ssl.c:1010)>",
-  "updated_at": "2026-10-02T09:42:04"
+  "last_command_id": "publish-tuyen-quang-exam-20261002-0945-local",
+  "last_status": "SUCCESS",
+  "updated_at": "2026-10-02T10:28:22"
 }

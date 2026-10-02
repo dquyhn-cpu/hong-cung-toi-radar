@@ -5,20 +5,23 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/782708824657028/",
-    "status": "SUBMITTED_UNVERIFIED"
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer after retry"
   },
   {
     "group_url": "https://www.facebook.com/groups/1320636581947237/",
-    "status": "ERROR",
-    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer after retry"
   },
   {
     "group_url": "https://www.facebook.com/groups/1329989478977471/",
-    "status": "SUBMITTED_UNVERIFIED"
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer after retry"
   },
   {
     "group_url": "https://www.facebook.com/groups/200267450320206/",
-    "status": "SUBMITTED_UNVERIFIED"
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer after retry"
   },
   {
     "group_url": "https://www.facebook.com/groups/tintucnonghoicuchot/",
@@ -26,7 +29,8 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/1510470162626661/",
-    "status": "SUBMITTED_UNVERIFIED"
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
   },
   {
     "group_url": "https://www.facebook.com/groups/1165734200820824/",
@@ -54,7 +58,8 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/858695981006942/",
-    "status": "SUBMITTED_UNVERIFIED"
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
   },
   {
     "group_url": "https://www.facebook.com/groups/4785199321506879/",
@@ -111,7 +116,8 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/2293910490828783/",
-    "status": "SUBMITTED_UNVERIFIED"
+    "status": "ERROR",
+    "error": "Post button not found after retry"
   },
   {
     "group_url": "https://www.facebook.com/groups/981079245730615/",
@@ -119,28 +125,24 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/914041269017742/",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
+    "status": "SUBMITTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/882439598498949/",
-    "status": "ERROR",
-    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
+    "status": "SUBMITTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/4180105168741397/",
-    "status": "ERROR",
-    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
+    "status": "SUBMITTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/1563824158067319/",
-    "status": "ERROR",
-    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
+    "status": "SUBMITTED_UNVERIFIED"
   },
   {
     "group_url": "https://www.facebook.com/groups/191960949542902/",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
   },
   {
     "group_url": "https://www.facebook.com/groups/510324326306876/",
@@ -153,7 +155,8 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/278488853436728/",
-    "status": "SUBMITTED_UNVERIFIED"
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer after retry"
   },
   {
     "group_url": "https://www.facebook.com/groups/299915580482719/",
@@ -161,6 +164,7 @@
   },
   {
     "group_url": "https://www.facebook.com/groups/735590394019281/",
-    "status": "SUBMITTED_UNVERIFIED"
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer after retry"
   }
 ]
