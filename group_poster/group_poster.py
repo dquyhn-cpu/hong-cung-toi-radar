@@ -122,48 +122,55 @@ def read_text(path):
     raise RuntimeError(f"Could not decode text file: {p}")
 
 
-def open_group_composer(page):
-    # Facebook frequently changes the visible copy around the group composer.
-    # Prefer semantic/placeholder selectors first, then fall back to text.
-    selectors = [
-        "[role='textbox'][contenteditable='true'][aria-placeholder*='Viết gì']",
-        "[role='textbox'][contenteditable='true'][aria-placeholder*='Bạn viết gì']",
-        "[role='textbox'][contenteditable='true'][aria-placeholder*='Write something']",
-        "[contenteditable='true'][aria-placeholder*='Tạo bài viết công khai']",
-        "[contenteditable='true'][aria-placeholder*='Create a public post']",
-    ]
-    for sel in selectors:
-        loc = page.locator(sel)
-        for i in range(loc.count()):
-            try:
-                el = loc.nth(i)
-                if not el.is_visible():
-                    continue
-                el.click(timeout=2500, force=True)
-                page.wait_for_timeout(400)
-                # Modal composer normally creates a dialog and/or a public-post textbox.
-                if page.locator("div[role='dialog']").count() or find_active_caption_editor(page) is not None:
-                    return True
-            except Exception:
-                pass
+def open_group_composer(page, ready_timeout_ms=5500):
+    """Open the group composer as soon as its trigger becomes visible.
 
-    labels = [
-        "Bạn viết gì đi",
-        "Viết gì đó",
-        "Tạo bài viết",
-        "Write something",
-        "Create post",
-    ]
+    Facebook pages often *look* loaded long before DOMContentLoaded fires.
+    Avoid waiting for the whole page. Poll only the composer trigger and click
+    it immediately when ready.
+    """
+    trigger_css = ", ".join([
+        "[role='textbox'][contenteditable='true'][aria-placeholder*='Viết gì']:visible",
+        "[role='textbox'][contenteditable='true'][aria-placeholder*='Bạn viết gì']:visible",
+        "[role='textbox'][contenteditable='true'][aria-placeholder*='Write something']:visible",
+        "[contenteditable='true'][aria-placeholder*='Tạo bài viết công khai']:visible",
+        "[contenteditable='true'][aria-placeholder*='Create a public post']:visible",
+    ])
+
+    deadline = time.time() + (ready_timeout_ms / 1000.0)
+    while time.time() < deadline:
+        try:
+            loc = page.locator(trigger_css)
+            if loc.count():
+                el = loc.first
+                if el.is_visible():
+                    el.click(timeout=900, force=True)
+                    # Modal/editor usually appears almost immediately.
+                    open_deadline = time.time() + 2.0
+                    while time.time() < open_deadline:
+                        try:
+                            if page.locator("div[role='dialog']:visible").count() or find_active_caption_editor(page) is not None:
+                                return True
+                        except Exception:
+                            pass
+                        page.wait_for_timeout(120)
+        except Exception:
+            pass
+        page.wait_for_timeout(120)
+
+    # Short text fallback for Facebook variants whose composer trigger lacks
+    # aria-placeholder. Do this only after the fast CSS path times out.
+    labels = ["Bạn viết gì đi", "Viết gì đó", "Tạo bài viết", "Write something", "Create post"]
     for label in labels:
         try:
             loc = page.get_by_text(label, exact=False)
-            for i in range(loc.count()):
+            for i in range(min(loc.count(), 4)):
                 el = loc.nth(i)
                 if not el.is_visible():
                     continue
-                el.click(timeout=2500, force=True)
-                page.wait_for_timeout(400)
-                if page.locator("div[role='dialog']").count() or find_active_caption_editor(page) is not None:
+                el.click(timeout=900, force=True)
+                page.wait_for_timeout(250)
+                if page.locator("div[role='dialog']:visible").count() or find_active_caption_editor(page) is not None:
                     return True
         except Exception:
             pass
@@ -513,55 +520,54 @@ def ensure_posting_identity(page, page_name="Hóng Cùng Tôi"):
     raise RuntimeError(f"IDENTITY_GUARD: could not switch composer to Page '{target}'")
 
 
-def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
+def post_mode(page, group_url, message, image_path, confirm_post, output_dir, duplicate_scan=True):
     if not group_url.startswith("https://www.facebook.com/groups/"):
         raise RuntimeError("Invalid Facebook Group URL")
 
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
 
-    # Navigation retry: Facebook group pages can intermittently hang or fail DNS.
+    # Navigate only until the main document is committed. Waiting for
+    # DOMContentLoaded on Facebook can add 20-30 seconds even though the group
+    # page is already visibly usable.
     nav_error = None
     for attempt in range(1, 3):
         try:
-            page.goto(group_url, wait_until="domcontentloaded", timeout=60000)
-            page.wait_for_timeout(2500 if attempt == 1 else 4000)
+            page.goto(group_url, wait_until="commit", timeout=20000)
             nav_error = None
             break
         except Exception as exc:
             nav_error = exc
             print(f"NAV_RETRY attempt={attempt} error={exc}", file=sys.stderr)
             if attempt < 2:
-                try:
-                    page.goto("https://www.facebook.com/", wait_until="domcontentloaded", timeout=30000)
-                except Exception:
-                    pass
-                page.wait_for_timeout(1800)
+                page.wait_for_timeout(500)
     if nav_error is not None:
         raise RuntimeError(f"Group navigation failed after retry: {nav_error}")
 
     if "login" in page.url.lower():
         raise RuntimeError("Facebook session expired. Run --login again.")
 
-    save_current_session(page.context)
-    print("GROUP_OPENED")
+    print("GROUP_NAV_COMMITTED")
 
-    if group_already_has_post(page, message):
+    # Package batches already have a persistent story+group ledger, so scanning
+    # the entire group DOM for duplicate text before every post is redundant and
+    # expensive. Keep it only for standalone/manual post_mode calls.
+    if duplicate_scan and group_already_has_post(page, message):
         print("SKIP_ALREADY_POSTED")
         return "SKIP_ALREADY_POSTED"
 
-    # Composer retry: first normal attempt, then reload + scroll + second attempt.
-    composer_ok = open_group_composer(page)
+    # Composer retry: fast adaptive wait first; reload only if the trigger never
+    # becomes usable within a few seconds.
+    composer_ok = open_group_composer(page, ready_timeout_ms=5500)
     if not composer_ok:
         print("COMPOSER_RETRY=reload")
         try:
-            page.reload(wait_until="domcontentloaded", timeout=60000)
-            page.wait_for_timeout(3500)
-            page.mouse.wheel(0, 500)
-            page.wait_for_timeout(700)
+            page.reload(wait_until="commit", timeout=20000)
+            page.wait_for_timeout(350)
+            page.mouse.wheel(0, 400)
         except Exception as exc:
             print(f"COMPOSER_RELOAD_WARNING={exc}", file=sys.stderr)
-        composer_ok = open_group_composer(page)
+        composer_ok = open_group_composer(page, ready_timeout_ms=4500)
 
     if not composer_ok:
         raise RuntimeError("Could not open Facebook Group composer after retry")
@@ -1126,7 +1132,7 @@ def run_package(page, package_path, confirm_post, output_dir, prepared_image_pat
             continue
         print(f"GROUP_BATCH={idx}/{len(group_urls)}")
         try:
-            rc = post_mode(page, group_url, message, image_path, confirm_post, output_dir)
+            rc = post_mode(page, group_url, message, image_path, confirm_post, output_dir, duplicate_scan=False)
             status = "PREVIEW_OK" if not confirm_post else (rc if isinstance(rc, str) else "POST_CLICKED")
             if confirm_post and comments:
                 # Group rollout policy: publish the main post only.
