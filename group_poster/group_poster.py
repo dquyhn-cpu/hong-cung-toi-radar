@@ -140,7 +140,7 @@ def open_group_composer(page):
                 if not el.is_visible():
                     continue
                 el.click(timeout=2500, force=True)
-                page.wait_for_timeout(900)
+                page.wait_for_timeout(400)
                 # Modal composer normally creates a dialog and/or a public-post textbox.
                 if page.locator("div[role='dialog']").count() or find_active_caption_editor(page) is not None:
                     return True
@@ -162,7 +162,7 @@ def open_group_composer(page):
                 if not el.is_visible():
                     continue
                 el.click(timeout=2500, force=True)
-                page.wait_for_timeout(900)
+                page.wait_for_timeout(400)
                 if page.locator("div[role='dialog']").count() or find_active_caption_editor(page) is not None:
                     return True
         except Exception:
@@ -193,7 +193,9 @@ def attach_image(page, image_path):
         raise RuntimeError("Could not find Facebook image upload control")
 
     inputs.last.set_input_files(str(p.resolve()))
-    page.wait_for_timeout(1800)
+    # Local staged images attach quickly. Avoid a long blind sleep; Facebook will
+    # keep the Post button disabled until media processing is ready.
+    page.wait_for_timeout(700)
 
 
 def find_active_caption_editor(page):
@@ -267,7 +269,7 @@ def enter_caption(page, message):
     page.mouse.click(box["x"] + min(40, box["width"] / 2), box["y"] + box["height"] / 2)
     page.wait_for_timeout(150)
     page.keyboard.insert_text(message)
-    page.wait_for_timeout(650)
+    page.wait_for_timeout(250)
 
     # Verify against the whole page because Facebook can replace the editor node
     # while preserving the typed caption.
@@ -583,15 +585,20 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
         enter_caption(page, message)
     except Exception as exc:
         print(f"CAPTION_RETRY={exc}", file=sys.stderr)
-        page.wait_for_timeout(1200)
+        page.wait_for_timeout(500)
         enter_caption(page, message)
 
-    post_button = find_post_button(page)
-    if post_button is None:
-        page.wait_for_timeout(1500)
+    # Poll briefly for the Post button to become enabled. This is faster than
+    # fixed sleeps on normal groups while still allowing slower media processing.
+    post_button = None
+    button_deadline = time.time() + 6
+    while time.time() < button_deadline:
         post_button = find_post_button(page)
+        if post_button is not None:
+            break
+        page.wait_for_timeout(300)
     if post_button is None:
-        raise RuntimeError("Post button not found after retry")
+        raise RuntimeError("Post button not found/enabled within 6 seconds")
 
     # Skip preview screenshots during production batches to reduce Chromium load.
     # Text/image/button checks above already validate the composer before submit.
@@ -603,13 +610,14 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir):
 
     post_button.click()
 
-    # Facebook often needs several seconds to close the composer and materialize
-    # the newly created group post. Do not attempt comments immediately.
+    # Wait only for the composer to disappear. In production we do not need to
+    # wait for the new post to fully materialize because comments/visibility are
+    # audited separately. This removes the old fixed 6-second penalty per group.
     try:
-        page.locator("div[role='dialog']").first.wait_for(state="hidden", timeout=12000)
+        page.locator("div[role='dialog']").first.wait_for(state="hidden", timeout=4500)
     except Exception:
         pass
-    page.wait_for_timeout(6000)
+    page.wait_for_timeout(700)
 
     # Avoid full-page screenshots after every submit; they caused long font/render
     # stalls in large batches. Verification below is text/state based.
