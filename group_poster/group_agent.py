@@ -252,6 +252,19 @@ def run_command(queue):
     package_path = REPO / package
     if not package_path.exists():
         raise RuntimeError(f'Package not found: {package_path}')
+
+    # Canonical publish rule: all remote assets must be staged locally before
+    # Chromium starts. This keeps the visible browser on the Facebook-only path.
+    pkg = load_json(package_path, {})
+    if pkg.get('image_url') and not pkg.get('image_asset_name'):
+        raise RuntimeError('PACKAGE_NOT_STAGED: remote image_url must be converted to image_asset_name before PUBLISH')
+    if pkg.get('image_asset_name'):
+        staged_asset = ASSET_OUT_DIR / str(pkg.get('image_asset_name'))
+        if not staged_asset.exists():
+            sync_binary_assets()
+        if not staged_asset.exists():
+            raise RuntimeError(f'PACKAGE_NOT_STAGED: local asset missing: {staged_asset}')
+
     cmd = [sys.executable, str(HERE/'group_poster.py'), '--package', str(package_path), '--confirm-post', '--output-dir', str(HERE/'output')]
     log(f'START command_id={command_id} package={package}')
     p = subprocess.run(cmd, cwd=str(HERE), text=True, capture_output=True, creationflags=CREATE_NO_WINDOW)
