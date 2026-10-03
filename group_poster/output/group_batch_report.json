@@ -1,7 +1,7 @@
 [
   {
     "group_url": "https://www.facebook.com/groups/groupnghiensach",
-    "status": "ERROR",
-    "error": "Page.wait_for_timeout: Target page, context or browser has been closed"
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer after retry"
   }
 ]

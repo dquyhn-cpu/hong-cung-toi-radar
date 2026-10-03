@@ -1,6 +1,5 @@
 {
-  "last_command_id": "publish-nghien-sach-test1-20261003-1304",
-  "last_status": "ERROR",
-  "error": "Group Poster exited with code 1: GROUP_ERROR=https://www.facebook.com/groups/groupnghiensach :: Page.wait_for_timeout: Target page, context or browser has been closed",
-  "updated_at": "2026-10-03T13:12:05"
+  "last_command_id": "publish-nghien-sach-test1-20261003-1313-captionfix",
+  "last_status": "SUCCESS",
+  "updated_at": "2026-10-03T13:20:13"
 }
