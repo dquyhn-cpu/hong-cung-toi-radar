@@ -1,0 +1,23 @@
+{
+  "package_version": 2,
+  "publish_id": "nghien-sach-kitchen-20261003",
+  "event_id": "nghien_sach_kitchen_20261003",
+  "group_urls": [
+    "https://www.facebook.com/groups/groupnghiensach",
+    "https://www.facebook.com/groups/nghiensachseonline",
+    "https://www.facebook.com/groups/377359960570122",
+    "https://www.facebook.com/groups/1251402706390569",
+    "https://www.facebook.com/groups/sachsethomtho",
+    "https://www.facebook.com/groups/thanhlydochomevabe12",
+    "https://www.facebook.com/groups/1016039219885014",
+    "https://www.facebook.com/groups/grmenha",
+    "https://www.facebook.com/groups/548439527269465",
+    "https://www.facebook.com/groups/3767018950085320"
+  ],
+  "message": "Các chị em Nghiện Sạch cho em hỏi chút kinh nghiệm với ạ 😅\n\nKhu vực bếp nhà em dùng một thời gian thì mặt bếp với gạch phía sau bắt đầu có lớp dầu mỡ bám nhẹ, nhìn bình thường không rõ lắm nhưng sờ vào thì cứ hơi nhờn nhờn.\n\nEm lau bằng nước rửa bát thì sạch nhưng cảm giác không được lâu, mà cũng ngại dùng chất tẩy mạnh thường xuyên.\n\nMọi người vệ sinh khu vực bếp từ bằng gì để sạch dầu mỡ mà mặt bếp vẫn bóng, không bị xước hay để lại vệt ạ?\n\nChị em nào có cách đơn giản dùng hằng ngày hoặc loại nào đã dùng thực tế thấy ổn thì cho em xin kinh nghiệm với nhé 😄",
+  "comments": [],
+  "asset_policy": "GITHUB_B64_LOCAL_CACHE",
+  "inter_group_delay_seconds": 30,
+  "rollout_note": "Only groups classified Am thuc / Meo vat in V2 list. User requested personal-style kitchen cleaning question with their real image.",
+  "image_asset_name": "kitchen_post_20261003.jpg"
+}
