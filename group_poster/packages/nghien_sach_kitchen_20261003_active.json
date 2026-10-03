@@ -17,7 +17,7 @@
   "message": "Các chị em Nghiện Sạch cho em hỏi chút kinh nghiệm với ạ 😅\n\nKhu vực bếp nhà em dùng một thời gian thì mặt bếp với gạch phía sau bắt đầu có lớp dầu mỡ bám nhẹ, nhìn bình thường không rõ lắm nhưng sờ vào thì cứ hơi nhờn nhờn.\n\nEm lau bằng nước rửa bát thì sạch nhưng cảm giác không được lâu, mà cũng ngại dùng chất tẩy mạnh thường xuyên.\n\nMọi người vệ sinh khu vực bếp từ bằng gì để sạch dầu mỡ mà mặt bếp vẫn bóng, không bị xước hay để lại vệt ạ?\n\nChị em nào có cách đơn giản dùng hằng ngày hoặc loại nào đã dùng thực tế thấy ổn thì cho em xin kinh nghiệm với nhé 😄",
   "comments": [],
   "asset_policy": "GITHUB_B64_LOCAL_CACHE",
-  "inter_group_delay_seconds": 30,
-  "rollout_note": "Only groups classified Am thuc / Meo vat in V2 list. User requested personal-style kitchen cleaning question with their real image.",
+  "inter_group_delay_seconds": 15,
+  "rollout_note": "Only groups classified Am thuc / Meo vat in V2 list. Local staged image. No-reload composer path; skip slow/non-postable groups. 15s inter-group delay.",
   "image_asset_name": "kitchen_post_20261003.jpg"
 }
