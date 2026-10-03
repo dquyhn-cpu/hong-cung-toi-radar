@@ -1,4 +1,5 @@
 {
-  "action": "IDLE",
-  "command_id": "idle-after-rollback-20261003-1303"
+  "action": "PUBLISH",
+  "command_id": "publish-nghien-sach-test1-20261003-1304",
+  "package": "group_poster/packages/nghien_sach_kitchen_20261003_test1.json"
 }
