@@ -2,21 +2,6 @@
   {
     "group_url": "https://www.facebook.com/groups/groupnghiensach",
     "status": "ERROR",
-    "error": "IDENTITY_GUARD: could not verify/switch composer to Page 'Hóng Cùng Tôi'"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/nghiensachseonline",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer within 22 seconds"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/377359960570122",
-    "status": "ERROR",
-    "error": "IDENTITY_GUARD: could not verify/switch composer to Page 'Hóng Cùng Tôi'"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1251402706390569",
-    "status": "ERROR",
     "error": "Page.wait_for_timeout: Target page, context or browser has been closed"
   }
 ]
