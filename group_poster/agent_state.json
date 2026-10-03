@@ -1,6 +1,6 @@
 {
-  "last_command_id": "publish-nghien-sach-kitchen-20261003-1235",
+  "last_command_id": "publish-nghien-sach-kitchen-20261003-1250-smooth",
   "last_status": "ERROR",
-  "error": "Group Poster exited with code 1: ERROR: Page.wait_for_timeout: Target page, context or browser has been closed",
-  "updated_at": "2026-10-03T12:46:00"
+  "error": "Group Poster exited with code 1: GROUP_ERROR=https://www.facebook.com/groups/3767018950085320 :: IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'",
+  "updated_at": "2026-10-03T12:56:32"
 }

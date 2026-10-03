@@ -1,12 +1,52 @@
 [
   {
     "group_url": "https://www.facebook.com/groups/groupnghiensach",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
   },
   {
     "group_url": "https://www.facebook.com/groups/nghiensachseonline",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer within 9 seconds"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/377359960570122",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer within 9 seconds"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1251402706390569",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer within 9 seconds"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/sachsethomtho",
     "status": "ERROR",
-    "error": "Page.wait_for_timeout: Target page, context or browser has been closed"
+    "error": "Group navigation failed after retry: Page.goto: Navigation to \"https://www.facebook.com/groups/sachsethomtho\" is interrupted by another navigation to \"https://www.facebook.com/groups/sachsethomtho\"\nCall log:\n  - navigating to \"https://www.facebook.com/groups/sachsethomtho\", waiting until \"commit\"\n"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/thanhlydochomevabe12",
+    "status": "SKIPPED",
+    "error": "Could not open Facebook Group composer within 9 seconds"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1016039219885014",
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/grmenha",
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/548439527269465",
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/3767018950085320",
+    "status": "ERROR",
+    "error": "IDENTITY_GUARD: could not switch composer to Page 'Hóng Cùng Tôi'"
   }
 ]
