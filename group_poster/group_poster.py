@@ -205,86 +205,87 @@ def attach_image(page, image_path):
     page.wait_for_timeout(700)
 
 
-def find_active_caption_editor(page):
+def find_active_caption_editor(page, timeout_ms=8000):
+    """Find the caption editor only inside the active Create Post dialog.
+
+    After image upload Facebook can rebuild the composer DOM. Keep waiting for
+    the visible editor in the current dialog instead of scanning the whole page.
     """
-    Facebook exposes more than one editable region.
-    The real modal caption editor is the visible element whose aria-placeholder
-    says 'Tạo bài viết công khai...' (or English equivalent) nearest the top of
-    the active composer.
-    """
+    deadline = time.time() + (timeout_ms / 1000.0)
     selectors = [
-        "[contenteditable='true'][aria-placeholder*='Tạo bài viết công khai']",
-        "[contenteditable='true'][aria-placeholder*='Create a public post']",
         "[role='textbox'][contenteditable='true'][aria-placeholder*='Tạo bài viết công khai']",
+        "[contenteditable='true'][aria-placeholder*='Tạo bài viết công khai']",
         "[role='textbox'][contenteditable='true'][aria-placeholder*='Create a public post']",
+        "[contenteditable='true'][aria-placeholder*='Create a public post']",
     ]
 
-    candidates = []
-    for sel in selectors:
-        loc = page.locator(sel)
-        for i in range(loc.count()):
-            el = loc.nth(i)
-            try:
-                if not el.is_visible():
-                    continue
-                box = el.bounding_box()
-                if not box or box["width"] < 150 or box["height"] < 15:
-                    continue
-                candidates.append((box["y"], el))
-            except Exception:
-                pass
-
-    if not candidates:
-        # Fallback for Facebook variants that omit aria-placeholder.
+    while time.time() < deadline:
         try:
-            dialogs = page.locator("div[role='dialog']")
-            for d_i in range(dialogs.count() - 1, -1, -1):
-                d = dialogs.nth(d_i)
-                if not d.is_visible():
-                    continue
-                loc = d.locator("[role='textbox'][contenteditable='true'], [contenteditable='true']")
-                for i in range(loc.count()):
-                    el = loc.nth(i)
-                    try:
+            dialogs = page.locator("div[role='dialog']:visible")
+            if dialogs.count():
+                dialog = dialogs.last
+
+                for sel in selectors:
+                    loc = dialog.locator(sel)
+                    for i in range(min(loc.count(), 4)):
+                        el = loc.nth(i)
                         if not el.is_visible():
                             continue
                         box = el.bounding_box()
-                        if box and box["width"] >= 180 and box["height"] >= 18:
-                            candidates.append((box["y"], el))
-                    except Exception:
-                        pass
+                        if box and box["width"] >= 160 and box["height"] >= 15:
+                            return el
+
+                # Facebook sometimes drops aria-placeholder after media upload.
+                # In that case use the first large visible contenteditable textbox
+                # inside the active Create Post dialog only.
+                loc = dialog.locator("[role='textbox'][contenteditable='true']")
+                for i in range(min(loc.count(), 6)):
+                    el = loc.nth(i)
+                    if not el.is_visible():
+                        continue
+                    box = el.bounding_box()
+                    if box and box["width"] >= 180 and box["height"] >= 18:
+                        return el
         except Exception:
             pass
 
-    if not candidates:
-        return None
+        page.wait_for_timeout(150)
 
-    candidates.sort(key=lambda x: x[0])
-    return candidates[0][1]
+    return None
 
 
 def enter_caption(page, message):
-    editor = find_active_caption_editor(page)
+    editor = find_active_caption_editor(page, timeout_ms=8000)
     if editor is None:
-        raise RuntimeError("Caption box not found")
+        raise RuntimeError("Caption box not found in active Create Post dialog")
 
-    box = editor.bounding_box()
-    if not box:
-        raise RuntimeError("Caption box has no visible bounds")
+    try:
+        editor.click(timeout=1200, force=True)
+    except Exception:
+        box = editor.bounding_box()
+        if not box:
+            raise RuntimeError("Caption box has no visible bounds")
+        page.mouse.click(box["x"] + 30, box["y"] + max(10, box["height"] / 2))
 
-    # Click the visual center of the real caption field, then inject text.
-    page.mouse.click(box["x"] + min(40, box["width"] / 2), box["y"] + box["height"] / 2)
-    page.wait_for_timeout(150)
     page.keyboard.insert_text(message)
-    page.wait_for_timeout(250)
 
-    # Verify against the whole page because Facebook can replace the editor node
-    # while preserving the typed caption.
-    body = page.locator("body").inner_text(timeout=3000)
-    if message[:35] not in body:
-        raise RuntimeError("Caption text was not retained in Facebook composer")
+    # Verify only inside the active composer dialog. Reading the whole Facebook
+    # page was the source of long stalls on large groups.
+    verify = " ".join(message.split())[:30]
+    deadline = time.time() + 3.0
+    while time.time() < deadline:
+        try:
+            dialogs = page.locator("div[role='dialog']:visible")
+            if dialogs.count():
+                dialog = dialogs.last
+                if dialog.get_by_text(verify, exact=False).count():
+                    print("CAPTION_OK")
+                    return
+        except Exception:
+            pass
+        page.wait_for_timeout(120)
 
-    print("CAPTION_OK")
+    raise RuntimeError("Caption text was not retained in active composer")
 
 
 def find_post_button(page):
