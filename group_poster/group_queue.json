@@ -1,4 +1,5 @@
 {
-  "action": "IDLE",
-  "command_id": "stable-reset-before-republish-20261004-1509"
+  "action": "PUBLISH",
+  "command_id": "restore15_1513",
+  "package": "group_poster/packages/restore_photo_15_groups_20261004_1407.json"
 }
