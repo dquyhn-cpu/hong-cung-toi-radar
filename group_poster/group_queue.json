@@ -1,4 +1,5 @@
 {
-  "action": "IDLE",
-  "command_id": "reset-clean-20261004-1504"
+  "action": "PUBLISH",
+  "command_id": "publish-restore-photo-reset-clean-20261004-1505",
+  "package": "group_poster/packages/restore_photo_15_groups_20261004_1407.json"
 }
