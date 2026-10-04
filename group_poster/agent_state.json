@@ -1,7 +1,7 @@
 {
-  "last_command_id": "bedtime_parenting_1742_retry",
+  "last_command_id": "bedtime_parenting_1745_retry2",
   "last_status": "ERROR",
   "error": "PACKAGE_NOT_STAGED: local asset missing: C:\\Users\\AnhQuy\\hong-cung-toi-radar\\group_poster\\temp_assets\\con ngủ muộn",
-  "updated_at": "2026-10-04T17:41:24",
-  "agent_git_revision": "79909aacdf550216af08f5acd108a49483a14788"
+  "updated_at": "2026-10-04T17:45:28",
+  "agent_git_revision": "fead49bb8d4c8f1a45d16ddbeea44375454d6d1e"
 }
