@@ -27,5 +27,5 @@
   "comments": [],
   "asset_policy": "LOCAL_TEMP_ASSET",
   "image_asset_name": "con_ngu_muon.png",
-  "inter_group_delay_seconds": 15
+  "inter_group_delay_seconds": 5
 }
