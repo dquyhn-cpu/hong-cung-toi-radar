@@ -2,6 +2,6 @@
   {
     "group_url": "https://www.facebook.com/groups/3926218234342646",
     "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
+    "error": "Could not open Facebook Group composer within 22 seconds"
   }
 ]

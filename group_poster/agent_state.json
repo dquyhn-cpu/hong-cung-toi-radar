@@ -1,6 +1,6 @@
 {
-  "last_command_id": "publish-phat-g221-20261004-test1-retry3",
+  "last_command_id": "publish-phat-g221-20261004-test1-rollback1",
   "last_status": "SUCCESS",
-  "updated_at": "2026-10-04T11:36:20",
-  "agent_git_revision": "c6f186f39582afa294b8aa309514b87df7f0e7f0"
+  "updated_at": "2026-10-04T11:45:35",
+  "agent_git_revision": "8012b66e2f6e14f0432e0c2164eaa9b52f58b2b4"
 }
