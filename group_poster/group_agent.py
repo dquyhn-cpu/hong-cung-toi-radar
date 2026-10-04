@@ -273,6 +273,26 @@ def run_command(queue):
     # Canonical publish rule: all remote assets must be staged locally before
     # Chromium starts. This keeps the visible browser on the Facebook-only path.
     pkg = load_json(package_path, {})
+    # Optional transport-only download: stage a remote image into the same local
+    # temp_assets folder before Chromium starts. Posting remains local-only.
+    if pkg.get('image_url') and pkg.get('image_asset_name'):
+        staged_asset = ASSET_OUT_DIR / str(pkg.get('image_asset_name'))
+        if not staged_asset.exists():
+            from urllib.request import Request, urlopen
+            ASSET_OUT_DIR.mkdir(parents=True, exist_ok=True)
+            url = str(pkg.get('image_url'))
+            if 'drive.google.com/file/d/' in url:
+                file_id = url.split('/file/d/', 1)[1].split('/', 1)[0]
+                url = f'https://drive.usercontent.google.com/download?id={file_id}&export=download&confirm=t'
+            req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+            with urlopen(req, timeout=60) as resp:
+                raw = resp.read()
+            if len(raw) < 1024:
+                raise RuntimeError('ASSET_DOWNLOAD_FAILED: downloaded file is unexpectedly small')
+            staged_asset.write_bytes(raw)
+            LEGACY_ASSET_OUT_DIR.mkdir(parents=True, exist_ok=True)
+            (LEGACY_ASSET_OUT_DIR / staged_asset.name).write_bytes(raw)
+            log(f'ASSET_DOWNLOADED {staged_asset.name} bytes={len(raw)}')
     if pkg.get('image_url') and not pkg.get('image_asset_name'):
         raise RuntimeError('PACKAGE_NOT_STAGED: remote image_url must be converted to image_asset_name before PUBLISH')
     if pkg.get('image_asset_name'):
