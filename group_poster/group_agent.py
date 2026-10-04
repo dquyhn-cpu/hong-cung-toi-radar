@@ -308,7 +308,7 @@ def run_command(queue):
         for line in p.stderr_text.splitlines():
             log(f'POSTER_ERR {line}')
     if p.returncode != 0:
-        detail = (p.stderr or p.stdout or '').strip().splitlines()
+        detail = (getattr(p, 'stderr_text', '') or getattr(p, 'stdout_text', '') or '').strip().splitlines()
         tail = detail[-1] if detail else 'no detail'
         raise RuntimeError(f'Group Poster exited with code {p.returncode}: {tail}')
     log(f'DONE command_id={command_id}')
