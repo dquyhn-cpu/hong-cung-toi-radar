@@ -1,11 +1,6 @@
 [
   {
-    "group_url": "https://www.facebook.com/groups/1419008466134132",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
     "group_url": "https://www.facebook.com/groups/4893956207371417",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
+    "status": "SUBMITTED_UNVERIFIED"
   }
 ]

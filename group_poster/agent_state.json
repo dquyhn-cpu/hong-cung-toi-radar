@@ -1,7 +1,6 @@
 {
-  "last_command_id": "publish-phat-g224-20261004-scroll-test2",
-  "last_status": "ERROR",
-  "error": "GROUP_POSTER_TIMEOUT after 180s",
-  "updated_at": "2026-10-04T12:08:51",
-  "agent_git_revision": "b437e58ee6e8f9e9b67e5e7cd6e9d95de5809a5e"
+  "last_command_id": "publish-phat-g224-20261004-fast-scroll-test3",
+  "last_status": "SUCCESS",
+  "updated_at": "2026-10-04T12:13:48",
+  "agent_git_revision": "7f66c2cbbf8176366c33ebf2f309cfb2527f7076"
 }
