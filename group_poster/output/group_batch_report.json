@@ -1,163 +1,63 @@
 [
   {
-    "group_url": "https://www.facebook.com/groups/406201253852513",
+    "group_url": "https://www.facebook.com/groups/2216051509145244",
+    "status": "SKIP_ALREADY_POSTED",
+    "reason": "local_publish_ledger"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/2407091713049870",
     "status": "SUBMITTED_UNVERIFIED"
   },
   {
-    "group_url": "https://www.facebook.com/groups/chuahoangphap",
+    "group_url": "https://www.facebook.com/groups/HoichinhsuaanhcotamMienPhi",
     "status": "SUBMITTED_UNVERIFIED"
   },
   {
-    "group_url": "https://www.facebook.com/groups/thuchanhphatphap",
+    "group_url": "https://www.facebook.com/groups/515688179096250",
     "status": "SUBMITTED_UNVERIFIED"
   },
   {
-    "group_url": "https://www.facebook.com/groups/622340935937026",
+    "group_url": "https://www.facebook.com/groups/csafree",
     "status": "SUBMITTED_UNVERIFIED"
   },
   {
-    "group_url": "https://www.facebook.com/groups/641613296648560",
+    "group_url": "https://www.facebook.com/groups/846108156287316",
     "status": "SUBMITTED_UNVERIFIED"
   },
   {
-    "group_url": "https://www.facebook.com/groups/1818179201671897",
+    "group_url": "https://www.facebook.com/groups/3619256238386628",
     "status": "SUBMITTED_UNVERIFIED"
   },
   {
-    "group_url": "https://www.facebook.com/groups/205403894909042",
+    "group_url": "https://www.facebook.com/groups/photoshopcotam",
     "status": "SUBMITTED_UNVERIFIED"
   },
   {
-    "group_url": "https://www.facebook.com/groups/tamtubi.net",
+    "group_url": "https://www.facebook.com/groups/514209593056441",
     "status": "SUBMITTED_UNVERIFIED"
   },
   {
-    "group_url": "https://www.facebook.com/groups/phattaitam.official",
+    "group_url": "https://www.facebook.com/groups/409633842986171",
     "status": "SUBMITTED_UNVERIFIED"
   },
   {
-    "group_url": "https://www.facebook.com/groups/670444776973410",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1257875488140802",
+    "group_url": "https://www.facebook.com/groups/congdongphucheanhcu",
     "status": "SUBMITTED_UNVERIFIED"
   },
   {
-    "group_url": "https://www.facebook.com/groups/phatphapnhiemmaunguyen",
+    "group_url": "https://www.facebook.com/groups/1864568304272103",
     "status": "SUBMITTED_UNVERIFIED"
   },
   {
-    "group_url": "https://www.facebook.com/groups/228546417613913",
+    "group_url": "https://www.facebook.com/groups/canhochothuegiaredn",
     "status": "SUBMITTED_UNVERIFIED"
   },
   {
-    "group_url": "https://www.facebook.com/groups/132606120715116",
+    "group_url": "https://www.facebook.com/groups/847722350721645",
     "status": "SUBMITTED_UNVERIFIED"
   },
   {
-    "group_url": "https://www.facebook.com/groups/248090770654248",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/2128762597432784",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/287440289096694",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1031754636858289",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/813737712385754",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1533126643663383",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/858052074317042",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/2042715435754719",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/593564047871123",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/197429471972239",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/thayphaphoa",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/phatphapnhiemmau.com.vn",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/phattaitam123",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/3082037818748632",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/vn5348365446818",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/646670225540088",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1872714452943169",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/24294917223446954",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/481330375411494",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1253191709454770",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1759291967706599",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/2525844020958816",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/nhiemmauphatphap",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/phatphap.tinhthuc",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/524320984990053",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/phatphapnhiemmaucuocsong",
+    "group_url": "https://www.facebook.com/groups/980029978756317",
     "status": "SUBMITTED_UNVERIFIED"
   }
 ]

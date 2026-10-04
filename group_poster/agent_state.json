@@ -1,7 +1,6 @@
 {
-  "last_command_id": "publish-restore-photo-15-groups-20261004-drive1",
-  "last_status": "ERROR",
-  "error": "PACKAGE_NOT_STAGED: local asset missing: C:\\Users\\AnhQuy\\hong-cung-toi-radar\\group_poster\\temp_assets\\restore_request_20261004.png",
-  "updated_at": "2026-10-04T14:42:00",
-  "agent_git_revision": "d1a4ef82023dc47c698cbec7b938d4ea51995847"
+  "last_command_id": "restore15_1513",
+  "last_status": "SUCCESS",
+  "updated_at": "2026-10-04T15:18:30",
+  "agent_git_revision": "87bc095affc7e556aef41bb55abee15d8e6bc522"
 }
