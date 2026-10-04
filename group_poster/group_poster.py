@@ -394,34 +394,6 @@ def group_already_has_post(page, message):
 
 
 def write_batch_report(results, output_dir):
-    # Retry transient Facebook UI/composer failures once after the main pass.
-    # Successful groups are protected by the publish ledger, so only failed
-    # targets are retried and no known-successful group is posted twice.
-    retryable = [
-        r["group_url"] for r in results
-        if r["status"] in {"ERROR", "SKIPPED"}
-        and not str(r.get("error") or "").startswith("SAFETY_STOP:")
-        and "session expired" not in str(r.get("error") or "").lower()
-        and "invalid facebook group url" not in str(r.get("error") or "").lower()
-    ]
-    if confirm_post and retryable:
-        print(f"UI_RETRY_PASS count={len(retryable)}")
-        for retry_idx, group_url in enumerate(retryable, 1):
-            if ledger_has_submission(publish_ledger, publish_id, group_url):
-                continue
-            try:
-                print(f"UI_RETRY={retry_idx}/{len(retryable)} {group_url}")
-                rc = post_mode(page, group_url, message, image_path, confirm_post, output_dir, duplicate_scan=False)
-                status = rc if isinstance(rc, str) else "POST_CLICKED"
-                results.append({"group_url": group_url, "status": status, "attempt": 2})
-                if status in {"POST_CLICKED","POSTED_UNVERIFIED","SUBMITTED_UNVERIFIED","PUBLISHED_VISIBLE","POST_OK_COMMENT_WARNING","PENDING_APPROVAL"}:
-                    ledger_mark_submission(publish_ledger, publish_id, group_url)
-            except Exception as exc:
-                results.append({"group_url": group_url, "status": "ERROR", "error": str(exc), "attempt": 2})
-            write_batch_report(results, output_dir)
-            if retry_idx < len(retryable):
-                page.wait_for_timeout(5000)
-
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
     report = out / "group_batch_report.json"
