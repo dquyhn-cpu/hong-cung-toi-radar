@@ -127,6 +127,23 @@ def sync_binary_assets():
             log(f"ASSET_MIRRORED {output_name} bytes={len(raw)}")
 
 
+def current_git_revision():
+    """Return the exact repo commit this local agent is executing from."""
+    try:
+        p = subprocess.run(
+            ["git", "-C", str(REPO), "rev-parse", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=10,
+            creationflags=CREATE_NO_WINDOW,
+        )
+        if p.returncode == 0:
+            return (p.stdout or "").strip() or None
+    except Exception as exc:
+        log(f"GIT_REV_WARNING {exc}")
+    return None
+
+
 def publish_status_to_repo():
     """Commit lightweight agent status/report so ChatGPT can observe local runs."""
     targets = [STATE]
@@ -332,6 +349,7 @@ def process_local_queue(state):
             'last_status': 'SUCCESS',
             'updated_at': datetime.now().isoformat(timespec='seconds'),
         }
+        state['agent_git_revision'] = current_git_revision()
         save_json(STATE, state)
         try:
             publish_status_to_repo()
@@ -344,6 +362,7 @@ def process_local_queue(state):
             'error': str(exc),
             'updated_at': datetime.now().isoformat(timespec='seconds'),
         }
+        state['agent_git_revision'] = current_git_revision()
         save_json(STATE, state)
         log(f'COMMAND_ERROR command_id={command_id} error={exc}')
         try:
@@ -364,6 +383,7 @@ def main():
     state['agent_started_at'] = datetime.now().isoformat(timespec='seconds')
     state['agent_pid'] = os.getpid()
     state['agent_python'] = sys.executable
+    state['agent_git_revision'] = current_git_revision()
     save_json(STATE, state)
 
     # Critical path: run whatever queue is already on disk immediately.
