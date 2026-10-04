@@ -1,5 +1,4 @@
 {
-  "action": "PUBLISH",
-  "command_id": "publish-restore-photo-clean-jpg-20261004-1501",
-  "package": "group_poster/packages/restore_photo_15_groups_20261004_1407.json"
+  "action": "IDLE",
+  "command_id": "idle-stop-stale-agent-20261004-1503"
 }
