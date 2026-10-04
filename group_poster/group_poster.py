@@ -583,17 +583,20 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir, du
         page.wait_for_timeout(1500)
         ensure_posting_identity(page, "Hóng Cùng Tôi")
 
-    # Important: media first, caption second.
-    attach_image(page, image_path)
-    if image_path:
-        print("IMAGE_ATTACHED")
-
+    # Enter caption before media. Facebook currently rebuilds/replaces the
+    # composer textbox after a photo is attached on some group layouts, which
+    # can make the post-upload editor temporarily undiscoverable. Text entered
+    # first is retained by Facebook while the media control is added.
     try:
         enter_caption(page, message)
     except Exception as exc:
         print(f"CAPTION_RETRY={exc}", file=sys.stderr)
         page.wait_for_timeout(500)
         enter_caption(page, message)
+
+    attach_image(page, image_path)
+    if image_path:
+        print("IMAGE_ATTACHED")
 
     # Poll briefly for the Post button to become enabled. This is faster than
     # fixed sleeps on normal groups while still allowing slower media processing.
