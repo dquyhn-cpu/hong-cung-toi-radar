@@ -1,6 +1,6 @@
 {
-  "last_command_id": "publish-phat-g221-20261004-test1",
+  "last_command_id": "publish-phat-g221-20261004-test1-retry1",
   "last_status": "ERROR",
-  "error": "Group Poster exited with code 3: GROUP_POSTER_ALREADY_RUNNING",
-  "updated_at": "2026-10-04T11:09:44"
+  "error": "'_io.TextIOWrapper' object has no attribute 'strip'",
+  "updated_at": "2026-10-04T11:27:47"
 }

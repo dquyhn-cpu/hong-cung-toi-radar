@@ -1,7 +1,7 @@
 [
   {
-    "group_url": "https://www.facebook.com/groups/groupnghiensach",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
+    "group_url": "https://www.facebook.com/groups/3926218234342646",
+    "status": "ERROR",
+    "error": "Caption box not found in active Create Post dialog"
   }
 ]
