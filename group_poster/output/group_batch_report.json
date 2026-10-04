@@ -1,87 +1,12 @@
 [
   {
-    "group_url": "https://www.facebook.com/groups/nghiencon.gr",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1483970805265422",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1054212581616363",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/hoibabauf",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1846691168797782",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/mebimsuachiasemeonuoicon",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/354802416845044",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/351595895495692",
+    "group_url": "https://www.facebook.com/groups/3410753895645425",
     "status": "SKIPPED",
     "error": "Could not open Facebook Group composer after retry"
   },
   {
-    "group_url": "https://www.facebook.com/groups/motchutdameeee",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/590639768048047",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/341431118744789",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/kinhnghiemchamsocconnho",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/nuoicon4.0",
+    "group_url": "https://www.facebook.com/groups/hoikinhnghiemxaynha",
     "status": "ERROR",
-    "error": "Locator.click: Timeout 30000ms exceeded.\nCall log:\n  - waiting for locator(\"div[role='dialog']\").nth(4).get_by_role(\"button\", name=\"Đăng\", exact=True).first\n    - locator resolved to <div tabindex=\"0\" role=\"button\" aria-label=\"Đăng\" class=\"x1i10hfl xjbqb8w x1ejq31n x18oe1m7 x1sy0etr xstzfhl x972fbf x10w94by x1qhh985 x14e42zd x1ypdohk x3ct3a4 xdj266r x14z9mp xat24cr x1lziwak xexx8yu xyri2b x18d9i69 x1c1uobl x16tdsg8 x1hl2dhg xggy1nq x1fmog5m xu25z0z x140muxe xo1y3bh x87ps6o x1lku1pv x1a2a7pz x9f619 x3nfvp2 xdt5ytf xl56j7k x1n2onr6 xh8yej3\">…</div>\n  - attempting click action\n    - waiting for element to be visible, enabled and stable\n    - element is visible, enabled and stable\n    - scrolling into view if needed\n    - done scrolling\n    - performing click action\n"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/589995581359013",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/3334112279944085",
-    "status": "SUBMITTED_UNVERIFIED"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/804914576275998",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/409914756394791",
-    "status": "ERROR",
-    "error": "Group navigation failed after retry: Page.goto: Timeout 20000ms exceeded.\nCall log:\n  - navigating to \"https://www.facebook.com/groups/409914756394791\", waiting until \"commit\"\n"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1566898553878080",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1546963972583673",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
+    "error": "[Errno 22] Invalid argument"
   }
 ]

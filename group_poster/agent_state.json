@@ -1,7 +1,7 @@
 {
-  "last_command_id": "publish-nghien-sach-closet-20261004-1828",
+  "last_command_id": "ron_epoxy_xaydung_2151",
   "last_status": "ERROR",
-  "error": "Group Poster exited with code 1: ERROR: name 'confirm_post' is not defined",
-  "updated_at": "2026-10-04T18:30:30",
-  "agent_git_revision": "75468e920e9a32e6648e8926d32589b20032fe22"
+  "error": "Group Poster exited with code 3: GROUP_POSTER_ALREADY_RUNNING",
+  "updated_at": "2026-10-04T22:02:03",
+  "agent_git_revision": "73014559b4bd8b2e663bc9a74144faaaef16f2bf"
 }
