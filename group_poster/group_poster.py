@@ -945,10 +945,25 @@ def preflight_package(package_path, output_dir):
     resolved = None
 
     if image_asset_name:
-        resolved = LOCAL_ASSET_DIR / image_asset_name
-        if not resolved.exists():
-            raise RuntimeError(f"PREFLIGHT_FAILED: local temp image not found: {resolved}")
-        resolved = str(resolved)
+        resolved_path = LOCAL_ASSET_DIR / image_asset_name
+        if not resolved_path.exists():
+            raise RuntimeError(f"PREFLIGHT_FAILED: local temp image not found: {resolved_path}")
+        try:
+            raw = resolved_path.read_bytes()
+        except Exception as exc:
+            raise RuntimeError(f"PREFLIGHT_FAILED: cannot read local temp image: {exc}")
+        if len(raw) < 1024:
+            raise RuntimeError(f"PREFLIGHT_FAILED: local temp image too small ({len(raw)} bytes)")
+        suffix = resolved_path.suffix.lower()
+        valid = (
+            raw.startswith(b"\xff\xd8\xff")
+            or raw.startswith(b"\x89PNG\r\n\x1a\n")
+            or (raw.startswith(b"RIFF") and len(raw) >= 12 and raw[8:12] == b"WEBP")
+        )
+        if not valid:
+            raise RuntimeError(f"PREFLIGHT_FAILED: local temp asset is not a valid JPG/PNG/WEBP: {resolved_path.name}")
+        print(f"LOCAL_ASSET_OK={resolved_path.name} bytes={len(raw)} suffix={suffix}")
+        resolved = str(resolved_path)
     elif image_url:
         resolved = download_remote_image(image_url, output_dir)
     elif image_path:
@@ -1208,6 +1223,8 @@ def run_package(page, package_path, confirm_post, output_dir, prepared_image_pat
             write_batch_report(results, output_dir)
         except Exception as exc:
             err = str(exc)
+            import traceback
+            print(f"GROUP_EXCEPTION_TRACE={traceback.format_exc()}", file=sys.stderr)
             safety_stop = err.startswith("SAFETY_STOP:")
             expected_skip = any(x in err for x in [
                 "Could not open Facebook Group composer",
