@@ -1279,8 +1279,6 @@ def main():
                     args=[
                         "--disable-notifications",
                         "--disable-background-networking",
-                        "--disable-background-timer-throttling",
-                        "--disable-renderer-backgrounding",
                         "--disable-extensions",
                         "--disable-component-extensions-with-background-pages",
                     ],
