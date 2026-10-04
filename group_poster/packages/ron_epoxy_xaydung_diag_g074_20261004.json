@@ -1,0 +1,14 @@
+{
+  "package_version": 2,
+  "publish_id": "ron-epoxy-xaydung-diagnostic-g074-20261004",
+  "event_id": "ron_epoxy_xaydung_diag_g074_20261004",
+  "group_urls": [
+    "https://www.facebook.com/groups/hoikinhnghiemxaynha"
+  ],
+  "message": "Các bác cho em hỏi nhà vệ sinh có nên làm ron epoxy không ạ?\n\nEm đang phân vân giữa ron epoxy với xi măng trắng. Thấy nhiều người bảo epoxy nhìn đẹp, ít bám bẩn, lâu bị đen ron hơn. Nhưng cũng có người nói dùng một thời gian dễ bong, nứt, sửa lại còn mệt.\n\nNhà bác nào làm ron epoxy được 2–3 năm rồi cho em xin ít review thực tế với ạ. Có đáng tiền không? 😅",
+  "comments": [],
+  "asset_policy": "LOCAL_TEMP_ASSET",
+  "image_asset_name": "ron_epoxy.jpg",
+  "inter_group_delay_seconds": 0,
+  "rollout_note": "Diagnostic canary only. Validate ron_epoxy.jpg and capture full traceback before any further construction rollout."
+}
