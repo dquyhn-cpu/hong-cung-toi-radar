@@ -1,0 +1,14 @@
+{
+  "package_version": 2,
+  "publish_id": "phat-g221-20261004-test1",
+  "event_id": "phat_g221_20261004_test1",
+  "group_urls": [
+    "https://www.facebook.com/groups/3926218234342646"
+  ],
+  "message": "CÓ NHỮNG NGƯỜI, MÌNH CÀNG OÁN TRÁCH CÀNG KHỔ\n\nCó một điều càng sống lâu, người ta càng dễ nhận ra:\n\nNgười làm mình tổn thương có khi đã quên từ lâu, chỉ có mình vẫn nhớ.\n\nMột câu nói của họ, mình nghĩ lại cả trăm lần.\nMột chuyện đã qua, mình đem ra day dứt hết ngày này sang ngày khác.\n\nMình tưởng rằng giữ sự oán giận là để nhớ lấy bài học.\n\nNhưng nhiều khi, người bị trừng phạt lại chính là mình.\n\nĐạo Phật dạy con người học cách buông xả. Không phải vì người làm tổn thương mình xứng đáng được tha thứ, mà bởi tâm mình cũng xứng đáng được bình an.\n\nCó những người không cần phải quay lại.\nCó những chuyện cũng chẳng cần phải quên.\n\nChỉ cần đến một ngày, khi nhớ lại, lòng mình không còn giận nữa.\n\nẤy có lẽ đã là một sự giải thoát. 🙏\n\nCó người mất vài tháng để buông một chuyện.\nCó người mất vài năm.\nCũng có người mang theo một nỗi oán giận gần cả cuộc đời.\n\nNếu được chọn buông xuống một điều đang nặng trong lòng, mọi người muốn buông điều gì nhất?",
+  "comments": [],
+  "asset_policy": "GITHUB_B64_LOCAL_CACHE",
+  "inter_group_delay_seconds": 0,
+  "rollout_note": "Single-group Buddhist smoke test; do not expand until confirmed.",
+  "image_asset_name": "phat_g221_20261004.jpg"
+}
