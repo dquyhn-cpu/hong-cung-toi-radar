@@ -1,6 +1,7 @@
 {
-  "updated_at": "2026-10-04T04:16:03.597318+00:00",
+  "updated_at": "2026-10-04T04:16:10.153584+00:00",
   "state": "OK",
-  "stage": "PUSHED",
-  "message": "Facebook collector snapshot pushed to GitHub"
+  "stage": "WAITING",
+  "message": "Collector run completed; waiting for next cycle",
+  "poll_seconds": 1800
 }
