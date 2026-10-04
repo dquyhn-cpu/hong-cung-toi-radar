@@ -1,0 +1,12 @@
+{
+  "output_name": "phat_g221_20261004.jpg",
+  "chunks": [
+    "phat_g221_20261004.part00.b64",
+    "phat_g221_20261004.part01.b64",
+    "phat_g221_20261004.part02.b64",
+    "phat_g221_20261004.part03.b64",
+    "phat_g221_20261004.part04.b64",
+    "phat_g221_20261004.part05.b64"
+  ],
+  "sha256": "386ba0e61b8e0a06b6ad103e611f5ffc2029a43626b07173d7b12e342a4208a8"
+}
