@@ -276,9 +276,17 @@ def run_command(queue):
     if pkg.get('image_url') and not pkg.get('image_asset_name'):
         raise RuntimeError('PACKAGE_NOT_STAGED: remote image_url must be converted to image_asset_name before PUBLISH')
     if pkg.get('image_asset_name'):
-        staged_asset = ASSET_OUT_DIR / str(pkg.get('image_asset_name'))
+        asset_name = str(pkg.get('image_asset_name'))
+        staged_asset = ASSET_OUT_DIR / asset_name
         if not staged_asset.exists():
             sync_binary_assets()
+        if not staged_asset.exists() and not Path(asset_name).suffix:
+            matches = [p for p in ASSET_OUT_DIR.glob(asset_name + '.*') if p.is_file() and p.suffix.lower() in {'.jpg', '.jpeg', '.png', '.webp'}]
+            if len(matches) == 1:
+                staged_asset = matches[0]
+                pkg['image_asset_name'] = staged_asset.name
+                package_path.write_text(json.dumps(pkg, ensure_ascii=False, indent=2), encoding='utf-8')
+                log(f'ASSET_NAME_RESOLVED {asset_name} -> {staged_asset.name}')
         if not staged_asset.exists():
             raise RuntimeError(f'PACKAGE_NOT_STAGED: local asset missing: {staged_asset}')
 
