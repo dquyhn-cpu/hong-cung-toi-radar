@@ -386,24 +386,15 @@ def main():
     state['agent_git_revision'] = current_git_revision()
     save_json(STATE, state)
 
-    # Critical path: run whatever queue is already on disk immediately.
-    # Do not let startup status publishing or GitHub connectivity delay Chromium.
-    try:
-        state = process_local_queue(state)
-    except Exception as exc:
-        log(f'LOCAL_QUEUE_WARNING {exc}')
-
+    # Safety rule: never execute a potentially stale local queue before GitHub sync.
+    # This prevents an old PUBLISH command from reopening Chromium after restart.
     while True:
         try:
-            # Refresh from GitHub when possible, but a Git failure is non-fatal.
-            # If a new queue arrives, execute it immediately in this same cycle.
             pulled = git_pull()
             if pulled:
                 state = process_local_queue(state)
-
-            # Also re-check local queue every cycle so manually/local-written
-            # commands do not depend on a successful network sync.
-            state = process_local_queue(state)
+            else:
+                log('QUEUE_SKIPPED: GitHub sync failed; refusing stale local command')
             time.sleep(POLL_SECONDS)
         except KeyboardInterrupt:
             log('AGENT_STOPPED')
