@@ -585,12 +585,26 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir, du
     # Stay on the current group page and wait for the visible composer trigger.
     # Reload only once as a last resort; repeated reloads were the main source of
     # the "page flashes 2-3 times before posting" behaviour.
-    composer_ok = open_group_composer(page, ready_timeout_ms=12000)
+    # Most Facebook groups open at the cover/header. The composer is commonly
+    # just below the fold, so reveal that area first instead of spending the
+    # initial seconds searching the cover DOM.
+    page.wait_for_timeout(500)
+    try:
+        page.mouse.wheel(0, 650)
+        page.wait_for_timeout(350)
+        print("COMPOSER_REVEAL_SCROLL")
+    except Exception as exc:
+        print(f"COMPOSER_SCROLL_WARNING={exc}", file=sys.stderr)
+
+    composer_ok = open_group_composer(page, ready_timeout_ms=9000)
     if not composer_ok:
         print("COMPOSER_LAST_RESORT_RELOAD")
         try:
             page.reload(wait_until="commit", timeout=20000)
-            page.wait_for_timeout(300)
+            page.wait_for_timeout(500)
+            page.mouse.wheel(0, 650)
+            page.wait_for_timeout(350)
+            print("COMPOSER_REVEAL_SCROLL_AFTER_RELOAD")
         except Exception as exc:
             print(f"COMPOSER_RELOAD_WARNING={exc}", file=sys.stderr)
         composer_ok = open_group_composer(page, ready_timeout_ms=8000)
