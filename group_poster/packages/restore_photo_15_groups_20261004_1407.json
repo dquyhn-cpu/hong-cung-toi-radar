@@ -21,8 +21,7 @@
   ],
   "message": "Các bác trong nhóm cứu giúp em tấm ảnh này với ạ 😅\n\nẢnh bị mốc khá nhiều, phần khuôn mặt cũng không còn rõ. Nhờ các bác phục chế cho rõ mặt, làm sạch các vết mốc và lấy lại màu ảnh tự nhiên giúp em với ạ.\n\nEm chỉ mong giữ được nét ảnh cũ và khuôn mặt tự nhiên nhất có thể, đừng làm đẹp hay hiện đại quá ạ.\n\nEm cảm ơn các bác nhiều ❤️",
   "comments": [],
-  "asset_policy": "REMOTE_TO_LOCAL_CACHE",
-  "image_asset_name": "restore_request_20261004.png",
-  "inter_group_delay_seconds": 0,
-  "image_url": "https://drive.google.com/file/d/15vn0fbY8yD9dvOiq1moLlpqkrAKSNmEm/view?usp=drivesdk"
+  "asset_policy": "LOCAL_CACHE",
+  "image_asset_name": "restore_request_small.jpg",
+  "inter_group_delay_seconds": 0
 }
