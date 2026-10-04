@@ -13,7 +13,7 @@ from playwright.sync_api import sync_playwright, TimeoutError as PlaywrightTimeo
 GROUP_POSTER_MUTEX = "Global\\HongCungToiGroupPoster"
 _SINGLE_INSTANCE_HANDLE = None
 
-def acquire_single_instance():
+def acquire_single_instance(wait_seconds=90):
     global _SINGLE_INSTANCE_HANDLE
     if sys.platform == "win32":
         import ctypes
@@ -22,9 +22,18 @@ def acquire_single_instance():
         if not handle:
             raise RuntimeError("Could not create Group Poster mutex")
         ERROR_ALREADY_EXISTS = 183
+        WAIT_OBJECT_0 = 0
+        WAIT_ABANDONED = 0x00000080
         if kernel32.GetLastError() == ERROR_ALREADY_EXISTS:
-            kernel32.CloseHandle(handle)
-            return False
+            # A previous poster can survive briefly after a Scheduled Task
+            # restart. Wait for that mutex instead of failing the new queue item
+            # immediately. If the old process has actually died, Windows returns
+            # WAIT_ABANDONED and we can safely continue.
+            rc = kernel32.WaitForSingleObject(handle, int(wait_seconds * 1000))
+            if rc not in (WAIT_OBJECT_0, WAIT_ABANDONED):
+                kernel32.CloseHandle(handle)
+                return False
+            print(f"GROUP_POSTER_MUTEX_RECOVERED wait_seconds={wait_seconds}")
         _SINGLE_INSTANCE_HANDLE = handle
         return True
 
