@@ -663,9 +663,7 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir, du
         page.locator("div[role='dialog']").first.wait_for(state="hidden", timeout=4500)
     except Exception:
         pass
-    page.wait_for_timeout(700)
-
-    # Avoid full-page screenshots after every submit; they caused long font/render
+    # Give Facebook a short settle window after the composer closes before\n    # navigating to the next group. This is intentionally the only timing\n    # change; the stable posting flow remains untouched.\n    page.wait_for_timeout(4000)\n\n    # Avoid full-page screenshots after every submit; they caused long font/render
     # stalls in large batches. Verification below is text/state based.
     final = out / "group_post_after_submit.png"
 
