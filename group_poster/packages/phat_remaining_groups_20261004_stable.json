@@ -27,7 +27,6 @@
     "https://www.facebook.com/groups/2042715435754719",
     "https://www.facebook.com/groups/593564047871123",
     "https://www.facebook.com/groups/197429471972239",
-    "https://www.facebook.com/groups/thayphaphoa",
     "https://www.facebook.com/groups/phatphapnhiemmau.com.vn",
     "https://www.facebook.com/groups/phattaitam123",
     "https://www.facebook.com/groups/3082037818748632",
@@ -48,6 +47,6 @@
   "comments": [],
   "asset_policy": "GITHUB_B64_LOCAL_CACHE",
   "inter_group_delay_seconds": 0,
-  "rollout_note": "Remaining groups classified Phật pháp in column H; excludes G221, G222, G224 already handled; stable baseline unchanged.",
+  "rollout_note": "Remaining groups classified Phật pháp in column H; excludes G221, G222, G224 already handled; stable baseline unchanged. Excludes thayphaphoa by user request.",
   "image_asset_name": "phat_g221_20261004.jpg"
 }
