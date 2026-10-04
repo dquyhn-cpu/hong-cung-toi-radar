@@ -122,7 +122,7 @@ def read_text(path):
     raise RuntimeError(f"Could not decode text file: {p}")
 
 
-def open_group_composer(page, ready_timeout_ms=12000):
+def open_group_composer(page, ready_timeout_ms=25000):
     """Open the group composer as soon as any usable trigger is visible.
 
     Facebook group pages can visually render the composer before the editable
@@ -226,9 +226,16 @@ def attach_image(page, image_path):
         raise RuntimeError("Could not find Facebook image upload control")
 
     inputs.last.set_input_files(str(p.resolve()))
-    # Local staged images attach quickly. Avoid a long blind sleep; Facebook will
-    # keep the Post button disabled until media processing is ready.
-    page.wait_for_timeout(700)
+    # Do not assume the upload is ready after a fixed sleep. Facebook may take
+    # much longer on a busy machine; wait until the composer exposes an enabled
+    # Post button, which is the practical signal that media processing is ready.
+    upload_deadline = time.time() + 25
+    while time.time() < upload_deadline:
+        if find_post_button(page) is not None:
+            print("IMAGE_UPLOAD_READY")
+            return
+        page.wait_for_timeout(350)
+    raise RuntimeError("UI/COMPOSER_ERROR: image upload did not become ready within 25 seconds")
 
 
 def find_active_caption_editor(page):
@@ -387,6 +394,34 @@ def group_already_has_post(page, message):
 
 
 def write_batch_report(results, output_dir):
+    # Retry transient Facebook UI/composer failures once after the main pass.
+    # Successful groups are protected by the publish ledger, so only failed
+    # targets are retried and no known-successful group is posted twice.
+    retryable = [
+        r["group_url"] for r in results
+        if r["status"] in {"ERROR", "SKIPPED"}
+        and not str(r.get("error") or "").startswith("SAFETY_STOP:")
+        and "session expired" not in str(r.get("error") or "").lower()
+        and "invalid facebook group url" not in str(r.get("error") or "").lower()
+    ]
+    if confirm_post and retryable:
+        print(f"UI_RETRY_PASS count={len(retryable)}")
+        for retry_idx, group_url in enumerate(retryable, 1):
+            if ledger_has_submission(publish_ledger, publish_id, group_url):
+                continue
+            try:
+                print(f"UI_RETRY={retry_idx}/{len(retryable)} {group_url}")
+                rc = post_mode(page, group_url, message, image_path, confirm_post, output_dir, duplicate_scan=False)
+                status = rc if isinstance(rc, str) else "POST_CLICKED"
+                results.append({"group_url": group_url, "status": status, "attempt": 2})
+                if status in {"POST_CLICKED","POSTED_UNVERIFIED","SUBMITTED_UNVERIFIED","PUBLISHED_VISIBLE","POST_OK_COMMENT_WARNING","PENDING_APPROVAL"}:
+                    ledger_mark_submission(publish_ledger, publish_id, group_url)
+            except Exception as exc:
+                results.append({"group_url": group_url, "status": "ERROR", "error": str(exc), "attempt": 2})
+            write_batch_report(results, output_dir)
+            if retry_idx < len(retryable):
+                page.wait_for_timeout(5000)
+
     out = Path(output_dir)
     out.mkdir(parents=True, exist_ok=True)
     report = out / "group_batch_report.json"
@@ -634,17 +669,17 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir, du
         page.wait_for_timeout(500)
         enter_caption(page, message)
 
-    # Poll briefly for the Post button to become enabled. This is faster than
-    # fixed sleeps on normal groups while still allowing slower media processing.
+    # Wait by UI state, not a short fixed window. Fast groups proceed
+    # immediately; slow groups get enough time when Chromium/Facebook is lagging.
     post_button = None
-    button_deadline = time.time() + 6
+    button_deadline = time.time() + 25
     while time.time() < button_deadline:
         post_button = find_post_button(page)
         if post_button is not None:
             break
         page.wait_for_timeout(300)
     if post_button is None:
-        raise RuntimeError("Post button not found/enabled within 6 seconds")
+        raise RuntimeError("UI/COMPOSER_ERROR: Post button not found/enabled within 25 seconds")
 
     # Skip preview screenshots during production batches to reduce Chromium load.
     # Text/image/button checks above already validate the composer before submit.
@@ -666,7 +701,7 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir, du
     # Give Facebook a short settle window after the composer closes before
     # navigating to the next group. This reduces the risk of closing/navigating
     # while Facebook is still finishing the submission.
-    page.wait_for_timeout(4000)
+    page.wait_for_timeout(1200)
 
     # Avoid full-page screenshots after every submit; they caused long font/render
     # stalls in large batches. Verification below is text/state based.
