@@ -1,6 +1,7 @@
 {
-  "last_command_id": "bedtime_parenting_1748_png",
-  "last_status": "SUCCESS",
-  "updated_at": "2026-10-04T18:08:07",
-  "agent_git_revision": "d7034669732b89eaf334bb0080097ac7802eee77"
+  "last_command_id": "publish-nghien-sach-closet-20261004-1828",
+  "last_status": "ERROR",
+  "error": "Group Poster exited with code 1: ERROR: name 'confirm_post' is not defined",
+  "updated_at": "2026-10-04T18:30:30",
+  "agent_git_revision": "75468e920e9a32e6648e8926d32589b20032fe22"
 }
