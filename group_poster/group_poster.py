@@ -122,58 +122,93 @@ def read_text(path):
     raise RuntimeError(f"Could not decode text file: {p}")
 
 
-def open_group_composer(page, ready_timeout_ms=5500):
-    """Open the group composer as soon as its trigger becomes visible.
+def open_group_composer(page, ready_timeout_ms=22000):
+    """Open the group composer without reloading the page.
 
-    Facebook pages often *look* loaded long before DOMContentLoaded fires.
-    Avoid waiting for the whole page. Poll only the composer trigger and click
-    it immediately when ready.
+    Wait patiently on the current group because Facebook can render the post
+    card late. Once a create-post dialog appears, return immediately and let
+    later steps wait for the editor/media controls to finish initializing.
     """
-    trigger_css = ", ".join([
-        "[role='textbox'][contenteditable='true'][aria-placeholder*='Viết gì']:visible",
-        "[role='textbox'][contenteditable='true'][aria-placeholder*='Bạn viết gì']:visible",
-        "[role='textbox'][contenteditable='true'][aria-placeholder*='Write something']:visible",
-        "[contenteditable='true'][aria-placeholder*='Tạo bài viết công khai']:visible",
-        "[contenteditable='true'][aria-placeholder*='Create a public post']:visible",
-    ])
-
     deadline = time.time() + (ready_timeout_ms / 1000.0)
-    while time.time() < deadline:
-        try:
-            loc = page.locator(trigger_css)
-            if loc.count():
-                el = loc.first
-                if el.is_visible():
-                    el.click(timeout=900, force=True)
-                    # Modal/editor usually appears almost immediately.
-                    open_deadline = time.time() + 2.0
-                    while time.time() < open_deadline:
-                        try:
-                            if page.locator("div[role='dialog']:visible").count() or find_active_caption_editor(page) is not None:
-                                return True
-                        except Exception:
-                            pass
-                        page.wait_for_timeout(120)
-        except Exception:
-            pass
-        page.wait_for_timeout(120)
+    css_candidates = [
+        "[role='textbox'][contenteditable='true'][aria-placeholder*='Viết gì']",
+        "[role='textbox'][contenteditable='true'][aria-placeholder*='Bạn viết gì']",
+        "[role='textbox'][contenteditable='true'][aria-placeholder*='Write something']",
+        "[role='button'][aria-label*='Tạo bài viết']",
+        "[role='button'][aria-label*='Create post']",
+    ]
+    text_candidates = (
+        "Bạn viết gì đi",
+        "Bạn viết gì",
+        "Viết gì đó",
+        "Tạo bài viết",
+        "Write something",
+        "Create post",
+    )
 
-    # Short text fallback for Facebook variants whose composer trigger lacks
-    # aria-placeholder. Do this only after the fast CSS path times out.
-    labels = ["Bạn viết gì đi", "Viết gì đó", "Tạo bài viết", "Write something", "Create post"]
-    for label in labels:
+    while time.time() < deadline:
+        # If a create-post dialog is already visible, do not skip the group.
         try:
-            loc = page.get_by_text(label, exact=False)
-            for i in range(min(loc.count(), 4)):
-                el = loc.nth(i)
-                if not el.is_visible():
-                    continue
-                el.click(timeout=900, force=True)
-                page.wait_for_timeout(250)
-                if page.locator("div[role='dialog']:visible").count() or find_active_caption_editor(page) is not None:
+            dialogs = page.locator("div[role='dialog']:visible")
+            if dialogs.count():
+                last = dialogs.last
+                try:
+                    heading = last.get_by_text("Tạo bài viết", exact=False)
+                    if heading.count():
+                        return True
+                except Exception:
+                    pass
+                if find_active_caption_editor(page) is not None:
                     return True
         except Exception:
             pass
+
+        clicked = False
+        for sel in css_candidates:
+            try:
+                loc = page.locator(sel)
+                for i in range(min(loc.count(), 4)):
+                    el = loc.nth(i)
+                    if not el.is_visible():
+                        continue
+                    el.click(timeout=1000, force=True)
+                    clicked = True
+                    break
+                if clicked:
+                    break
+            except Exception:
+                pass
+
+        if not clicked:
+            for label in text_candidates:
+                try:
+                    loc = page.get_by_text(label, exact=False)
+                    for i in range(min(loc.count(), 5)):
+                        el = loc.nth(i)
+                        if not el.is_visible():
+                            continue
+                        el.click(timeout=1000, force=True)
+                        clicked = True
+                        break
+                    if clicked:
+                        break
+                except Exception:
+                    pass
+
+        if clicked:
+            open_deadline = time.time() + 5.0
+            while time.time() < open_deadline:
+                try:
+                    dialogs = page.locator("div[role='dialog']:visible")
+                    if dialogs.count():
+                        return True
+                    if find_active_caption_editor(page) is not None:
+                        return True
+                except Exception:
+                    pass
+                page.wait_for_timeout(120)
+
+        page.wait_for_timeout(180)
 
     return False
 
@@ -205,62 +240,62 @@ def attach_image(page, image_path):
     page.wait_for_timeout(700)
 
 
-def find_active_caption_editor(page, timeout_ms=8000):
-    """Find the caption editor only inside the active Create Post dialog.
-
-    After image upload Facebook can rebuild the composer DOM. Keep waiting for
-    the visible editor in the current dialog instead of scanning the whole page.
-    """
-    deadline = time.time() + (timeout_ms / 1000.0)
-    selectors = [
-        "[role='textbox'][contenteditable='true'][aria-placeholder*='Tạo bài viết công khai']",
-        "[contenteditable='true'][aria-placeholder*='Tạo bài viết công khai']",
-        "[role='textbox'][contenteditable='true'][aria-placeholder*='Create a public post']",
-        "[contenteditable='true'][aria-placeholder*='Create a public post']",
-    ]
-
-    while time.time() < deadline:
-        try:
-            dialogs = page.locator("div[role='dialog']:visible")
-            if dialogs.count():
-                dialog = dialogs.last
-
-                for sel in selectors:
-                    loc = dialog.locator(sel)
-                    for i in range(min(loc.count(), 4)):
-                        el = loc.nth(i)
-                        if not el.is_visible():
-                            continue
-                        box = el.bounding_box()
-                        if box and box["width"] >= 160 and box["height"] >= 15:
-                            return el
-
-                # Facebook sometimes drops aria-placeholder after media upload.
-                # In that case use the first large visible contenteditable textbox
-                # inside the active Create Post dialog only.
-                loc = dialog.locator("[role='textbox'][contenteditable='true']")
-                for i in range(min(loc.count(), 6)):
-                    el = loc.nth(i)
+def find_active_caption_editor(page):
+    """Return the visible caption editor in the active composer."""
+    try:
+        dialogs = page.locator("div[role='dialog']:visible")
+        if dialogs.count():
+            dialog = dialogs.last
+            # The public-post field is normally the first large contenteditable
+            # textbox in the visible composer dialog.
+            loc = dialog.locator(
+                "[role='textbox'][contenteditable='true'], "
+                "[contenteditable='true'][aria-placeholder*='Tạo bài viết công khai'], "
+                "[contenteditable='true'][aria-placeholder*='Create a public post']"
+            )
+            for i in range(min(loc.count(), 6)):
+                el = loc.nth(i)
+                try:
                     if not el.is_visible():
                         continue
                     box = el.bounding_box()
                     if box and box["width"] >= 180 and box["height"] >= 18:
                         return el
+                except Exception:
+                    pass
+    except Exception:
+        pass
+
+    # Fallback for Facebook variants without a dialog wrapper.
+    for sel in [
+        "[role='textbox'][contenteditable='true'][aria-placeholder*='Tạo bài viết công khai']",
+        "[role='textbox'][contenteditable='true'][aria-placeholder*='Create a public post']",
+    ]:
+        try:
+            loc = page.locator(sel)
+            for i in range(min(loc.count(), 3)):
+                el = loc.nth(i)
+                if el.is_visible():
+                    return el
         except Exception:
             pass
-
-        page.wait_for_timeout(150)
-
     return None
 
 
 def enter_caption(page, message):
-    editor = find_active_caption_editor(page, timeout_ms=8000)
+    """Enter caption with a short bounded wait for Facebook's editor."""
+    deadline = time.time() + 10.0
+    editor = None
+    while time.time() < deadline:
+        editor = find_active_caption_editor(page)
+        if editor is not None:
+            break
+        page.wait_for_timeout(120)
     if editor is None:
-        raise RuntimeError("Caption box not found in active Create Post dialog")
+        raise RuntimeError("Caption box not found within 10 seconds")
 
     try:
-        editor.click(timeout=1200, force=True)
+        editor.click(timeout=1000, force=True)
     except Exception:
         box = editor.bounding_box()
         if not box:
@@ -269,23 +304,30 @@ def enter_caption(page, message):
 
     page.keyboard.insert_text(message)
 
-    # Verify only inside the active composer dialog. Reading the whole Facebook
-    # page was the source of long stalls on large groups.
-    verify = " ".join(message.split())[:30]
-    deadline = time.time() + 3.0
-    while time.time() < deadline:
+    # Verify the editor itself instead of reading the whole Facebook page,
+    # which can stall badly on large group DOMs.
+    verify_deadline = time.time() + 2.0
+    while time.time() < verify_deadline:
         try:
-            dialogs = page.locator("div[role='dialog']:visible")
-            if dialogs.count():
-                dialog = dialogs.last
-                if dialog.get_by_text(verify, exact=False).count():
-                    print("CAPTION_OK")
-                    return
+            txt = " ".join((editor.inner_text(timeout=500) or "").split())
+            if " ".join(message.split())[:30] in txt:
+                print("CAPTION_OK")
+                return
         except Exception:
-            pass
-        page.wait_for_timeout(120)
+            # Facebook may replace the editor node after typing; reacquire it.
+            editor = find_active_caption_editor(page)
+        page.wait_for_timeout(100)
 
-    raise RuntimeError("Caption text was not retained in active composer")
+    # Keyboard insertion is synchronous; if Facebook replaced the node too fast,
+    # accept a visible local text match in the dialog as final verification.
+    try:
+        dialog = page.locator("div[role='dialog']:visible").last
+        if dialog.get_by_text(message[:30], exact=False).count():
+            print("CAPTION_OK_REACQUIRED")
+            return
+    except Exception:
+        pass
+    raise RuntimeError("Caption text was not retained in Facebook composer")
 
 
 def find_post_button(page):
@@ -424,35 +466,60 @@ def detect_facebook_safety_stop(page):
 
 
 def ensure_posting_identity(page, page_name="Hóng Cùng Tôi"):
-    """Switch the first group composer to the requested Page, then verify it."""
+    """Verify/switch the active composer to the requested Page identity.
+
+    Fail closed only after a generous bounded wait. Facebook often paints the
+    composer shell first and the identity row a few seconds later.
+    """
     target = page_name.strip()
-    target_lower = target.lower()
+
+    def active_dialog():
+        try:
+            dialogs = page.locator("div[role='dialog']:visible")
+            if dialogs.count():
+                return dialogs.last
+        except Exception:
+            pass
+        return None
 
     def composer_has_target():
+        d = active_dialog()
+        if d is None:
+            return False
         try:
-            dialogs = page.locator("div[role='dialog']")
-            for i in range(dialogs.count()):
-                d = dialogs.nth(i)
-                if not d.is_visible():
+            hit = d.get_by_text(target, exact=False)
+            for i in range(min(hit.count(), 6)):
+                if hit.nth(i).is_visible():
+                    return True
+        except Exception:
+            pass
+        # Fallback to aria/title text on visible controls.
+        try:
+            controls = d.locator("[aria-label], [title]")
+            for i in range(min(controls.count(), 30)):
+                el = controls.nth(i)
+                if not el.is_visible():
                     continue
-                txt = " ".join(d.inner_text(timeout=3000).split())
-                if target_lower in txt.lower():
+                blob = " ".join([
+                    el.get_attribute("aria-label") or "",
+                    el.get_attribute("title") or "",
+                ]).lower()
+                if target.lower() in blob:
                     return True
         except Exception:
             pass
         return False
 
-    if composer_has_target():
-        print(f"IDENTITY_OK={target}")
-        return True
+    ready_deadline = time.time() + 6.0
+    while time.time() < ready_deadline:
+        if composer_has_target():
+            print(f"IDENTITY_OK={target}")
+            return True
+        page.wait_for_timeout(180)
 
-    # Explicitly open Facebook's profile/Page selector when the composer starts
-    # as the personal profile. Once selected, Facebook normally keeps this
-    # identity for subsequent group composers in the same browser session.
     trigger_texts = [
         "Chọn trang cá nhân hoặc Trang",
         "Chọn trang cá nhân hoặc trang",
-        "Chọn Trang",
         "Đang tương tác dưới tên",
         "Tương tác dưới tên",
         "Đăng dưới tên",
@@ -460,65 +527,49 @@ def ensure_posting_identity(page, page_name="Hóng Cùng Tôi"):
         "Posting as",
         "Interact as",
     ]
-    clicked = False
     for label in trigger_texts:
         try:
             loc = page.get_by_text(label, exact=False)
-            for i in range(loc.count()):
+            for i in range(min(loc.count(), 5)):
                 el = loc.nth(i)
                 if not el.is_visible():
                     continue
-                el.click(timeout=2500, force=True)
-                page.wait_for_timeout(1000)
-                clicked = True
-                break
-            if clicked:
-                break
-        except Exception:
-            pass
+                el.click(timeout=1200, force=True)
+                page.wait_for_timeout(400)
 
-    # Fallback: click visible buttons/controls in the active composer whose
-    # accessible text suggests an identity/profile selector.
-    if not clicked:
-        try:
-            dialog = page.locator("div[role='dialog']").last
-            controls = dialog.locator("[role='button']")
-            for i in range(controls.count()):
-                el = controls.nth(i)
-                if not el.is_visible():
-                    continue
-                label = " ".join([
-                    el.get_attribute("aria-label") or "",
-                    el.get_attribute("title") or "",
-                    el.inner_text(timeout=1000) or "",
-                ]).lower()
-                if any(k in label for k in ["trang cá nhân", "trang", "profile", "page", "tương tác", "đăng dưới"]):
-                    el.click(timeout=2200, force=True)
-                    page.wait_for_timeout(1000)
-                    clicked = True
-                    break
-        except Exception:
-            pass
-
-    if clicked:
-        try:
-            choices = page.get_by_text(target, exact=False)
-            for i in range(choices.count()):
-                el = choices.nth(i)
-                if not el.is_visible():
-                    continue
-                el.click(timeout=3000, force=True)
-                page.wait_for_timeout(1400)
+                choice_deadline = time.time() + 5.0
+                while time.time() < choice_deadline:
+                    try:
+                        choices = page.get_by_text(target, exact=False)
+                        for j in range(min(choices.count(), 8)):
+                            choice = choices.nth(j)
+                            if not choice.is_visible():
+                                continue
+                            choice.click(timeout=1200, force=True)
+                            page.wait_for_timeout(600)
+                            if composer_has_target():
+                                print(f"IDENTITY_SWITCHED={target}")
+                                return True
+                    except Exception:
+                        pass
+                    if composer_has_target():
+                        print(f"IDENTITY_OK={target}")
+                        return True
+                    page.wait_for_timeout(180)
                 break
         except Exception:
             pass
 
-    if composer_has_target():
-        print(f"IDENTITY_SWITCHED={target}")
-        return True
+    # One final passive wait: sometimes the Page identity switches after the
+    # selector popover closes but before its label is repainted.
+    final_deadline = time.time() + 4.0
+    while time.time() < final_deadline:
+        if composer_has_target():
+            print(f"IDENTITY_OK_LATE={target}")
+            return True
+        page.wait_for_timeout(200)
 
-    # Fail closed only after actively attempting the Page switch.
-    raise RuntimeError(f"IDENTITY_GUARD: could not switch composer to Page '{target}'")
+    raise RuntimeError(f"IDENTITY_GUARD: could not verify/switch composer to Page '{target}'")
 
 
 def post_mode(page, group_url, message, image_path, confirm_post, output_dir, duplicate_scan=True):
@@ -534,14 +585,25 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir, du
     nav_error = None
     for attempt in range(1, 3):
         try:
-            page.goto(group_url, wait_until="commit", timeout=20000)
+            page.goto(group_url, wait_until="commit", timeout=25000)
             nav_error = None
             break
         except Exception as exc:
+            current = (page.url or "").rstrip("/")
+            wanted = group_url.rstrip("/")
+            msg = str(exc)
+            # Facebook can immediately SPA-navigate to the exact same group URL,
+            # which Playwright reports as an interrupted navigation even though
+            # the page is usable.
+            if current == wanted or ("interrupted by another navigation" in msg and wanted in msg):
+                print("NAV_INTERRUPTED_SAME_URL_CONTINUE")
+                nav_error = None
+                page.wait_for_timeout(500)
+                break
             nav_error = exc
             print(f"NAV_RETRY attempt={attempt} error={exc}", file=sys.stderr)
             if attempt < 2:
-                page.wait_for_timeout(500)
+                page.wait_for_timeout(700)
     if nav_error is not None:
         raise RuntimeError(f"Group navigation failed after retry: {nav_error}")
 
@@ -557,58 +619,50 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir, du
         print("SKIP_ALREADY_POSTED")
         return "SKIP_ALREADY_POSTED"
 
-    # Composer retry: fast adaptive wait first; reload only if the trigger never
-    # becomes usable within a few seconds.
-    composer_ok = open_group_composer(page, ready_timeout_ms=5500)
+    # Never reload the group just because the composer is slow. A non-postable
+    # or sluggish group is skipped and the batch moves on.
+    t_comp = time.time()
+    composer_ok = open_group_composer(page, ready_timeout_ms=22000)
     if not composer_ok:
-        print("COMPOSER_RETRY=reload")
-        try:
-            page.reload(wait_until="commit", timeout=20000)
-            page.wait_for_timeout(350)
-            page.mouse.wheel(0, 400)
-        except Exception as exc:
-            print(f"COMPOSER_RELOAD_WARNING={exc}", file=sys.stderr)
-        composer_ok = open_group_composer(page, ready_timeout_ms=4500)
-
-    if not composer_ok:
-        raise RuntimeError("Could not open Facebook Group composer after retry")
-
-    print("COMPOSER_OPENED")
+        raise RuntimeError("Could not open Facebook Group composer within 22 seconds")
+    print(f"COMPOSER_OPENED ms={int((time.time()-t_comp)*1000)}")
 
     # Never publish as the user's personal profile by accident.
+    t_identity = time.time()
     try:
         ensure_posting_identity(page, "Hóng Cùng Tôi")
     except Exception as exc:
         print(f"IDENTITY_RETRY={exc}", file=sys.stderr)
-        page.wait_for_timeout(1500)
+        page.wait_for_timeout(800)
         ensure_posting_identity(page, "Hóng Cùng Tôi")
+    print(f"IDENTITY_READY ms={int((time.time()-t_identity)*1000)}")
 
-    # Enter caption before media. Facebook currently rebuilds/replaces the
-    # composer textbox after a photo is attached on some group layouts, which
-    # can make the post-upload editor temporarily undiscoverable. Text entered
-    # first is retained by Facebook while the media control is added.
+    # Important: media first, caption second.
+    t_image = time.time()
+    attach_image(page, image_path)
+    if image_path:
+        print(f"IMAGE_ATTACHED ms={int((time.time()-t_image)*1000)}")
+
+    t_caption = time.time()
     try:
         enter_caption(page, message)
     except Exception as exc:
         print(f"CAPTION_RETRY={exc}", file=sys.stderr)
         page.wait_for_timeout(500)
         enter_caption(page, message)
-
-    attach_image(page, image_path)
-    if image_path:
-        print("IMAGE_ATTACHED")
+    print(f"CAPTION_READY ms={int((time.time()-t_caption)*1000)}")
 
     # Poll briefly for the Post button to become enabled. This is faster than
     # fixed sleeps on normal groups while still allowing slower media processing.
     post_button = None
-    button_deadline = time.time() + 6
+    button_deadline = time.time() + 12
     while time.time() < button_deadline:
         post_button = find_post_button(page)
         if post_button is not None:
             break
         page.wait_for_timeout(300)
     if post_button is None:
-        raise RuntimeError("Post button not found/enabled within 6 seconds")
+        raise RuntimeError("Post button not found/enabled within 12 seconds")
 
     # Skip preview screenshots during production batches to reduce Chromium load.
     # Text/image/button checks above already validate the composer before submit.
