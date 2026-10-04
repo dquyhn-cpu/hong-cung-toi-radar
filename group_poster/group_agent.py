@@ -267,7 +267,34 @@ def run_command(queue):
 
     cmd = [sys.executable, str(HERE/'group_poster.py'), '--package', str(package_path), '--confirm-post', '--output-dir', str(HERE/'output')]
     log(f'START command_id={command_id} package={package}')
-    p = subprocess.run(cmd, cwd=str(HERE), text=True, capture_output=True, creationflags=CREATE_NO_WINDOW)
+    # Hard-stop a wedged poster so Chromium/Playwright children cannot pile up
+    # across Scheduled Task restarts.  Three minutes is ample for the normal
+    # single-group path; multi-group packages scale the budget conservatively.
+    group_count = len(pkg.get('group_urls') or ([pkg.get('group_url')] if pkg.get('group_url') else []))
+    poster_timeout = max(180, 90 + max(1, group_count) * 90)
+    try:
+        p = subprocess.run(
+            cmd,
+            cwd=str(HERE),
+            text=True,
+            capture_output=True,
+            timeout=poster_timeout,
+            creationflags=CREATE_NO_WINDOW,
+        )
+    except subprocess.TimeoutExpired as exc:
+        # subprocess.run kills the direct child on timeout. On Windows, make a
+        # best-effort cleanup of that process tree as well so browser helpers do
+        # not survive and hold the global Group Poster mutex/resources.
+        pid = getattr(exc, 'pid', None)
+        if sys.platform == 'win32' and pid:
+            subprocess.run(
+                ['taskkill', '/PID', str(pid), '/T', '/F'],
+                capture_output=True,
+                text=True,
+                timeout=15,
+                creationflags=CREATE_NO_WINDOW,
+            )
+        raise RuntimeError(f'GROUP_POSTER_TIMEOUT after {poster_timeout}s')
     if p.stdout:
         for line in p.stdout.splitlines():
             log(f'POSTER_OUT {line}')
