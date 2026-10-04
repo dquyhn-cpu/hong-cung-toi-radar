@@ -1,6 +1,7 @@
 {
-  "last_command_id": "publish-phat-remaining-groups-20261004-stable",
-  "last_status": "SUCCESS",
-  "updated_at": "2026-10-04T12:36:25",
-  "agent_git_revision": "dae7fed30a2538b115d78c703a04d1f37c770c56"
+  "last_command_id": "publish-restore-photo-15-groups-20261004-drive1",
+  "last_status": "ERROR",
+  "error": "PACKAGE_NOT_STAGED: local asset missing: C:\\Users\\AnhQuy\\hong-cung-toi-radar\\group_poster\\temp_assets\\restore_request_20261004.png",
+  "updated_at": "2026-10-04T14:42:00",
+  "agent_git_revision": "d1a4ef82023dc47c698cbec7b938d4ea51995847"
 }
