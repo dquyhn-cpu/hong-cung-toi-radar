@@ -1,7 +1,7 @@
 {
   "package_version": 2,
-  "publish_id": "con-ngu-muon-me-be-20261004-1742-retry",
-  "event_id": "con_ngu_muon_me_be_20261004_1742_retry",
+  "publish_id": "con-ngu-muon-me-be-20261004-1748",
+  "event_id": "con_ngu_muon_me_be_20261004_1748",
   "group_urls": [
     "https://www.facebook.com/groups/nghiencon.gr",
     "https://www.facebook.com/groups/1483970805265422",
@@ -26,6 +26,6 @@
   "message": "Các bố mẹ có cách nào sửa được giờ ngủ cho con không ạ?\n\nCon nhà em dạo này càng ngày càng ngủ muộn. 9 giờ cho lên giường rồi mà hết đòi uống nước, đi vệ sinh, lại quay sang nói chuyện 😅 Có hôm gần 11 giờ mới chịu ngủ.\n\nSáng thì gọi mãi không muốn dậy nên em cũng hơi lo. Em thử cho lên giường sớm hơn nhưng càng cho lên sớm lại càng nằm chơi lâu 😂\n\nNhà nào từng gặp tình trạng này rồi cho em xin ít kinh nghiệm với ạ. Các bé nhà mình thường mấy giờ đi ngủ?",
   "comments": [],
   "asset_policy": "LOCAL_TEMP_ASSET",
-  "image_asset_name": "con ngủ muộn",
+  "image_asset_name": "con_ngu_muon.png",
   "inter_group_delay_seconds": 15
 }
