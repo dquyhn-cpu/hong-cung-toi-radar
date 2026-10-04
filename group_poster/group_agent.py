@@ -364,10 +364,35 @@ def process_local_queue(state):
         except Exception as exc:
             log(f'STATUS_PUBLISH_WARNING {exc}')
     except Exception as exc:
+        err = str(exc)
+
+        # A Scheduled Task restart can leave the previous Group Poster child
+        # alive briefly. Do not consume the new queue item in that case.
+        # Leave last_command_id unchanged so the next poll retries automatically.
+        # The publish ledger in group_poster.py prevents duplicate submissions
+        # if the earlier child managed to finish some target groups.
+        if 'GROUP_POSTER_ALREADY_RUNNING' in err:
+            previous_id = state.get('last_command_id')
+            state = {
+                'last_command_id': previous_id,
+                'last_status': 'RETRY_PENDING',
+                'pending_command_id': command_id,
+                'error': err,
+                'updated_at': datetime.now().isoformat(timespec='seconds'),
+            }
+            state['agent_git_revision'] = current_git_revision()
+            save_json(STATE, state)
+            log(f'COMMAND_RETRY_PENDING command_id={command_id} reason=poster_already_running')
+            try:
+                publish_status_to_repo()
+            except Exception as status_exc:
+                log(f'STATUS_PUBLISH_WARNING {status_exc}')
+            return state
+
         state = {
             'last_command_id': command_id,
             'last_status': 'ERROR',
-            'error': str(exc),
+            'error': err,
             'updated_at': datetime.now().isoformat(timespec='seconds'),
         }
         state['agent_git_revision'] = current_git_revision()
