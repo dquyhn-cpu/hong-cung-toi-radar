@@ -240,7 +240,7 @@ def run_command(queue):
             for line in p.stderr.splitlines():
                 log(f'LOGIN_ERR {line}')
         if p.returncode != 0:
-            detail = (p.stderr or p.stdout or '').strip().splitlines()
+            detail = (getattr(p, 'stderr_text', '') or getattr(p, 'stdout_text', '') or '').strip().splitlines()
             tail = detail[-1] if detail else 'no detail'
             raise RuntimeError(f'Group Poster login exited with code {p.returncode}: {tail}')
         log(f'LOGIN_DONE command_id={command_id}')
@@ -272,34 +272,40 @@ def run_command(queue):
     # single-group path; multi-group packages scale the budget conservatively.
     group_count = len(pkg.get('group_urls') or ([pkg.get('group_url')] if pkg.get('group_url') else []))
     poster_timeout = max(180, 90 + max(1, group_count) * 90)
+    p = subprocess.Popen(
+        cmd,
+        cwd=str(HERE),
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        creationflags=CREATE_NO_WINDOW,
+    )
     try:
-        p = subprocess.run(
-            cmd,
-            cwd=str(HERE),
-            text=True,
-            capture_output=True,
-            timeout=poster_timeout,
-            creationflags=CREATE_NO_WINDOW,
-        )
-    except subprocess.TimeoutExpired as exc:
-        # subprocess.run kills the direct child on timeout. On Windows, make a
-        # best-effort cleanup of that process tree as well so browser helpers do
-        # not survive and hold the global Group Poster mutex/resources.
-        pid = getattr(exc, 'pid', None)
-        if sys.platform == 'win32' and pid:
+        stdout, stderr = p.communicate(timeout=poster_timeout)
+        p.stdout_text = stdout
+        p.stderr_text = stderr
+    except subprocess.TimeoutExpired:
+        # Kill the whole Windows process tree, including Playwright Chromium
+        # helpers, so no orphan browser survives to consume RAM/disk or hold the
+        # Group Poster mutex.
+        if sys.platform == 'win32':
             subprocess.run(
-                ['taskkill', '/PID', str(pid), '/T', '/F'],
+                ['taskkill', '/PID', str(p.pid), '/T', '/F'],
                 capture_output=True,
                 text=True,
                 timeout=15,
                 creationflags=CREATE_NO_WINDOW,
             )
+        else:
+            p.kill()
+        p.communicate()
         raise RuntimeError(f'GROUP_POSTER_TIMEOUT after {poster_timeout}s')
-    if p.stdout:
-        for line in p.stdout.splitlines():
+
+    if getattr(p, 'stdout_text', ''):
+        for line in p.stdout_text.splitlines():
             log(f'POSTER_OUT {line}')
-    if p.stderr:
-        for line in p.stderr.splitlines():
+    if getattr(p, 'stderr_text', ''):
+        for line in p.stderr_text.splitlines():
             log(f'POSTER_ERR {line}')
     if p.returncode != 0:
         detail = (p.stderr or p.stdout or '').strip().splitlines()
