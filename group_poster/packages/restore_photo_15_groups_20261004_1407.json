@@ -2,12 +2,27 @@
   "package_version": 2,
   "publish_id": "restore-photo-15-groups-20261004-1407",
   "event_id": "restore_photo_15_groups_20261004_1407",
-  "group_urls": [],
+  "group_urls": [
+    "https://www.facebook.com/groups/2216051509145244",
+    "https://www.facebook.com/groups/2407091713049870",
+    "https://www.facebook.com/groups/HoichinhsuaanhcotamMienPhi",
+    "https://www.facebook.com/groups/515688179096250",
+    "https://www.facebook.com/groups/csafree",
+    "https://www.facebook.com/groups/846108156287316",
+    "https://www.facebook.com/groups/3619256238386628",
+    "https://www.facebook.com/groups/photoshopcotam",
+    "https://www.facebook.com/groups/514209593056441",
+    "https://www.facebook.com/groups/409633842986171",
+    "https://www.facebook.com/groups/congdongphucheanhcu",
+    "https://www.facebook.com/groups/1864568304272103",
+    "https://www.facebook.com/groups/canhochothuegiaredn",
+    "https://www.facebook.com/groups/847722350721645",
+    "https://www.facebook.com/groups/980029978756317"
+  ],
   "message": "Các bác trong nhóm cứu giúp em tấm ảnh này với ạ 😅\n\nẢnh bị mốc khá nhiều, phần khuôn mặt cũng không còn rõ. Nhờ các bác phục chế cho rõ mặt, làm sạch các vết mốc và lấy lại màu ảnh tự nhiên giúp em với ạ.\n\nEm chỉ mong giữ được nét ảnh cũ và khuôn mặt tự nhiên nhất có thể, đừng làm đẹp hay hiện đại quá ạ.\n\nEm cảm ơn các bác nhiều ❤️",
   "comments": [],
-  "asset_policy": "CANCELLED",
+  "asset_policy": "LOCAL_CACHE",
   "image_asset_name": "restore_request_clean_1459.jpg",
   "inter_group_delay_seconds": 0,
-  "cancelled": true,
-  "cancelled_at": "2026-10-04T15:04:00+07:00"
+  "cancelled": false
 }
