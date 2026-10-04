@@ -1,15 +1,6 @@
 {
-  "updated_at": "2026-10-04T04:15:53.020750+00:00",
-  "state": "COLLECTED",
-  "stage": "READY_TO_PUSH",
-  "post_count": 6,
-  "source_stats": {
-    "Thông tin Chính phủ": 6,
-    "Bộ Công an": 0,
-    "BeatVN": 0,
-    "Theanh28": 0,
-    "Top Comments": 0,
-    "Bí Mật Showbiz": 0
-  },
-  "source_errors": {}
+  "updated_at": "2026-10-04T04:16:03.597318+00:00",
+  "state": "OK",
+  "stage": "PUSHED",
+  "message": "Facebook collector snapshot pushed to GitHub"
 }
