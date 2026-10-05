@@ -1,0 +1,22 @@
+{
+  "job_version": 1,
+  "publish_id": "CURRENT_NEWS_JOB_REPLACE_ME",
+  "post_mode": "IMAGE_COMMENTS",
+  "message": "",
+  "registry_path": "group_registry_news_20261003.json",
+  "comments": [
+    {
+      "message": "COMMENT_1_REPLACE_ME"
+    },
+    {
+      "message": "COMMENT_2_REPLACE_ME"
+    },
+    {
+      "message": "COMMENT_3_REPLACE_ME"
+    }
+  ],
+  "inter_comment_delay_seconds": 3,
+  "inter_group_delay_seconds": 25,
+  "recycle_page_every": 5,
+  "exclude_group_ids": []
+}
