@@ -562,6 +562,115 @@ def ensure_posting_identity(page, page_name="Hóng Cùng Tôi"):
     raise RuntimeError(f"IDENTITY_GUARD: could not switch composer to Page '{target}'")
 
 
+
+def collect_group_post_links(page):
+    """Collect visible Facebook group post/permalink URLs from the current page."""
+    out = set()
+    try:
+        links = page.locator("a[href*='/groups/']")
+        for i in range(min(links.count(), 300)):
+            try:
+                href = links.nth(i).get_attribute("href") or ""
+                if "/posts/" not in href and "/permalink/" not in href:
+                    continue
+                if href.startswith("/"):
+                    href = "https://www.facebook.com" + href
+                href = href.split("?")[0].rstrip("/")
+                if href.startswith("https://www.facebook.com/groups/"):
+                    out.add(href)
+            except Exception:
+                pass
+    except Exception:
+        pass
+    return out
+
+
+def resolve_submitted_post(page, group_url, before_links):
+    """Return (status, post_url) after clicking Post.
+
+    Prefer an explicit View Post control/toast. If absent, identify the newly
+    created permalink by diffing post links before vs after submit. For groups
+    requiring moderation, return PENDING_APPROVAL and do not try to comment.
+    """
+    pending_markers = (
+        "đang chờ quản trị viên phê duyệt",
+        "đang chờ phê duyệt",
+        "bài viết đang chờ",
+        "pending approval",
+        "awaiting approval",
+        "pending admin approval",
+    )
+
+    deadline = time.time() + 14
+    while time.time() < deadline:
+        try:
+            body = " ".join(page.locator("body").inner_text(timeout=2500).split()).lower()
+            if any(m in body for m in pending_markers):
+                print("POST_PENDING_APPROVAL")
+                return "PENDING_APPROVAL", None
+        except Exception:
+            pass
+
+        # Best case: Facebook exposes a direct "View post" control after submit.
+        for label in ("Xem bài viết", "Xem bài đăng", "View post"):
+            try:
+                loc = page.get_by_text(label, exact=False)
+                for i in range(min(loc.count(), 6)):
+                    el = loc.nth(i)
+                    if not el.is_visible():
+                        continue
+                    href = el.get_attribute("href")
+                    if href:
+                        if href.startswith("/"):
+                            href = "https://www.facebook.com" + href
+                        href = href.split("?")[0].rstrip("/")
+                        if "/groups/" in href and ("/posts/" in href or "/permalink/" in href):
+                            print(f"POST_URL_FROM_VIEW={href}")
+                            return "PUBLISHED_VISIBLE", href
+                    try:
+                        el.click(timeout=1200, force=True)
+                        page.wait_for_timeout(800)
+                        url = page.url.split("?")[0].rstrip("/")
+                        if "/groups/" in url and ("/posts/" in url or "/permalink/" in url):
+                            print(f"POST_URL_FROM_VIEW_CLICK={url}")
+                            return "PUBLISHED_VISIBLE", url
+                    except Exception:
+                        pass
+            except Exception:
+                pass
+
+        after = collect_group_post_links(page)
+        new_links = [u for u in after if u not in before_links]
+        if new_links:
+            url = sorted(new_links, key=len)[0]
+            print(f"POST_URL_DIFF={url}")
+            return "PUBLISHED_VISIBLE", url
+
+        page.wait_for_timeout(800)
+
+    # One chronological reload can reveal a freshly published post that the
+    # relevance-sorted group home kept hidden.
+    try:
+        chrono = group_url.rstrip("/") + "/?sorting_setting=CHRONOLOGICAL"
+        page.goto(chrono, wait_until="commit", timeout=20000)
+        page.wait_for_timeout(1800)
+        body = " ".join(page.locator("body").inner_text(timeout=2500).split()).lower()
+        if any(m in body for m in pending_markers):
+            print("POST_PENDING_APPROVAL_AFTER_RELOAD")
+            return "PENDING_APPROVAL", None
+        after = collect_group_post_links(page)
+        new_links = [u for u in after if u not in before_links]
+        if new_links:
+            url = sorted(new_links, key=len)[0]
+            print(f"POST_URL_DIFF_AFTER_RELOAD={url}")
+            return "PUBLISHED_VISIBLE", url
+    except Exception as exc:
+        print(f"POST_RESOLVE_RELOAD_WARNING={exc}", file=sys.stderr)
+
+    print("POST_SUBMITTED_URL_UNKNOWN")
+    return "SUBMITTED_UNVERIFIED", None
+
+
 def post_mode(page, group_url, message, image_path, confirm_post, output_dir, duplicate_scan=True):
     if not group_url.startswith("https://www.facebook.com/groups/"):
         raise RuntimeError("Invalid Facebook Group URL")
@@ -590,6 +699,7 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir, du
         raise RuntimeError("Facebook session expired. Run --login again.")
 
     print("GROUP_NAV_COMMITTED")
+    before_post_links = collect_group_post_links(page)
 
     # Package batches already have a persistent story+group ledger, so scanning
     # the entire group DOM for duplicate text before every post is redundant and
@@ -710,20 +820,12 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir, du
     # while Facebook is still finishing the submission.
     page.wait_for_timeout(1200)
 
-    # Avoid full-page screenshots after every submit; they caused long font/render
-    # stalls in large batches. Verification below is text/state based.
-    final = out / "group_post_after_submit.png"
-
-    # Lightweight submit result. Do not scan the whole group page for generic
-    # pending markers: they can belong to other posts and caused false positives.
-    # Explicit visibility/pending can be audited separately only when needed.
-    status = "SUBMITTED_UNVERIFIED"
     safety_stop = detect_facebook_safety_stop(page)
     if safety_stop:
         raise RuntimeError(f"SAFETY_STOP:{safety_stop}")
 
-    print(f"{status}=lightweight_no_page_scan")
-    return status
+    status, post_url = resolve_submitted_post(page, group_url, before_post_links)
+    return {"status": status, "post_url": post_url}
 
 
 def add_comment(page, message, post_message=None, require_latest_page_post=False):
@@ -1281,31 +1383,57 @@ def run_package(page, package_path, confirm_post, output_dir, prepared_image_pat
         print(f"GROUP_BATCH={idx}/{len(group_urls)}")
         try:
             rc = post_mode(page, group_url, message, image_path, confirm_post, output_dir, duplicate_scan=False)
-            status = "PREVIEW_OK" if not confirm_post else (rc if isinstance(rc, str) else "POST_CLICKED")
+            if not confirm_post:
+                status = "PREVIEW_OK"
+                post_url = None
+            elif isinstance(rc, dict):
+                status = rc.get("status") or "SUBMITTED_UNVERIFIED"
+                post_url = rc.get("post_url")
+            else:
+                status = rc if isinstance(rc, str) else "POST_CLICKED"
+                post_url = None
+
             comment_status = None
             if confirm_post and comments and post_mode_name == "IMAGE_COMMENTS":
                 # News mode: image-only main post, then comments immediately.
                 # Submit each comment at most once. If Facebook keeps the post
                 # pending for admin approval, comment boxes may be unavailable;
                 # record that condition and move on instead of retry-spamming.
-                comment_status = "COMMENTS_OK"
-                for c_idx, spec in enumerate(comments, 1):
+                if status == "PENDING_APPROVAL":
+                    comment_status = "SKIPPED_PENDING_APPROVAL"
+                    print("NEWS_COMMENTS_SKIPPED_PENDING_APPROVAL")
+                elif not post_url:
+                    comment_status = "COMMENTS_UNAVAILABLE"
+                    print("NEWS_COMMENT_WARNING=no_resolved_post_url", file=sys.stderr)
+                else:
+                    comment_status = "COMMENTS_OK"
                     try:
-                        safety_stop = detect_facebook_safety_stop(page)
-                        if safety_stop:
-                            raise RuntimeError(f"SAFETY_STOP:{safety_stop}")
-                        add_comment(page, spec["message"], require_latest_page_post=True)
-                        print(f"NEWS_COMMENT_DONE={c_idx}/{len(comments)}")
-                        page.wait_for_timeout(int(pkg.get("inter_comment_delay_seconds") or 2) * 1000)
-                    except Exception as comment_exc:
-                        if str(comment_exc).startswith("SAFETY_STOP:"):
-                            raise
+                        page.goto(post_url, wait_until="commit", timeout=20000)
+                        page.wait_for_timeout(1200)
+                    except Exception as nav_exc:
                         comment_status = "COMMENTS_UNAVAILABLE"
-                        print(f"NEWS_COMMENT_WARNING={c_idx}/{len(comments)}::{comment_exc}", file=sys.stderr)
-                        break
+                        print(f"NEWS_COMMENT_NAV_WARNING={nav_exc}", file=sys.stderr)
+
+                    if comment_status == "COMMENTS_OK":
+                        for c_idx, spec in enumerate(comments, 1):
+                            try:
+                                safety_stop = detect_facebook_safety_stop(page)
+                                if safety_stop:
+                                    raise RuntimeError(f"SAFETY_STOP:{safety_stop}")
+                                add_comment(page, spec["message"], require_latest_page_post=False)
+                                print(f"NEWS_COMMENT_DONE={c_idx}/{len(comments)}")
+                                page.wait_for_timeout(int(pkg.get("inter_comment_delay_seconds") or 2) * 1000)
+                            except Exception as comment_exc:
+                                if str(comment_exc).startswith("SAFETY_STOP:"):
+                                    raise
+                                comment_status = "COMMENTS_UNAVAILABLE"
+                                print(f"NEWS_COMMENT_WARNING={c_idx}/{len(comments)}::{comment_exc}", file=sys.stderr)
+                                break
             elif confirm_post and comments:
                 print(f"COMMENTS_IGNORED_FOR_MODE={post_mode_name} count={len(comments)}")
             row = {"group_url": group_url, "status": status, "post_mode": post_mode_name}
+            if post_url:
+                row["post_url"] = post_url
             if comment_status:
                 row["comment_status"] = comment_status
             results.append(row)
