@@ -643,12 +643,15 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir, du
     if image_path:
         print("IMAGE_ATTACHED")
 
-    try:
-        enter_caption(page, message)
-    except Exception as exc:
-        print(f"CAPTION_RETRY={exc}", file=sys.stderr)
-        page.wait_for_timeout(500)
-        enter_caption(page, message)
+    if message:
+        try:
+            enter_caption(page, message)
+        except Exception as exc:
+            print(f"CAPTION_RETRY={exc}", file=sys.stderr)
+            page.wait_for_timeout(500)
+            enter_caption(page, message)
+    else:
+        print("IMAGE_ONLY_POST")
 
     # Wait by UI state, not a short fixed window. Fast groups proceed
     # immediately; slow groups get enough time when Chromium/Facebook is lagging.
@@ -932,7 +935,8 @@ def preflight_package(package_path, output_dir):
 
     pkg = json.loads(pkg_path.read_text(encoding="utf-8-sig"))
     message = str(pkg.get("message") or "").strip()
-    if not message:
+    post_mode_name = str(pkg.get("post_mode") or "IMAGE_CAPTION").strip().upper()
+    if not message and post_mode_name != "IMAGE_COMMENTS":
         raise RuntimeError("PREFLIGHT_FAILED: package message is empty")
 
     group_urls = pkg.get("group_urls") or ([pkg["group_url"]] if pkg.get("group_url") else [])
@@ -1165,9 +1169,14 @@ def run_package(page, package_path, confirm_post, output_dir, prepared_image_pat
     if not group_urls:
         raise RuntimeError("All target groups are currently on hold")
 
+    post_mode_name = str(pkg.get("post_mode") or "IMAGE_CAPTION").strip().upper()
+    if post_mode_name not in {"IMAGE_CAPTION", "IMAGE_COMMENTS"}:
+        raise RuntimeError(f"Unsupported post_mode: {post_mode_name}")
     message = pkg.get("message", "").strip()
-    if not message:
+    if not message and post_mode_name != "IMAGE_COMMENTS":
         raise RuntimeError("Package message is empty")
+    if post_mode_name == "IMAGE_COMMENTS" and not image_path:
+        raise RuntimeError("IMAGE_COMMENTS requires an image")
 
     image_path = prepared_image_path
     if image_path is None:
@@ -1208,13 +1217,33 @@ def run_package(page, package_path, confirm_post, output_dir, prepared_image_pat
         try:
             rc = post_mode(page, group_url, message, image_path, confirm_post, output_dir, duplicate_scan=False)
             status = "PREVIEW_OK" if not confirm_post else (rc if isinstance(rc, str) else "POST_CLICKED")
-            if confirm_post and comments:
-                # Group rollout policy: publish the main post only.
-                # Automated comments are intentionally disabled to reduce
-                # Facebook rate-limit risk. Source links/details must live in
-                # the main post package instead.
-                print(f"GROUP_COMMENTS_DISABLED count={len(comments)}")
-            results.append({"group_url": group_url, "status": status})
+            comment_status = None
+            if confirm_post and comments and post_mode_name == "IMAGE_COMMENTS":
+                # News mode: image-only main post, then comments immediately.
+                # Submit each comment at most once. If Facebook keeps the post
+                # pending for admin approval, comment boxes may be unavailable;
+                # record that condition and move on instead of retry-spamming.
+                comment_status = "COMMENTS_OK"
+                for c_idx, spec in enumerate(comments, 1):
+                    try:
+                        safety_stop = detect_facebook_safety_stop(page)
+                        if safety_stop:
+                            raise RuntimeError(f"SAFETY_STOP:{safety_stop}")
+                        add_comment(page, spec["message"])
+                        print(f"NEWS_COMMENT_DONE={c_idx}/{len(comments)}")
+                        page.wait_for_timeout(int(pkg.get("inter_comment_delay_seconds") or 2) * 1000)
+                    except Exception as comment_exc:
+                        if str(comment_exc).startswith("SAFETY_STOP:"):
+                            raise
+                        comment_status = "COMMENTS_UNAVAILABLE"
+                        print(f"NEWS_COMMENT_WARNING={c_idx}/{len(comments)}::{comment_exc}", file=sys.stderr)
+                        break
+            elif confirm_post and comments:
+                print(f"COMMENTS_IGNORED_FOR_MODE={post_mode_name} count={len(comments)}")
+            row = {"group_url": group_url, "status": status, "post_mode": post_mode_name}
+            if comment_status:
+                row["comment_status"] = comment_status
+            results.append(row)
             # Once Facebook accepted/clicked the submission, persist the story+group
             # pair locally. This prevents a repeated command from posting again even
             # when the first post is still pending approval and not publicly visible.
