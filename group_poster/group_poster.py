@@ -673,7 +673,30 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir, du
         print("DRY_RUN_OK")
         return 0
 
-    post_button.click()
+    # Facebook can briefly enable the Post button, then disable/replace it
+    # while finalizing the image. Never hold a stale locator for the default
+    # 30-second click timeout. Re-resolve the currently enabled button and use
+    # short click attempts until the composer accepts the submit.
+    clicked = False
+    click_deadline = time.time() + 20
+    last_click_error = None
+    while time.time() < click_deadline and not clicked:
+        btn = find_post_button(page)
+        if btn is None:
+            page.wait_for_timeout(250)
+            continue
+        try:
+            btn.click(timeout=1800)
+            clicked = True
+            print("POST_CLICKED")
+            break
+        except Exception as exc:
+            last_click_error = exc
+            print(f"POST_CLICK_RETRY={exc}", file=sys.stderr)
+            page.wait_for_timeout(300)
+
+    if not clicked:
+        raise RuntimeError(f"UI/COMPOSER_ERROR: Post button never stayed enabled: {last_click_error}")
 
     # Wait only for the composer to disappear. In production we do not need to
     # wait for the new post to fully materialize because comments/visibility are
