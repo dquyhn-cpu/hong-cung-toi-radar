@@ -1,5 +1,5 @@
 {
-  "action": "IDLE",
-  "command_id": "cancel_ron_epoxy_20261005_0919",
-  "note": "Ron epoxy group publish cancelled by user; user posted manually."
+  "action": "PUBLISH",
+  "command_id": "publish-mau-nha-lien-ke-3-tang-thietke-20261005-1433",
+  "package": "group_poster/packages/mau_nha_lien_ke_3_tang_thietke_20261005_1433.json"
 }
