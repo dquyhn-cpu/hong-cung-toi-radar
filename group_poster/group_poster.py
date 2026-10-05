@@ -603,9 +603,24 @@ def resolve_submitted_post(page, group_url, before_links):
 
     deadline = time.time() + 14
     while time.time() < deadline:
+        # Detect pending approval only from transient Facebook feedback
+        # surfaces tied to the submission. Do NOT scan the whole group body:
+        # many groups permanently show text such as "1 post pending approval",
+        # which caused false PENDING_APPROVAL results for newly published posts.
         try:
-            body = " ".join(page.locator("body").inner_text(timeout=2500).split()).lower()
-            if any(m in body for m in pending_markers):
+            feedback_texts = []
+            for sel in ("[role='alert']", "[aria-live='assertive']", "[aria-live='polite']", "div[role='dialog']"):
+                loc = page.locator(sel)
+                for k in range(min(loc.count(), 12)):
+                    el = loc.nth(k)
+                    try:
+                        if el.is_visible():
+                            txt = " ".join(el.inner_text(timeout=1200).split()).lower()
+                            if txt:
+                                feedback_texts.append(txt)
+                    except Exception:
+                        pass
+            if any(any(m in txt for m in pending_markers) for txt in feedback_texts):
                 print("POST_PENDING_APPROVAL")
                 return "PENDING_APPROVAL", None
         except Exception:
@@ -654,8 +669,22 @@ def resolve_submitted_post(page, group_url, before_links):
         chrono = group_url.rstrip("/") + "/?sorting_setting=CHRONOLOGICAL"
         page.goto(chrono, wait_until="commit", timeout=20000)
         page.wait_for_timeout(1800)
-        body = " ".join(page.locator("body").inner_text(timeout=2500).split()).lower()
-        if any(m in body for m in pending_markers):
+        # After reload, avoid generic body-level pending text for the same
+        # false-positive reason. Only transient feedback surfaces may classify
+        # the current submission as pending.
+        feedback_texts = []
+        for sel in ("[role='alert']", "[aria-live='assertive']", "[aria-live='polite']", "div[role='dialog']"):
+            loc = page.locator(sel)
+            for k in range(min(loc.count(), 12)):
+                el = loc.nth(k)
+                try:
+                    if el.is_visible():
+                        txt = " ".join(el.inner_text(timeout=1200).split()).lower()
+                        if txt:
+                            feedback_texts.append(txt)
+                except Exception:
+                    pass
+        if any(any(m in txt for m in pending_markers) for txt in feedback_texts):
             print("POST_PENDING_APPROVAL_AFTER_RELOAD")
             return "PENDING_APPROVAL", None
         after = collect_group_post_links(page)
