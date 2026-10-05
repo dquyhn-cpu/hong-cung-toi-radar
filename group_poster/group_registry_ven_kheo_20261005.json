@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "source": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261005_V3.xlsx",
+  "category": "Vén khéo",
+  "count": 6,
+  "groups": [
+    {
+      "id": "G229",
+      "name": null,
+      "url": "https://www.facebook.com/groups/venkheo/"
+    },
+    {
+      "id": "G230",
+      "name": null,
+      "url": "https://www.facebook.com/groups/nhomloihayydep/"
+    },
+    {
+      "id": "G231",
+      "name": null,
+      "url": "https://www.facebook.com/groups/chitieutieuchi/"
+    },
+    {
+      "id": "G232",
+      "name": null,
+      "url": "https://www.facebook.com/groups/venkheogroup/"
+    },
+    {
+      "id": "G233",
+      "name": null,
+      "url": "https://www.facebook.com/groups/tipsphoidoo/"
+    },
+    {
+      "id": "G234",
+      "name": null,
+      "url": "https://www.facebook.com/groups/congdongvenkheo/"
+    }
+  ],
+  "note": "User-added 2026-10-05. Membership confirmed by user; names not re-verified yet."
+}
