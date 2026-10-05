@@ -16,5 +16,6 @@
   "source_group_list": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261005_V3.xlsx",
   "ui_wait_seconds": 25,
   "retry_ui_failures": true,
-  "publish_to_personal_profile": true
+  "publish_to_page": true,
+  "page_name": "Hóng Cùng Tôi"
 }
