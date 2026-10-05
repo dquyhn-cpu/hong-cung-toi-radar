@@ -1191,9 +1191,9 @@ def run_package(page, package_path, confirm_post, output_dir, prepared_image_pat
     message = pkg.get("message", "").strip()
     if not message and post_mode_name != "IMAGE_COMMENTS":
         raise RuntimeError("Package message is empty")
-    if post_mode_name == "IMAGE_COMMENTS" and not image_path:
-        raise RuntimeError("IMAGE_COMMENTS requires an image")
 
+    # Use the preflight-resolved image first. Do not reference image_path before
+    # assigning it; local runner passes an absolute image path via preflight.
     image_path = prepared_image_path
     if image_path is None:
         image_path = pkg.get("image_path")
@@ -1210,6 +1210,9 @@ def run_package(page, package_path, confirm_post, output_dir, prepared_image_pat
             alt = Path("..") / image_path
             if alt.exists():
                 image_path = str(alt)
+
+    if post_mode_name == "IMAGE_COMMENTS" and not image_path:
+        raise RuntimeError("IMAGE_COMMENTS requires an image")
 
     comments = [
         {
