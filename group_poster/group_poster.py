@@ -728,7 +728,7 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir, du
         raise RuntimeError("Facebook session expired. Run --login again.")
 
     print("GROUP_NAV_COMMITTED")
-    before_post_links = collect_group_post_links(page)
+    before_post_links = set()
 
     # Package batches already have a persistent story+group ledger, so scanning
     # the entire group DOM for duplicate text before every post is redundant and
@@ -811,6 +811,12 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir, du
     if not confirm_post:
         print("DRY_RUN_OK")
         return 0
+
+    # Snapshot currently visible group post permalinks immediately before
+    # clicking Post. Doing this late avoids treating older feed links that
+    # loaded after initial navigation as "new" posts.
+    before_post_links = collect_group_post_links(page)
+    print(f"POST_LINK_SNAPSHOT_BEFORE={len(before_post_links)}")
 
     # Facebook can briefly enable the Post button, then disable/replace it
     # while finalizing the image. Never hold a stale locator for the default
@@ -1290,6 +1296,41 @@ def audit_groups_mode(page, registry_path, message, output_dir):
     return 0
 
 
+
+def verify_resolved_post_for_comments(page, expected_url):
+    """Verify that a resolved permalink is the just-published Hóng Cùng Tôi post."""
+    try:
+        current = page.url.split("?")[0].rstrip("/")
+        expected = str(expected_url or "").split("?")[0].rstrip("/")
+        if current != expected:
+            print(f"COMMENT_TARGET_URL_MISMATCH current={current} expected={expected}", file=sys.stderr)
+            return False
+
+        articles = page.locator("[role='article']")
+        for i in range(min(articles.count(), 8)):
+            try:
+                a = articles.nth(i)
+                if not a.is_visible():
+                    continue
+                txt = " ".join(a.inner_text(timeout=1800).split()).lower()
+                if "hóng cùng tôi" not in txt:
+                    continue
+                # Recent marker is a second guard against resolving an older
+                # Hóng Cùng Tôi post from a dynamically loaded feed.
+                recent = (
+                    "vừa xong", "vài giây", "1 phút", "2 phút", "3 phút",
+                    "just now", "a few seconds", "1 min", "2 min", "3 min",
+                )
+                if any(m in txt for m in recent):
+                    print("COMMENT_TARGET_VERIFIED")
+                    return True
+            except Exception:
+                pass
+    except Exception as exc:
+        print(f"COMMENT_TARGET_VERIFY_WARNING={exc}", file=sys.stderr)
+    return False
+
+
 def run_package(page, package_path, confirm_post, output_dir, prepared_image_path=None):
     pkg_path = Path(package_path)
     pkg = json.loads(pkg_path.read_text(encoding="utf-8-sig"))
@@ -1436,12 +1477,17 @@ def run_package(page, package_path, confirm_post, output_dir, prepared_image_pat
                     print("NEWS_COMMENT_WARNING=no_resolved_post_url", file=sys.stderr)
                 else:
                     comment_status = "COMMENTS_OK"
+                    print(f"NEWS_COMMENT_PHASE_START url={post_url}")
                     try:
                         page.goto(post_url, wait_until="commit", timeout=20000)
-                        page.wait_for_timeout(1200)
+                        page.wait_for_timeout(1400)
                     except Exception as nav_exc:
                         comment_status = "COMMENTS_UNAVAILABLE"
                         print(f"NEWS_COMMENT_NAV_WARNING={nav_exc}", file=sys.stderr)
+
+                    if comment_status == "COMMENTS_OK" and not verify_resolved_post_for_comments(page, post_url):
+                        comment_status = "COMMENTS_UNAVAILABLE"
+                        print("NEWS_COMMENT_WARNING=resolved_post_not_verified", file=sys.stderr)
 
                     if comment_status == "COMMENTS_OK":
                         for c_idx, spec in enumerate(comments, 1):
