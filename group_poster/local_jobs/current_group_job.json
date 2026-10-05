@@ -1,10 +1,10 @@
 {
   "job_version": 2,
-  "publish_id": "vin_co_loa_xe_khe_vuon_20261005_v1",
-  "story_id": "vin_co_loa_xe_khe_vuon_20261005",
+  "publish_id": "photo_edit_20261005_v1",
+  "story_id": "photo_edit_20261005",
   "post_mode": "IMAGE_CAPTION",
   "message": "Các bác cho em hỏi giá căn xẻ khe bên Vin Cổ Loa giờ khoảng bao nhiêu thì mua được ạ?\n\nEm đang ngó bên này, thích liền kề/biệt thự căn xẻ khe hơn căn thường vì muốn có thêm tí khoảng xanh làm cái vườn nhỏ, trồng ít cây với kê bộ bàn ghế ngồi cho thoáng. 😄\n\nEm chưa chốt phân khu hay diện tích, đang muốn khảo giá thực tế trước xem tầm tài chính nào thì hợp lý.\n\nBác nào đang có căn xẻ khe cho em xin phân khu + diện tích đất + diện tích xây dựng + khoảng khe/vườn rộng tầm bao nhiêu + giá chủ đang muốn bán với ạ.\n\nEm ưu tiên căn vị trí ổn, khoảng vườn sử dụng thích một chút. Không cần căn hoa hậu, giá hợp lý quan trọng hơn.\n\nCác bác sale có hàng cứ comment thoải mái nhé, càng nhiều căn em càng dễ so sánh 😄\n\n#VinhomesCoLoa #VinCoLoa #VinhomesGlobalGate #BietThuCoLoa #LienKeCoLoa #BatDongSanDongAnh",
-  "registry_path": "group_registry_vin_co_loa_20261005.json",
+  "registry_path": "group_registry_chinh_sua_anh_20261005.json",
   "group_urls": [],
   "comments": [],
   "inter_group_delay_seconds": 5,
@@ -12,7 +12,7 @@
   "recycle_page_every": 5,
   "confirm_post": true,
   "exclude_group_ids": [],
-  "category": "Cư dân Vin Cổ Loa",
+  "category": "Chỉnh sửa ảnh",
   "source_group_list": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261005_V3.xlsx",
   "ui_wait_seconds": 25,
   "retry_ui_failures": true
