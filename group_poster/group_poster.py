@@ -769,6 +769,81 @@ def resolve_submitted_post(page, group_url, before_links):
     return "SUBMITTED_UNVERIFIED", None
 
 
+
+def post_to_personal_profile(page, message, image_path, confirm_post, output_dir):
+    """Post once to the logged-in personal Facebook profile.
+
+    Uses facebook.com/me so the target follows the authenticated personal
+    account. Fail closed if the composer visibly appears to be acting as the
+    Hóng Cùng Tôi Page.
+    """
+    page.goto("https://www.facebook.com/me/", wait_until="commit", timeout=20000)
+    page.wait_for_timeout(900)
+    if "login" in page.url.lower():
+        raise RuntimeError("Facebook session expired. Run --login again.")
+
+    composer_ok = open_group_composer(page, ready_timeout_ms=10000)
+    if not composer_ok:
+        raise RuntimeError("Could not open personal profile composer")
+    print("PROFILE_COMPOSER_OPENED")
+
+    # Personal-profile guard: if the active composer explicitly shows the Page
+    # identity, stop rather than accidentally duplicating the post as the Page.
+    try:
+        dialogs = page.locator("div[role='dialog']")
+        for i in range(dialogs.count() - 1, -1, -1):
+            d = dialogs.nth(i)
+            if not d.is_visible():
+                continue
+            txt = " ".join(d.inner_text(timeout=2500).split()).lower()
+            if "hóng cùng tôi" in txt:
+                raise RuntimeError("PERSONAL_IDENTITY_GUARD: composer is using Page identity")
+            break
+    except RuntimeError:
+        raise
+    except Exception:
+        pass
+
+    attach_image(page, image_path)
+    if image_path:
+        print("PROFILE_IMAGE_ATTACHED")
+    if message:
+        enter_caption(page, message)
+        print("PROFILE_CAPTION_OK")
+
+    if not confirm_post:
+        print("PROFILE_DRY_RUN_OK")
+        return "PREVIEW_OK"
+
+    clicked = False
+    deadline = time.time() + 20
+    last_error = None
+    while time.time() < deadline and not clicked:
+        btn = find_post_button(page)
+        if btn is None:
+            page.wait_for_timeout(250)
+            continue
+        try:
+            btn.click(timeout=1800)
+            clicked = True
+            print("PROFILE_POST_CLICKED")
+        except Exception as exc:
+            last_error = exc
+            page.wait_for_timeout(300)
+    if not clicked:
+        raise RuntimeError(f"PROFILE_POST_FAILED: {last_error}")
+
+    try:
+        page.locator("div[role='dialog']").first.wait_for(state="hidden", timeout=5000)
+    except Exception:
+        pass
+    page.wait_for_timeout(1000)
+    safety_stop = detect_facebook_safety_stop(page)
+    if safety_stop:
+        raise RuntimeError(f"SAFETY_STOP:{safety_stop}")
+    return "SUBMITTED_UNVERIFIED"
+
+
 def post_mode(page, group_url, message, image_path, confirm_post, output_dir, duplicate_scan=True):
     if not group_url.startswith("https://www.facebook.com/groups/"):
         raise RuntimeError("Invalid Facebook Group URL")
@@ -1504,6 +1579,25 @@ def run_package(page, package_path, confirm_post, output_dir, prepared_image_pat
     results = []
     publish_id = str(pkg.get("publish_id") or pkg.get("event_id") or pkg_path.stem)
     publish_ledger = load_publish_ledger()
+
+    # Optional one-time personal-profile post. It uses the same image/caption as
+    # the group rollout and has its own ledger target so reruns never duplicate it.
+    profile_target = "__PERSONAL_PROFILE__"
+    if pkg.get("publish_to_personal_profile"):
+        if confirm_post and ledger_has_submission(publish_ledger, publish_id, profile_target):
+            print(f"PROFILE_LEDGER_SKIP_ALREADY_SUBMITTED={publish_id}")
+        else:
+            try:
+                profile_status = post_to_personal_profile(
+                    page, message, image_path, confirm_post, output_dir
+                )
+                if confirm_post and profile_status in {"POST_CLICKED","SUBMITTED_UNVERIFIED","PUBLISHED_VISIBLE"}:
+                    ledger_mark_submission(publish_ledger, publish_id, profile_target)
+                print(f"PROFILE_RESULT={profile_status}")
+            except Exception as exc:
+                print(f"PROFILE_ERROR={exc}", file=sys.stderr)
+                if str(exc).startswith("SAFETY_STOP:"):
+                    raise
 
     for idx, group_url in enumerate(group_urls, 1):
         if confirm_post and ledger_has_submission(publish_ledger, publish_id, group_url):
