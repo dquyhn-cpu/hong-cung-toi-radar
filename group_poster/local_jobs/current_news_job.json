@@ -1,22 +1,17 @@
 {
   "job_version": 1,
-  "publish_id": "CURRENT_NEWS_JOB_REPLACE_ME",
+  "publish_id": "news_child_support_335_20261005_v1",
+  "story_id": "news_child_support_335_20261005",
   "post_mode": "IMAGE_COMMENTS",
   "message": "",
   "registry_path": "group_registry_news_20261003.json",
   "comments": [
-    {
-      "message": "COMMENT_1_REPLACE_ME"
-    },
-    {
-      "message": "COMMENT_2_REPLACE_ME"
-    },
-    {
-      "message": "COMMENT_3_REPLACE_ME"
-    }
+    "Lưu ý: Không phải tất cả trẻ em đều được nhận mức trợ cấp này. Chính sách áp dụng cho các nhóm trẻ em thuộc diện trợ giúp xã hội theo quy định, tùy từng đối tượng cụ thể.",
+    "Mức chuẩn trợ giúp xã hội là 540.000 đồng/tháng. Mức thực nhận được tính theo hệ số áp dụng cho từng nhóm đối tượng; vì vậy có trường hợp tương ứng 810.000 đồng hoặc 1.350.000 đồng/tháng.",
+    "Nghị định 335/2026/NĐ-CP có hiệu lực từ ngày 05/10/2026. Mọi người nên đối chiếu đúng nhóm đối tượng và quy định tại địa phương để biết trường hợp cụ thể của gia đình mình."
   ],
   "inter_comment_delay_seconds": 3,
-  "inter_group_delay_seconds": 25,
-  "recycle_page_every": 5,
+  "delay_between_groups_seconds": 35,
+  "confirm_post": true,
   "exclude_group_ids": []
 }
