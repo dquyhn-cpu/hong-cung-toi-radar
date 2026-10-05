@@ -1,3 +1,4 @@
+# Manual radar trigger: 2026-10-05
 from playwright.sync_api import sync_playwright
 from datetime import datetime, timezone
 from urllib.parse import urljoin, urlparse, parse_qs, quote, unquote
