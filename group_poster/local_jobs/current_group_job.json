@@ -1,14 +1,14 @@
 {
   "job_version": 1,
-  "publish_id": "news_child_support_335_20261005_v1",
-  "story_id": "news_child_support_335_20261005",
+  "publish_id": "phat_dung_voi_buon_khi_khong_nhu_y_20261005_v1",
+  "story_id": "phat_dung_voi_buon_khi_khong_nhu_y_20261005",
   "post_mode": "IMAGE_CAPTION",
-  "message": "Lưu ý để tránh hiểu nhầm: Không phải tất cả trẻ em đều được nhận mức trợ cấp 810.000 – 1.350.000 đồng/tháng.\n\nTheo Nghị định 335/2026/NĐ-CP, chính sách trợ giúp xã hội áp dụng với các nhóm trẻ em thuộc diện được hưởng trợ giúp xã hội theo quy định, chứ không áp dụng đại trà cho mọi trẻ em.\n\nMức chuẩn trợ giúp xã hội là 540.000 đồng/tháng. Tùy từng nhóm đối tượng và hệ số áp dụng, mức trợ cấp thực tế có thể khác nhau; trong đó có trường hợp tương ứng 810.000 đồng hoặc 1.350.000 đồng/tháng.\n\nNghị định có hiệu lực từ 05/10/2026. Gia đình cần đối chiếu đúng nhóm đối tượng và quy định cụ thể để xác định trẻ có thuộc diện được hưởng hay không.",
-  "registry_path": "group_registry_news_20261003.json",
+  "message": "ĐỪNG VỘI BUỒN KHI CUỘC ĐỜI KHÔNG ĐƯỢC NHƯ Ý\n\nCó những ngày, mọi chuyện cứ như cố tình đi ngược lại mong muốn của mình.\n\nNgười mình thương lại làm mình thất vọng.\nViệc mình cố gắng rất lâu vẫn chẳng có kết quả.\nThứ mình mong chờ cuối cùng lại thuộc về một người khác.\n\nThế rồi mình buồn.\nMình trách người, trách đời, đôi khi còn tự hỏi:\n\n“Tại sao chuyện này lại xảy đến với mình?”\n\nNhưng có lẽ, càng đi qua nhiều chuyện, chúng ta càng hiểu rằng:\n\nKhông phải điều mình muốn có được đều là điều tốt nhất dành cho mình.\n\nCó cuộc gặp gỡ đến để cho ta một bài học.\nCó sự rời đi khiến ta trưởng thành.\nCó cánh cửa đóng lại để mình thôi đứng mãi trước một nơi vốn chẳng thuộc về mình.\n\nTinh thần Phật pháp nhắc chúng ta nhìn mọi việc qua lẽ nhân duyên và vô thường.\n\nDuyên đến, trân trọng.\nDuyên hết, học cách chấp nhận.\n\nKhông cưỡng cầu không có nghĩa là buông xuôi. Mình vẫn cố gắng, vẫn sống tử tế, vẫn làm những điều nên làm.\n\nChỉ là sau khi đã cố gắng hết lòng, hãy học cách bình thản trước những điều mình không thể quyết định.\n\nBởi đôi khi, thứ khiến chúng ta khổ không phải là chuyện đã xảy ra.\n\nMà là việc lòng mình nhất định muốn nó phải khác đi. 🙏\n\nTrong cuộc đời, có chuyện gì từng khiến bạn rất buồn nhưng sau này nhìn lại, bạn lại thấy may mắn vì nó đã xảy ra?",
+  "registry_path": "group_registry_phat_phap_20261005.json",
   "comments": [],
   "inter_comment_delay_seconds": 3,
   "delay_between_groups_seconds": 35,
   "confirm_post": true,
   "exclude_group_ids": [],
-  "category": "Tin tức tổng hợp"
+  "category": "Phật pháp"
 }
