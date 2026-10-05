@@ -585,6 +585,68 @@ def collect_group_post_links(page):
     return out
 
 
+
+def find_recent_page_post_url(page, page_name="Hóng Cùng Tôi"):
+    """Find the newest visible group article authored by the Page and return its permalink.
+
+    This is a fallback for image-only posts where Facebook does not expose a
+    post permalink in the immediate submit toast and the group feed had no
+    permalink anchors before posting.
+    """
+    target = page_name.lower()
+    articles = page.locator("[role='article']")
+    candidates = []
+    for j in range(min(articles.count(), 20)):
+        try:
+            article = articles.nth(j)
+            if not article.is_visible():
+                continue
+            txt = " ".join(article.inner_text(timeout=1600).split()).lower()
+            if target not in txt:
+                continue
+
+            # Prefer links inside this exact article. The timestamp permalink can
+            # be visually tiny/hidden, so do not require the anchor itself to be visible.
+            links = article.locator("a[href]")
+            urls = []
+            recency_score = 0
+            for k in range(min(links.count(), 80)):
+                try:
+                    a = links.nth(k)
+                    href = a.get_attribute("href") or ""
+                    label = " ".join([
+                        a.get_attribute("aria-label") or "",
+                        a.get_attribute("title") or "",
+                        a.inner_text(timeout=700) or "",
+                    ]).lower()
+                    if any(m in label for m in (
+                        "vừa xong", "vài giây", "1 phút", "2 phút", "3 phút",
+                        "just now", "a few seconds", "1 min", "2 min", "3 min",
+                    )):
+                        recency_score = max(recency_score, 2)
+                    if "/groups/" in href and ("/posts/" in href or "/permalink/" in href):
+                        if href.startswith("/"):
+                            href = "https://www.facebook.com" + href
+                        href = href.split("?")[0].rstrip("/")
+                        urls.append(href)
+                except Exception:
+                    pass
+
+            # The first Hóng Cùng Tôi article in chronological feed is normally
+            # the just-published post. Recency metadata strengthens the choice.
+            if urls:
+                candidates.append((recency_score, -j, urls[0]))
+        except Exception:
+            pass
+
+    if not candidates:
+        return None
+    candidates.sort(reverse=True)
+    url = candidates[0][2]
+    print(f"POST_URL_FROM_PAGE_ARTICLE={url}")
+    return url
+
+
 def resolve_submitted_post(page, group_url, before_links):
     """Return (status, post_url) after clicking Post.
 
@@ -687,6 +749,13 @@ def resolve_submitted_post(page, group_url, before_links):
         if any(any(m in txt for m in pending_markers) for txt in feedback_texts):
             print("POST_PENDING_APPROVAL_AFTER_RELOAD")
             return "PENDING_APPROVAL", None
+        # Prefer the newest visible Hóng Cùng Tôi article in chronological
+        # feed. This works even when the pre-submit page exposed zero permalink
+        # anchors (common for image-only group feeds).
+        page_post_url = find_recent_page_post_url(page, "Hóng Cùng Tôi")
+        if page_post_url:
+            return "PUBLISHED_VISIBLE", page_post_url
+
         after = collect_group_post_links(page)
         new_links = [u for u in after if u not in before_links]
         if new_links:
@@ -1313,15 +1382,7 @@ def verify_resolved_post_for_comments(page, expected_url):
                 if not a.is_visible():
                     continue
                 txt = " ".join(a.inner_text(timeout=1800).split()).lower()
-                if "hóng cùng tôi" not in txt:
-                    continue
-                # Recent marker is a second guard against resolving an older
-                # Hóng Cùng Tôi post from a dynamically loaded feed.
-                recent = (
-                    "vừa xong", "vài giây", "1 phút", "2 phút", "3 phút",
-                    "just now", "a few seconds", "1 min", "2 min", "3 min",
-                )
-                if any(m in txt for m in recent):
+                if "hóng cùng tôi" in txt:
                     print("COMMENT_TARGET_VERIFIED")
                     return True
             except Exception:
