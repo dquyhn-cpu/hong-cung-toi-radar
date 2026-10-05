@@ -740,17 +740,22 @@ def add_comment(page, message, post_message=None, require_latest_page_post=False
     def resolve_scope():
         scope = page.locator("body")
         if require_latest_page_post:
-            # Fail closed: never comment into an arbitrary visible post.
-            # After an image-only submission, select the first visible feed
-            # article that clearly contains the Page identity.
+            # Fail closed: never comment into an arbitrary older Page post.
+            # Accept only a freshly materialized Hóng Cùng Tôi article with a
+            # strong recent-time marker. Facebook often needs a few seconds
+            # after submit before the new article appears in the feed.
+            recent_markers = (
+                "vừa xong", "vài giây", "1 phút", "2 phút",
+                "just now", "a few seconds", "1 min", "2 min",
+            )
             articles = page.locator("[role='article']")
-            for j in range(min(articles.count(), 12)):
+            for j in range(min(articles.count(), 16)):
                 try:
                     article = articles.nth(j)
                     if not article.is_visible():
                         continue
                     txt = " ".join(article.inner_text(timeout=1800).split()).lower()
-                    if "hóng cùng tôi" in txt:
+                    if "hóng cùng tôi" in txt and any(m in txt for m in recent_markers):
                         return article
                 except Exception:
                     pass
@@ -778,9 +783,11 @@ def add_comment(page, message, post_message=None, require_latest_page_post=False
     except Exception:
         pass
 
-    deadline = time.time() + 25
+    deadline = time.time() + 35
     last_error = None
     submitted = False
+    reloaded_for_materialization = False
+    started_wait = time.time()
 
     while time.time() < deadline and not submitted:
         try:
@@ -818,7 +825,19 @@ def add_comment(page, message, post_message=None, require_latest_page_post=False
             last_error = exc
 
         if not submitted:
-            page.wait_for_timeout(1200)
+            # If the just-submitted post has not materialized after several
+            # seconds, refresh the group once. Do not keep refreshing and do
+            # not fall back to arbitrary articles.
+            if require_latest_page_post and not reloaded_for_materialization and time.time() - started_wait > 7:
+                try:
+                    page.reload(wait_until="commit", timeout=20000)
+                    page.wait_for_timeout(1800)
+                    reloaded_for_materialization = True
+                    print("COMMENT_SCOPE_REFRESH_ONCE")
+                except Exception as exc:
+                    last_error = exc
+            else:
+                page.wait_for_timeout(1200)
 
     if not submitted:
         raise RuntimeError(f"Could not submit comment: {last_error}")
