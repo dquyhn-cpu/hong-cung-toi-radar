@@ -296,7 +296,8 @@ def run_command(queue):
     # across Scheduled Task restarts.  Three minutes is ample for the normal
     # single-group path; multi-group packages scale the budget conservatively.
     group_count = len(pkg.get('group_urls') or ([pkg.get('group_url')] if pkg.get('group_url') else []))
-    poster_timeout = max(180, 90 + max(1, group_count) * 90)
+    per_group_budget = 180 if str(pkg.get('post_mode') or '').upper() == 'IMAGE_COMMENTS' else 90
+    poster_timeout = max(180, 90 + max(1, group_count) * per_group_budget)
     p = subprocess.Popen(
         cmd,
         cwd=str(HERE),
