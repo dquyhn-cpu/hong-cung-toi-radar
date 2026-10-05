@@ -703,7 +703,7 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir, du
     return status
 
 
-def add_comment(page, message, post_message=None):
+def add_comment(page, message, post_message=None, require_latest_page_post=False):
     # Submit at most once. Facebook can materialize comments slowly; after Enter,
     # only poll for verification instead of re-submitting and creating duplicates.
     selectors = [
@@ -716,6 +716,22 @@ def add_comment(page, message, post_message=None):
 
     def resolve_scope():
         scope = page.locator("body")
+        if require_latest_page_post:
+            # Fail closed: never comment into an arbitrary visible post.
+            # After an image-only submission, select the first visible feed
+            # article that clearly contains the Page identity.
+            articles = page.locator("[role='article']")
+            for j in range(min(articles.count(), 12)):
+                try:
+                    article = articles.nth(j)
+                    if not article.is_visible():
+                        continue
+                    txt = " ".join(article.inner_text(timeout=1800).split()).lower()
+                    if "hóng cùng tôi" in txt:
+                        return article
+                except Exception:
+                    pass
+            raise RuntimeError("New Page post is not visible yet; comments may require admin approval")
         if post_snippet:
             matches = page.get_by_text(post_snippet, exact=False)
             for j in range(matches.count()):
@@ -1229,7 +1245,7 @@ def run_package(page, package_path, confirm_post, output_dir, prepared_image_pat
                         safety_stop = detect_facebook_safety_stop(page)
                         if safety_stop:
                             raise RuntimeError(f"SAFETY_STOP:{safety_stop}")
-                        add_comment(page, spec["message"])
+                        add_comment(page, spec["message"], require_latest_page_post=True)
                         print(f"NEWS_COMMENT_DONE={c_idx}/{len(comments)}")
                         page.wait_for_timeout(int(pkg.get("inter_comment_delay_seconds") or 2) * 1000)
                     except Exception as comment_exc:
