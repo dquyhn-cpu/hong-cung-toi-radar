@@ -1,0 +1,14 @@
+{
+  "job_version": 1,
+  "publish_id": "news_child_support_335_20261005_v1",
+  "story_id": "news_child_support_335_20261005",
+  "post_mode": "IMAGE_CAPTION",
+  "message": "Lưu ý để tránh hiểu nhầm: Không phải tất cả trẻ em đều được nhận mức trợ cấp 810.000 – 1.350.000 đồng/tháng.\n\nTheo Nghị định 335/2026/NĐ-CP, chính sách trợ giúp xã hội áp dụng với các nhóm trẻ em thuộc diện được hưởng trợ giúp xã hội theo quy định, chứ không áp dụng đại trà cho mọi trẻ em.\n\nMức chuẩn trợ giúp xã hội là 540.000 đồng/tháng. Tùy từng nhóm đối tượng và hệ số áp dụng, mức trợ cấp thực tế có thể khác nhau; trong đó có trường hợp tương ứng 810.000 đồng hoặc 1.350.000 đồng/tháng.\n\nNghị định có hiệu lực từ 05/10/2026. Gia đình cần đối chiếu đúng nhóm đối tượng và quy định cụ thể để xác định trẻ có thuộc diện được hưởng hay không.",
+  "registry_path": "group_registry_news_20261003.json",
+  "comments": [],
+  "inter_comment_delay_seconds": 3,
+  "delay_between_groups_seconds": 35,
+  "confirm_post": true,
+  "exclude_group_ids": [],
+  "category": "Tin tức tổng hợp"
+}
