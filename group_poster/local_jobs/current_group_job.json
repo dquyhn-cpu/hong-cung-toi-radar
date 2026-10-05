@@ -1,9 +1,9 @@
 {
   "job_version": 2,
-  "publish_id": "news_dong_nai_quang_trial_20261005_v1",
+  "publish_id": "news_dong_nai_quang_trial_20261005_v2",
   "story_id": "news_dong_nai_quang_trial_20261005",
   "post_mode": "IMAGE_CAPTION",
-  "message": "TRƯỚC NGÀY XÉT XỬ VỤ ÁN Ở ĐỒNG NAI, SỨC KHỎE ANH QUANG HIỆN RA SAO?\n\nTheo thông tin từ luật sư bảo vệ quyền và lợi ích hợp pháp cho gia đình bị hại, anh Nguyễn Viết Quang – nạn nhân duy nhất sống sót trong vụ án xảy ra tại Đồng Nai – hiện vẫn đang điều trị tại bệnh viện và sức khỏe chưa cho phép trực tiếp tham dự phiên tòa.\n\nGia đình đã lựa chọn thời điểm phù hợp để thông báo cho anh Quang về vụ án và phiên tòa sắp diễn ra. Trước mất mát quá lớn, tinh thần của anh bị ảnh hưởng và anh vẫn cần tiếp tục điều trị.\n\nTheo kế hoạch, 8h ngày 6/10, TAND TP Đồng Nai mở phiên tòa sơ thẩm xét xử Nguyễn Đức Anh về các tội Giết người và Sử dụng trái phép vũ khí quân dụng.\n\nGia đình đã hoàn tất thủ tục để anh trai của anh Quang đại diện tham gia tố tụng tại phiên tòa.\n\nNguồn: VietnamNet, VnExpress/Ngôi Sao, Tuổi Trẻ.",
+  "message": "TRƯỚC NGÀY XÉT XỬ THẢM ÁN Ở ĐỒNG NAI, SỨC KHỎE ANH QUANG HIỆN RA SAO?\n\nTheo thông tin từ luật sư bảo vệ quyền và lợi ích hợp pháp cho gia đình bị hại, anh Nguyễn Viết Quang – người sống sót trong thảm án ở Đồng Nai – hiện vẫn đang điều trị, sức khỏe chưa cho phép trực tiếp tham dự phiên tòa.\n\nGia đình đã lựa chọn thời điểm phù hợp để thông báo cho anh Quang về vụ án và phiên tòa sắp diễn ra. Trước mất mát quá lớn, tinh thần của anh bị ảnh hưởng và vẫn cần tiếp tục điều trị.\n\nTheo kế hoạch, 8h ngày 6/10, TAND TP Đồng Nai mở phiên tòa sơ thẩm xét xử Nguyễn Đức Anh về các tội Giết người và Sử dụng trái phép vũ khí quân dụng.\n\nDo tình trạng sức khỏe của anh Quang, gia đình đã hoàn tất thủ tục để anh trai đại diện tham gia tố tụng tại phiên tòa.\n\nNguồn tham khảo:\nVietnamNet: https://vietnamnet.vn/xet-xu-vu-3-nguoi-tu-vong-o-dong-nai-nan-nhan-song-sot-chua-the-den-toa-2561807.html\nVnExpress: https://vnexpress.net/nghi-pham-sat-hai-3-me-con-o-dong-nai-hau-toa-ngay-6-10-5125041.html\nNgôi Sao: https://ngoisao.vnexpress.net/nguoi-chong-trong-vu-tham-an-o-dong-nai-khong-the-den-toa-5128524.html",
   "registry_path": "group_registry_news_20261003.json",
   "group_urls": [],
   "comments": [],
@@ -15,7 +15,5 @@
   "category": "Tin tức tổng hợp",
   "source_group_list": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261005_V3.xlsx",
   "ui_wait_seconds": 25,
-  "retry_ui_failures": true,
-  "publish_to_page": true,
-  "page_name": "Hóng Cùng Tôi"
+  "retry_ui_failures": true
 }
