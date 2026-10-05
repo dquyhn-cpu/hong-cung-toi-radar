@@ -1214,14 +1214,18 @@ def run_package(page, package_path, confirm_post, output_dir, prepared_image_pat
     if post_mode_name == "IMAGE_COMMENTS" and not image_path:
         raise RuntimeError("IMAGE_COMMENTS requires an image")
 
-    comments = [
-        {
-            "message": x.get("message", "").strip(),
-            "reply_to": x.get("reply_to"),
-        }
-        for x in pkg.get("comments", [])
-        if x.get("message", "").strip()
-    ]
+    comments = []
+    for x in pkg.get("comments", []):
+        if isinstance(x, str):
+            msg = x.strip()
+            reply_to = None
+        elif isinstance(x, dict):
+            msg = str(x.get("message") or "").strip()
+            reply_to = x.get("reply_to")
+        else:
+            continue
+        if msg:
+            comments.append({"message": msg, "reply_to": reply_to})
     results = []
     publish_id = str(pkg.get("publish_id") or pkg.get("event_id") or pkg_path.stem)
     publish_ledger = load_publish_ledger()
