@@ -1,23 +1,19 @@
 {
-  "job_version": 1,
-  "publish_id": "mau_nha_lien_ke_3_tang_thietke_20261005_v1",
-  "story_id": "mau_nha_lien_ke_3_tang_thietke_20261005",
+  "job_version": 2,
+  "publish_id": "con_an_va_me_be_20261005_v1",
+  "story_id": "con_an_va_me_be_20261005",
   "post_mode": "IMAGE_CAPTION",
-  "message": "Các bác cho em xin ít mẫu tham khảo với ạ 😭\n\nNhà em đang tính xây mà càng xem nhiều mẫu càng loạn, mẫu nào cũng thấy đẹp, đến lúc chọn thì lại chẳng biết chốt kiểu gì. 😂\n\nEm đang nghiêng về kiểu nhà đơn giản, hiện đại, nhiều ánh sáng, nhìn đẹp nhưng ưu tiên ở tiện và dễ dọn. Không cần cầu kỳ quá vì ngân sách cũng có hạn.\n\nEm gửi kèm một mẫu nhà em khá thích. Các bác xem kiểu này ổn không ạ? Bác nào có mẫu tương tự hoặc mẫu nào đẹp hơn cho em xin ảnh tham khảo với. ❤️",
-  "group_urls": [
-    "https://www.facebook.com/groups/2452696811497163",
-    "https://www.facebook.com/groups/1611658382833111",
-    "https://www.facebook.com/groups/kienthuc365.info",
-    "https://www.facebook.com/groups/thietkenhadanang",
-    "https://www.facebook.com/groups/294446965607749",
-    "https://www.facebook.com/groups/kientrucvhouse",
-    "https://www.facebook.com/groups/kenhnhadep",
-    "https://www.facebook.com/groups/www.happynest.vn"
-  ],
+  "message": "Các bố mẹ xử lý thế nào khi con ăn vạ ở chỗ đông người ạ? 😭\n\nỞ nhà con ăn vạ em còn bình tĩnh được, chứ cứ ra ngoài mà không được mua thứ mình thích là con khóc, có hôm còn nằm luôn xuống đất.\n\nDỗ thì em sợ lần sau con lại dùng chiêu này để đòi bằng được. Mà mặc kệ thì ở chỗ đông người ai cũng nhìn, nhiều lúc em cũng cuống theo luôn 😅\n\nCó bố mẹ nào từng trải qua giai đoạn này rồi không ạ? Lúc con đang ăn vạ mọi người thường dỗ, bế đi chỗ khác hay cứ để con khóc cho bình tĩnh lại?",
+  "registry_path": "group_registry_me_be_20261005.json",
+  "group_urls": [],
   "comments": [],
-  "inter_comment_delay_seconds": 3,
+  "inter_group_delay_seconds": 5,
   "delay_between_groups_seconds": 5,
+  "recycle_page_every": 5,
   "confirm_post": true,
   "exclude_group_ids": [],
-  "category": "Thiết kế nhà"
+  "category": "Mẹ và bé",
+  "source_group_list": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261005_V3.xlsx",
+  "ui_wait_seconds": 25,
+  "retry_ui_failures": true
 }
