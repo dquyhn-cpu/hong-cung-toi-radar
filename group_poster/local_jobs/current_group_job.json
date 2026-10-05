@@ -15,5 +15,6 @@
   "category": "Tin tức tổng hợp",
   "source_group_list": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261005_V3.xlsx",
   "ui_wait_seconds": 25,
-  "retry_ui_failures": true
+  "retry_ui_failures": true,
+  "publish_to_personal_profile": true
 }
