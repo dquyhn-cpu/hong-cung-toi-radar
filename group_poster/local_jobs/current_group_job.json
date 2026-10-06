@@ -1,19 +1,26 @@
 {
   "job_version": 2,
-  "publish_id": "bao_hiem_14_nam_rut_hon_200tr_20261006_v1",
-  "story_id": "bao_hiem_14_nam_rut_hon_200tr_20261006",
+  "publish_id": "gout_tap_the_duc_20261006_v1",
+  "story_id": "gout_tap_the_duc_20261006",
   "post_mode": "IMAGE_CAPTION",
-  "message": "Mọi người cho em xin lời khuyên với ạ.\n\nEm đã đóng BHXH được 14 năm, giờ nghỉ việc và đang tính đến phương án rút BHXH một lần. Em thử tính sơ thì dự kiến rút được hơn 200 triệu.\n\nThú thật hơn 200 triệu với em lúc này cũng là một khoản khá lớn, giải quyết được nhiều việc. Nhưng nghĩ mình đã đóng tận 14 năm rồi, giờ rút thì lại tiếc, sợ sau này về già không có lương hưu.\n\nNếu là mọi người, đã đóng 14 năm và có thể nhận hơn 200 triệu, mọi người sẽ rút một lần hay giữ lại?\n\nAnh chị nào từng ở hoàn cảnh giống em cho em xin kinh nghiệm thực tế với ạ.",
-  "registry_path": "group_registry_insurance_20261006.json",
-  "group_urls": [],
+  "message": "Các bác bị gout có duy trì chạy bộ hay tập thể thao đều không?\n\nEm đang tính tập nghiêm túc để giảm cân, nhưng lại nghe người bảo vận động tốt cho người gout, người thì bảo tập nặng quá có khi lại phản tác dụng. 😅\n\nKhông biết các bác bị gout lâu năm thường chọn môn gì: đi bộ, chạy bộ, đạp xe hay gym?\n\nXin ít kinh nghiệm thực tế của các bác.",
+  "registry_path": "group_registry_gout_20261006.json",
+  "group_urls": [
+    "https://www.facebook.com/groups/chuabenhgout/",
+    "https://www.facebook.com/groups/1335511456790151/",
+    "https://www.facebook.com/groups/1429937243684024/",
+    "https://www.facebook.com/groups/655104944692406/",
+    "https://www.facebook.com/groups/1613114878986877/",
+    "https://www.facebook.com/groups/339108902840952/"
+  ],
   "comments": [],
   "inter_group_delay_seconds": 20,
   "delay_between_groups_seconds": 20,
   "recycle_page_every": 5,
   "confirm_post": true,
   "exclude_group_ids": [],
-  "category": "Bảo hiểm",
-  "source_group_list": "group_registry_insurance_20261006.json",
+  "category": "Bệnh gout / Sức khỏe",
+  "source_group_list": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261003_V2.xlsx",
   "ui_wait_seconds": 25,
   "retry_ui_failures": true
 }
