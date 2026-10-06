@@ -1,8 +1,8 @@
 {
-  "version": 1,
-  "source": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261003_V2.xlsx",
+  "version": 2,
+  "source": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261005_V3.xlsx + user updates 2026-10-06",
   "category": "Tin tức tổng hợp",
-  "count": 53,
+  "count": 58,
   "groups": [
     {
       "id": "G07",
@@ -268,6 +268,31 @@
       "id": "G164",
       "name": "OFFB.GROUP",
       "url": "https://www.facebook.com/groups/radarduongpho/"
+    },
+    {
+      "id": "G235",
+      "name": null,
+      "url": "https://www.facebook.com/groups/385133763537849/"
+    },
+    {
+      "id": "G236",
+      "name": null,
+      "url": "https://www.facebook.com/groups/1647940282404710/"
+    },
+    {
+      "id": "G237",
+      "name": null,
+      "url": "https://www.facebook.com/groups/887892738019665/"
+    },
+    {
+      "id": "G238",
+      "name": null,
+      "url": "https://www.facebook.com/groups/487929629304479/"
+    },
+    {
+      "id": "G239",
+      "name": null,
+      "url": "https://www.facebook.com/groups/750992478998949/"
     }
   ]
 }
