@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "category": "Ẩm thực / Mẹo vặt - Nghiện Sạch",
+  "generated_for": "may_giat_co_mui_20261006",
+  "groups": [
+    {
+      "id": "G068",
+      "url": "https://www.facebook.com/groups/groupnghiensach",
+      "enabled": true,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "G069",
+      "url": "https://www.facebook.com/groups/nghiensachseonline",
+      "enabled": true,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "G130",
+      "url": "https://www.facebook.com/groups/377359960570122",
+      "enabled": true,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "NS04",
+      "url": "https://www.facebook.com/groups/1251402706390569",
+      "enabled": true,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "NS05",
+      "url": "https://www.facebook.com/groups/sachsethomtho",
+      "enabled": true,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "NS06",
+      "url": "https://www.facebook.com/groups/thanhlydochomevabe12",
+      "enabled": true,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "NS07",
+      "url": "https://www.facebook.com/groups/1016039219885014",
+      "enabled": true,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "NS08",
+      "url": "https://www.facebook.com/groups/grmenha",
+      "enabled": true,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "NS09",
+      "url": "https://www.facebook.com/groups/548439527269465",
+      "enabled": true,
+      "status": "ACTIVE"
+    },
+    {
+      "id": "G223",
+      "url": "https://www.facebook.com/groups/3767018950085320",
+      "enabled": true,
+      "status": "ACTIVE"
+    }
+  ]
+}
