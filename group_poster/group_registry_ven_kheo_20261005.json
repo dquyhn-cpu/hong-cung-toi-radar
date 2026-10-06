@@ -1,8 +1,8 @@
 {
   "version": 1,
-  "source": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261005_V3.xlsx",
+  "source": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261005_V3.xlsx + user updates 2026-10-06",
   "category": "Vén khéo",
-  "count": 6,
+  "count": 7,
   "groups": [
     {
       "id": "G229",
@@ -33,6 +33,11 @@
       "id": "G234",
       "name": null,
       "url": "https://www.facebook.com/groups/congdongvenkheo/"
+    },
+    {
+      "id": "G235",
+      "name": null,
+      "url": "https://www.facebook.com/groups/3133806753318285/"
     }
   ],
   "note": "User-added 2026-10-05. Membership confirmed by user; names not re-verified yet."
