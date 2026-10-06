@@ -1,5 +1,5 @@
 {
-  "action": "IDLE",
-  "command_id": "cancel-fixed-asset-townhouse-20261005-1438",
-  "note": "Switched townhouse post to local drag-and-drop BAT workflow with arbitrary image filename."
+  "action": "VERIFY_GROUPS",
+  "command_id": "verify-gout-20261006-0935",
+  "note": "Read-only verify 6 Gout groups from project library; no join, no post."
 }
