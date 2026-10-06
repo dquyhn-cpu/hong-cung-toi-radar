@@ -1,12 +1,68 @@
 [
   {
-    "group_url": "https://www.facebook.com/groups/3410753895645425",
-    "status": "SKIPPED",
-    "error": "Could not open Facebook Group composer after retry"
+    "group_url": "https://www.facebook.com/groups/233651722565469/",
+    "status": "SUBMITTED_UNVERIFIED",
+    "post_mode": "IMAGE_CAPTION"
   },
   {
-    "group_url": "https://www.facebook.com/groups/hoikinhnghiemxaynha",
-    "status": "ERROR",
-    "error": "[Errno 22] Invalid argument"
+    "group_url": "https://www.facebook.com/groups/baohiemxh1102/",
+    "status": "SUBMITTED_UNVERIFIED",
+    "post_mode": "IMAGE_CAPTION"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/794548108340651/",
+    "status": "SUBMITTED_UNVERIFIED",
+    "post_mode": "IMAGE_CAPTION"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1684607509559909/",
+    "status": "SUBMITTED_UNVERIFIED",
+    "post_mode": "IMAGE_CAPTION"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1068200872817314/",
+    "status": "SUBMITTED_UNVERIFIED",
+    "post_mode": "IMAGE_CAPTION"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/577213943737383/",
+    "status": "SUBMITTED_UNVERIFIED",
+    "post_mode": "IMAGE_CAPTION"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/219874255872453/",
+    "status": "SUBMITTED_UNVERIFIED",
+    "post_mode": "IMAGE_CAPTION"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/296158681618836/",
+    "status": "SUBMITTED_UNVERIFIED",
+    "post_mode": "IMAGE_CAPTION"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/802744435560072/",
+    "status": "SUBMITTED_UNVERIFIED",
+    "post_mode": "IMAGE_CAPTION"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1632800637997530/",
+    "status": "SUBMITTED_UNVERIFIED",
+    "post_mode": "IMAGE_CAPTION"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1337535263810503/",
+    "status": "SUBMITTED_UNVERIFIED",
+    "post_mode": "IMAGE_CAPTION"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/1365136861495831/",
+    "status": "PUBLISHED_VISIBLE",
+    "post_mode": "IMAGE_CAPTION",
+    "post_url": "https://www.facebook.com/groups/1365136861495831/posts/1829449118397934"
+  },
+  {
+    "group_url": "https://www.facebook.com/groups/2515953011900135/",
+    "status": "SUBMITTED_UNVERIFIED",
+    "post_mode": "IMAGE_CAPTION"
   }
 ]
