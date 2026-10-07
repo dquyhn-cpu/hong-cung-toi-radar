@@ -1,18 +1,19 @@
 {
   "job_version": 2,
-  "publish_id": "news_admin_nhom_ghet_bo_me_20261007_v1",
-  "story_id": "news_admin_nhom_ghet_bo_me_20261007",
+  "publish_id": "photo_edit_20261007_v1",
+  "story_id": "photo_edit_20261007",
   "post_mode": "IMAGE_CAPTION",
-  "message": "🔥 NÓNG: CÔNG AN LÀM VIỆC VỚI ADMIN NHÓM “NHỮNG NGƯỜI GHÉT BỐ MẸ”\n\nNgày 7/10, Công an tỉnh Hưng Yên thông tin về việc Phòng An ninh mạng và phòng, chống tội phạm sử dụng công nghệ cao làm việc với L.T.C. (SN 2005, trú tại Hưng Yên), người tạo lập nhóm Facebook “Những người ghét bố mẹ” có gần 1.000 thành viên.\n\nTheo trình bày của C., nhóm được lập từ khi còn là học sinh. Nguyên nhân xuất phát từ những lúc bất đồng, giận dỗi và không đồng tình với quan điểm của bố mẹ cũng như một số thành viên trong gia đình. C. cho biết việc lập nhóm xuất phát từ suy nghĩ, cảm xúc cá nhân, không nhằm mục đích gây ảnh hưởng đến an ninh, trật tự.\n\nSau khi được lực lượng công an trao đổi, tuyên truyền và nhắc nhở, C. nhận thức việc lập nhóm với tên gọi và nội dung mang tính tiêu cực là chưa phù hợp. Người này sau đó tự nguyện đổi tên nhóm, tăng cường kiểm duyệt nội dung các bài đăng và cam kết không tiếp tục thực hiện hành vi tương tự.\n\nCông an tỉnh Hưng Yên cũng khuyến cáo người sử dụng mạng xã hội cần nghĩ trước khi đăng, kiểm chứng trước khi chia sẻ và chịu trách nhiệm với nội dung mình đưa lên mạng.\n\nNguồn: Công an tỉnh Hưng Yên\nLink nguồn: https://congan.hungyen.gov.vn/cuoc-thi-trac-nghiem-truc-tuyen-tim-hieu-ve-hanh-trinh-tim-duong-cuu-nuoc-giai-phong-dan-toc-cua-chu-tich-ho-chi-minh-va-bac-ho-voi-cao-bang-c232829.html/ajax/canh-giac-voi-viec-tao-lap-chia-se-noi-dung-tieu-cuc-tren-mang-xa-hoi-c241370.html\nẢnh: Công an Hưng Yên",
-  "registry_path": "group_registry_news_20261003.json",
+  "message": "Các bác cứu em tấm này với 😂\n\nCả chuyến đi em ưng được đúng tấm này thì lại dính ông chú phía sau 😭 Chú đang ngắm biển rất chill nên em cũng ngại nhờ chú tránh ra.\n\nNhờ các bác xóa hộ em ông chú, dựng lại phần biển với lan can cho tự nhiên giúp em với ạ. Giữ nguyên người với mặt em nhé, đừng tiện tay “nâng cấp” em thành người khác luôn 😂\n\nEm cảm ơn các bác có tâm ❤️",
+  "registry_path": "group_registry_chinh_sua_anh_20261005.json",
   "comments": [],
-  "inter_group_delay_seconds": 30,
-  "delay_between_groups_seconds": 30,
+  "inter_group_delay_seconds": 20,
+  "delay_between_groups_seconds": 20,
   "recycle_page_every": 5,
   "confirm_post": true,
   "exclude_group_ids": [],
-  "category": "Tin tức tổng hợp",
+  "category": "Chỉnh sửa ảnh",
   "source_group_list": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261003_V2.xlsx",
   "ui_wait_seconds": 25,
-  "retry_ui_failures": true
+  "retry_ui_failures": true,
+  "group_urls": []
 }
