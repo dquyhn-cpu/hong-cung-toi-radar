@@ -107,15 +107,25 @@ def load_dynamic_hold():
 def add_dynamic_hold(group_url, reason="NOT_MEMBER"):
     rows = load_dynamic_hold()
     key = _group_key(group_url)
+    reasons = {}
+    if DYNAMIC_HOLD.exists():
+        try:
+            old = json.loads(DYNAMIC_HOLD.read_text(encoding="utf-8-sig"))
+            reasons = dict(old.get("reasons") or {})
+        except Exception:
+            reasons = {}
     if key in rows:
+        if key not in reasons:
+            reasons[key] = reason
         return
     rows.add(key)
+    reasons[key] = reason
     DYNAMIC_HOLD.parent.mkdir(parents=True, exist_ok=True)
     payload = {
         "updated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
         "policy": "Auto-excluded locally when Group Poster confirms the logged-in account is not a member. Never auto-join.",
         "groups": sorted(rows),
-        "reasons": {key: reason},
+        "reasons": reasons,
     }
     tmp = DYNAMIC_HOLD.with_suffix(".json.tmp")
     tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
