@@ -1,3 +1,4 @@
+import argparse
 import json
 from pathlib import Path
 from playwright.sync_api import sync_playwright
@@ -40,7 +41,13 @@ def body_text(page):
         return ''
 
 def main():
-    reg = json.loads(REG.read_text(encoding='utf-8-sig'))
+    ap = argparse.ArgumentParser()
+    ap.add_argument('--registry', default=str(REG))
+    args = ap.parse_args()
+    reg_path = Path(args.registry)
+    if not reg_path.is_absolute():
+        reg_path = HERE / reg_path
+    reg = json.loads(reg_path.read_text(encoding='utf-8-sig'))
     groups = reg.get('groups', [])
     OUT.parent.mkdir(parents=True, exist_ok=True)
     results=[]
@@ -84,8 +91,14 @@ def main():
                     r['join_button_visible']=('Tham gia nhóm' in txt or 'Join group' in txt)
                     r['joined_signal']=('Đã tham gia' in txt or 'Joined' in txt)
                     r['composer_signal']=any(x in txt for x in ['Bạn viết gì đi','Viết gì đó','Write something','Tạo bài viết'])
-                    # No clicks: do not join, do not open composer.
-                    r['status']='OK'
+                    # Membership classification: a visible Join button with no
+                    # Joined signal means the account is no longer a member.
+                    if r['join_button_visible'] and not r['joined_signal']:
+                        r['status']='NOT_MEMBER'
+                    elif r['login_redirect']:
+                        r['status']='SESSION_EXPIRED'
+                    else:
+                        r['status']='OK'
                 except Exception as exc:
                     r['error']=str(exc)
                 results.append(r)
