@@ -1,6 +1,6 @@
 {
-  "updated_at": "2026-10-06T01:06:00Z",
-  "policy": "Exclude groups manually confirmed as pending/not approved plus groups explicitly excluded by the user. Remove only after explicit user instruction or recheck confirms approval/visibility for pending groups.",
+  "updated_at": "2026-10-07T17:32:10+07:00",
+  "policy": "Global exclusion list shared by all Group Poster categories. Contains manual exclusions/pending groups plus groups automatically confirmed as NOT_MEMBER. Never auto-join; remove only by explicit user instruction.",
   "groups": [
     "https://www.facebook.com/groups/313891421000437/",
     "https://www.facebook.com/groups/1501143240712883/",
@@ -31,5 +31,9 @@
     "https://www.facebook.com/groups/568971424088793/",
     "https://www.facebook.com/groups/487949724720461/",
     "https://www.facebook.com/groups/4785199321506879/"
-  ]
+  ],
+  "reasons": {
+    "https://www.facebook.com/groups/1601336573401036/": "NOT_MEMBER",
+    "https://www.facebook.com/groups/755877398632288/": "NOT_MEMBER"
+  }
 }
