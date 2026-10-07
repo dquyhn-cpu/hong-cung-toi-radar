@@ -236,6 +236,9 @@ def run_command(queue):
             raise RuntimeError('VERIFY_GROUPS queue requires command_id')
         log(f'VERIFY_START command_id={command_id}')
         cmd = [sys.executable, str(HERE/'group_registry_verify.py')]
+        verify_registry = str(queue.get('registry') or '').strip()
+        if verify_registry:
+            cmd.extend(['--registry', verify_registry])
         p = subprocess.run(cmd, cwd=str(HERE), text=True, capture_output=True, creationflags=CREATE_NO_WINDOW)
         if p.stdout:
             for line in p.stdout.splitlines():
