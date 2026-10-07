@@ -56,6 +56,7 @@ DEFAULT_AUDIT_REGISTRY = Path(__file__).resolve().parent / "group_registry_52.js
 SESSION_STATE = Path.home() / ".hong-cung-toi" / "facebook-group-session.json"
 LOCAL_ASSET_DIR = Path(__file__).resolve().parent / "temp_assets"
 PUBLISH_LEDGER = Path.home() / ".hong-cung-toi" / "group_publish_ledger.json"
+DYNAMIC_HOLD = Path.home() / ".hong-cung-toi" / "group_dynamic_hold.json"
 
 
 def _group_key(url):
@@ -90,6 +91,88 @@ def ledger_mark_submission(ledger, publish_id, group_url):
     rows.add(_group_key(group_url))
     ledger[key] = sorted(rows)
     save_publish_ledger(ledger)
+
+
+def load_dynamic_hold():
+    if not DYNAMIC_HOLD.exists():
+        return set()
+    try:
+        data = json.loads(DYNAMIC_HOLD.read_text(encoding="utf-8-sig"))
+        return {_group_key(x) for x in (data.get("groups") or []) if str(x).strip()}
+    except Exception as exc:
+        print(f"DYNAMIC_HOLD_READ_WARNING={exc}", file=sys.stderr)
+        return set()
+
+
+def add_dynamic_hold(group_url, reason="NOT_MEMBER"):
+    rows = load_dynamic_hold()
+    key = _group_key(group_url)
+    if key in rows:
+        return
+    rows.add(key)
+    DYNAMIC_HOLD.parent.mkdir(parents=True, exist_ok=True)
+    payload = {
+        "updated_at": time.strftime("%Y-%m-%dT%H:%M:%S"),
+        "policy": "Auto-excluded locally when Group Poster confirms the logged-in account is not a member. Never auto-join.",
+        "groups": sorted(rows),
+        "reasons": {key: reason},
+    }
+    tmp = DYNAMIC_HOLD.with_suffix(".json.tmp")
+    tmp.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    tmp.replace(DYNAMIC_HOLD)
+    print(f"DYNAMIC_HOLD_ADDED={key} reason={reason}")
+
+
+def detect_group_membership(page):
+    """Return MEMBER, NOT_MEMBER, or UNKNOWN without clicking anything."""
+    join_labels = ("Tham gia nhóm", "Join group")
+    joined_labels = ("Đã tham gia", "Joined")
+
+    # Give Facebook a brief moment to hydrate the group header controls.
+    page.wait_for_timeout(700)
+
+    def visible_exact(labels):
+        for label in labels:
+            # Prefer semantic buttons/links because body text can mention other groups.
+            for role in ("button", "link"):
+                try:
+                    loc = page.get_by_role(role, name=label, exact=True)
+                    for i in range(min(loc.count(), 6)):
+                        if loc.nth(i).is_visible():
+                            return True
+                except Exception:
+                    pass
+            try:
+                loc = page.get_by_text(label, exact=True)
+                for i in range(min(loc.count(), 6)):
+                    if loc.nth(i).is_visible():
+                        return True
+            except Exception:
+                pass
+        return False
+
+    join_visible = visible_exact(join_labels)
+    joined_visible = visible_exact(joined_labels)
+
+    if join_visible and not joined_visible:
+        print("MEMBERSHIP_STATUS=NOT_MEMBER")
+        return "NOT_MEMBER"
+    if joined_visible:
+        print("MEMBERSHIP_STATUS=MEMBER")
+        return "MEMBER"
+
+    # Composer visibility is also a strong practical member signal in groups
+    # where Facebook hides the Joined button in an overflow menu.
+    try:
+        body = page.locator("body").inner_text(timeout=3000)
+        if any(x in body for x in ("Bạn viết gì đi", "Viết gì đó", "Write something", "Tạo bài viết")):
+            print("MEMBERSHIP_STATUS=MEMBER_BY_COMPOSER")
+            return "MEMBER"
+    except Exception:
+        pass
+
+    print("MEMBERSHIP_STATUS=UNKNOWN")
+    return "UNKNOWN"
 
 
 def load_saved_session(context):
@@ -798,6 +881,10 @@ def post_mode(page, group_url, message, image_path, confirm_post, output_dir, du
         raise RuntimeError("Facebook session expired. Run --login again.")
 
     print("GROUP_NAV_COMMITTED")
+
+    membership = detect_group_membership(page)
+    if membership == "NOT_MEMBER":
+        return {"status": "NOT_MEMBER", "post_url": None}
     before_post_links = set()
 
     # Package batches already have a persistent story+group ledger, so scanning
@@ -1451,9 +1538,15 @@ def run_package(page, package_path, confirm_post, output_dir, prepared_image_pat
     if hold_path.exists():
         try:
             hold_data = json.loads(hold_path.read_text(encoding="utf-8-sig"))
-            held_urls = {str(x).strip() for x in (hold_data.get("groups") or []) if str(x).strip()}
+            held_urls = {_group_key(x) for x in (hold_data.get("groups") or []) if str(x).strip()}
         except Exception as exc:
             print(f"HOLD_LIST_WARNING={exc}", file=sys.stderr)
+
+    # Merge machine-local auto-hold entries discovered at runtime. Keeping
+    # these outside the git-tracked hold file avoids git pull conflicts while
+    # still preventing future attempts on groups the account has left.
+    held_urls |= load_dynamic_hold()
+
     if held_urls:
         before = len(group_urls)
         group_urls = [u for u in group_urls if u not in held_urls]
@@ -1568,6 +1661,9 @@ def run_package(page, package_path, confirm_post, output_dir, prepared_image_pat
                                 break
             elif confirm_post and comments:
                 print(f"COMMENTS_IGNORED_FOR_MODE={post_mode_name} count={len(comments)}")
+            if status == "NOT_MEMBER":
+                add_dynamic_hold(group_url, reason="NOT_MEMBER")
+
             row = {"group_url": group_url, "status": status, "post_mode": post_mode_name}
             if post_url:
                 row["post_url"] = post_url
@@ -1625,7 +1721,7 @@ def run_package(page, package_path, confirm_post, output_dir, prepared_image_pat
     print(f"BATCH_REPORT={report}")
 
     failures = [r for r in results if r["status"] == "ERROR"]
-    skipped = [r for r in results if r["status"] == "SKIPPED"]
+    skipped = [r for r in results if r["status"] in {"SKIPPED", "NOT_MEMBER"}]
     posted = [r for r in results if r["status"] in {"POST_CLICKED","POSTED_UNVERIFIED","SUBMITTED_UNVERIFIED","PUBLISHED_VISIBLE","POST_OK_COMMENT_WARNING","PREVIEW_OK","PENDING_APPROVAL","SKIP_ALREADY_POSTED"}]
     safety_stops = [r for r in results if r["status"] == "SAFETY_STOP"]
     print(f"BATCH_DONE total={len(results)} posted_or_preview={len(posted)} skipped={len(skipped)} errors={len(failures)}")
