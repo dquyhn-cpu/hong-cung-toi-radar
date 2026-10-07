@@ -1,5 +1,6 @@
 {
   "action": "VERIFY_GROUPS",
-  "command_id": "verify-gout-20261006-0935",
-  "note": "Read-only verify 6 Gout groups from project library; no join, no post."
+  "command_id": "verify-news-membership-20261007-1544",
+  "registry": "group_registry_news_20261003.json",
+  "note": "Read-only membership recheck for all news groups. Flag groups showing Join Group/no Joined as NOT_MEMBER; no join, no post."
 }
