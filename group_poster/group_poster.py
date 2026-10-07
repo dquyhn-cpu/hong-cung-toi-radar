@@ -1559,8 +1559,17 @@ def run_package(page, package_path, confirm_post, output_dir, prepared_image_pat
 
     if held_urls:
         before = len(group_urls)
-        group_urls = [u for u in group_urls if u not in held_urls]
-        print(f"HOLD_FILTER excluded={before-len(group_urls)} remaining={len(group_urls)}")
+        excluded_hold = [u for u in group_urls if _group_key(u) in held_urls]
+        group_urls = [u for u in group_urls if _group_key(u) not in held_urls]
+        print(f"HOLD_FILTER excluded={len(excluded_hold)} remaining={len(group_urls)}")
+        for u in excluded_hold:
+            print(f"HOLD_SKIP={u}")
+
+        # Hard safety invariant: no held URL may survive into the posting loop,
+        # regardless of trailing slash or URL normalization differences.
+        leaked = [u for u in group_urls if _group_key(u) in held_urls]
+        if leaked:
+            raise RuntimeError(f"HOLD_FILTER_LEAK={leaked}")
     if not group_urls:
         raise RuntimeError("All target groups are currently on hold")
 
