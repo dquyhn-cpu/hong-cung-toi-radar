@@ -11,6 +11,10 @@ echo.
 py -3 "%~dp0local_group_runner.py" %*
 set RC=%ERRORLEVEL%
 echo.
+echo [HCT] Dong bo cac nhom NOT_MEMBER vao HOLD tap trung...
+py -3 "%~dp0sync_dynamic_hold.py"
+if errorlevel 1 echo [HCT] Canh bao: chua day duoc HOLD tap trung len GitHub.
+echo.
 if "%RC%"=="0" (
   echo [HCT] Hoan tat. Xem report: group_poster\output\group_batch_report.json
 ) else (
