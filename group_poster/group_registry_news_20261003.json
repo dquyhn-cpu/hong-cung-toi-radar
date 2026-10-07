@@ -1,8 +1,8 @@
 {
-  "version": 2,
-  "source": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261005_V3.xlsx + user updates 2026-10-06",
+  "version": 3,
+  "source": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261005_V3.xlsx + user updates 2026-10-06 + user update 2026-10-07",
   "category": "Tin tức tổng hợp",
-  "count": 58,
+  "count": 59,
   "groups": [
     {
       "id": "G07",
@@ -293,6 +293,11 @@
       "id": "G239",
       "name": null,
       "url": "https://www.facebook.com/groups/750992478998949/"
+    },
+    {
+      "id": "G261",
+      "name": null,
+      "url": "https://www.facebook.com/groups/543448702888645/"
     }
   ]
 }
