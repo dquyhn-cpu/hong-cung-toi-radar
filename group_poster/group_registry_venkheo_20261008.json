@@ -1,8 +1,8 @@
 {
   "version": 3,
-  "source": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261005_V3.xlsx",
+  "source": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261005_V3.xlsx + user added 2026-10-08",
   "category": "Vén khéo",
-  "count": 6,
+  "count": 7,
   "groups": [
     {
       "id": "G229",
@@ -33,6 +33,11 @@
       "id": "G234",
       "name": "congdongvenkheo",
       "url": "https://www.facebook.com/groups/congdongvenkheo/"
+    },
+    {
+      "id": "G235",
+      "name": "Nhóm Vén Khéo bổ sung 08/10 (chưa xác minh tên)",
+      "url": "https://www.facebook.com/groups/3133806753318285/"
     }
   ]
 }
