@@ -1,10 +1,10 @@
 {
   "job_version": 2,
-  "publish_id": "venkheo_10tr_chitieu_20261008_v2",
-  "story_id": "venkheo_10tr_chitieu_20261008",
+  "publish_id": "xaydung_vachkinh_nhatam_20261008_v1",
+  "story_id": "xaydung_vachkinh_nhatam_20261008",
   "post_mode": "IMAGE_CAPTION",
-  "message": "Các chị cho em hỏi thật, chồng đưa 10 triệu/tháng để lo chi tiêu cho gia đình 4 người thì là nhiều hay ít ạ? 😅\n\nNgày trước cứ nghĩ 10 triệu là khoản tiền lớn, nhưng bắt tay vào lo cơm nước, điện nước, tiền học của con, thuốc men, hiếu hỉ… mới thấy tiền cứ vơi đi lúc nào không hay.\n\nCó nhà 10 triệu vẫn xoay xở ổn, có nhà 15–20 triệu cũng phải tính từng khoản vì hoàn cảnh và nơi sống khác nhau.\n\nEm tò mò nhà các chị phân chia tiền sinh hoạt thế nào? Chồng đưa một khoản cố định mỗi tháng hay hai vợ chồng cùng góp? Với gia đình 4 người, bao nhiêu là đủ để chi tiêu tương đối thoải mái ạ?",
-  "registry_path": "group_registry_venkheo_20261008.json",
+  "message": "Các bác xây nhà rồi cho em hỏi thật, nhà vệ sinh có nhất thiết phải làm vách kính tắm không ạ? 😅\n\nNhà em đang hoàn thiện, chồng thì thích làm vách kính cho đẹp, tắm không bị bắn nước ra ngoài. Em lại thấy nhiều người bảo dùng một thời gian kính bám cặn trắng, ngày nào cũng phải lau, không thì nhìn rất bẩn.\n\nMà không làm thì sợ nhà vệ sinh lúc nào cũng ướt nhẹp.\n\nCác bác đã dùng vài năm rồi cho em xin lời khuyên với. Nếu làm lại, các bác có làm vách kính nữa không? Hay cứ để thoáng cho dễ vệ sinh ạ?\n\n#xaynha #nhavesinh #kinhnghiemxaynha #hoanthiennha",
+  "registry_path": "group_registry_xaydung_20261008.json",
   "group_urls": [],
   "comments": [],
   "inter_group_delay_seconds": 60,
@@ -12,8 +12,8 @@
   "recycle_page_every": 5,
   "confirm_post": true,
   "exclude_group_ids": [],
-  "category": "Vén khéo",
-  "source_group_list": "group_registry_venkheo_20261008.json",
+  "category": "Xây dựng / Nhà cửa",
+  "source_group_list": "group_registry_xaydung_20261008.json",
   "ui_wait_seconds": 25,
   "retry_ui_failures": true
 }
