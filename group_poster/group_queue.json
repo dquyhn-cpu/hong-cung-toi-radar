@@ -1,6 +1,6 @@
 {
-  "action": "VERIFY_GROUPS",
-  "command_id": "verify-news-membership-20261007-1544",
-  "registry": "group_registry_news_20261003.json",
-  "note": "Read-only membership recheck for all news groups. Flag groups showing Join Group/no Joined as NOT_MEMBER; no join, no post."
+  "action": "PUBLISH",
+  "command_id": "publish-venkheo-10tr-20261008-1757",
+  "package": "group_poster/packages/venkheo_10tr_20261008.json",
+  "note": "User confirmed all six Vén Khéo groups are joined/postable; post only these six."
 }
