@@ -1,34 +1,6 @@
 [
   {
-    "group_url": "https://www.facebook.com/groups/chuabenhgout/",
-    "status": "PUBLISHED_VISIBLE",
-    "post_mode": "IMAGE_CAPTION",
-    "post_url": "https://www.facebook.com/groups/chuabenhgout/posts/2166022120645738"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1335511456790151/",
-    "status": "SUBMITTED_UNVERIFIED",
-    "post_mode": "IMAGE_CAPTION"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1429937243684024/",
-    "status": "PUBLISHED_VISIBLE",
-    "post_mode": "IMAGE_CAPTION",
-    "post_url": "https://www.facebook.com/groups/1429937243684024/posts/29340837142167326"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/655104944692406/",
-    "status": "SUBMITTED_UNVERIFIED",
-    "post_mode": "IMAGE_CAPTION"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/1613114878986877/",
-    "status": "PUBLISHED_VISIBLE",
-    "post_mode": "IMAGE_CAPTION",
-    "post_url": "https://www.facebook.com/groups/515688179096250/posts/1986523065346080"
-  },
-  {
-    "group_url": "https://www.facebook.com/groups/339108902840952/",
+    "group_url": "https://www.facebook.com/groups/venkheo/",
     "status": "ERROR",
     "error": "Page.wait_for_timeout: Target page, context or browser has been closed"
   }

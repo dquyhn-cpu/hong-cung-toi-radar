@@ -1,6 +1,7 @@
 {
-  "last_command_id": "verify-news-membership-20261007-1544",
-  "last_status": "SUCCESS",
-  "updated_at": "2026-10-07T15:46:26",
-  "agent_git_revision": "e45c1dfec78531a459c5669bfa5dbddb26126698"
+  "last_command_id": "publish-venkheo-10tr-20261008-1757",
+  "last_status": "ERROR",
+  "error": "Group Poster exited with code 1: ERROR: Page.wait_for_timeout: Target page, context or browser has been closed",
+  "updated_at": "2026-10-08T17:57:15",
+  "agent_git_revision": "cf2f878093913f09a7a2accd12633bc22981014b"
 }
