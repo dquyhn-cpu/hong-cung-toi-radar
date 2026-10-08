@@ -1,0 +1,17 @@
+{
+  "package_version": 1,
+  "publish_id": "venkheo-10tr-20261008-v1",
+  "event_id": "venkheo_household_budget_20261008",
+  "group_urls": [
+    "https://www.facebook.com/groups/venkheo/",
+    "https://www.facebook.com/groups/nhomloihayydep/",
+    "https://www.facebook.com/groups/chitieutieuchi/",
+    "https://www.facebook.com/groups/venkheogroup/",
+    "https://www.facebook.com/groups/tipsphoidoo/",
+    "https://www.facebook.com/groups/congdongvenkheo/"
+  ],
+  "message": "Các chị cho em hỏi thật, chồng đưa 10 triệu/tháng để lo chi tiêu cho gia đình 4 người thì là nhiều hay ít ạ? 😅\n\nNgày trước cứ nghĩ 10 triệu là khoản tiền lớn, nhưng bắt tay vào lo cơm nước, điện nước, tiền học của con, thuốc men, hiếu hỉ… mới thấy tiền cứ vơi đi lúc nào không hay.\n\nCó nhà 10 triệu vẫn xoay xở ổn, có nhà 15–20 triệu cũng phải tính từng khoản vì hoàn cảnh và nơi sống khác nhau.\n\nEm tò mò nhà các chị phân chia tiền sinh hoạt thế nào? Chồng đưa một khoản cố định mỗi tháng hay hai vợ chồng cùng góp? Với gia đình 4 người, bao nhiêu là đủ để chi tiêu tương đối thoải mái ạ?",
+  "comments": [],
+  "inter_group_delay_seconds": 60,
+  "rollout_note": "Vén Khéo only. Text-only initial rollout; image not staged. Stop on Facebook warning. Do not auto-join."
+}
