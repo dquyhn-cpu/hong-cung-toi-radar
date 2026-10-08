@@ -1,10 +1,10 @@
 {
   "job_version": 2,
-  "publish_id": "xaydung_vachkinh_nhatam_20261008_v1",
-  "story_id": "xaydung_vachkinh_nhatam_20261008",
+  "publish_id": "news_long_nhat_ma_tuy_20261008_v1",
+  "story_id": "news_long_nhat_ma_tuy_20261008",
   "post_mode": "IMAGE_CAPTION",
-  "message": "Các bác xây nhà rồi cho em hỏi thật, nhà vệ sinh có nhất thiết phải làm vách kính tắm không ạ? 😅\n\nNhà em đang hoàn thiện, chồng thì thích làm vách kính cho đẹp, tắm không bị bắn nước ra ngoài. Em lại thấy nhiều người bảo dùng một thời gian kính bám cặn trắng, ngày nào cũng phải lau, không thì nhìn rất bẩn.\n\nMà không làm thì sợ nhà vệ sinh lúc nào cũng ướt nhẹp.\n\nCác bác đã dùng vài năm rồi cho em xin lời khuyên với. Nếu làm lại, các bác có làm vách kính nữa không? Hay cứ để thoáng cho dễ vệ sinh ạ?\n\n#xaynha #nhavesinh #kinhnghiemxaynha #hoanthiennha",
-  "registry_path": "group_registry_xaydung_20261008.json",
+  "message": "🚨 CA SĨ LONG NHẬT BỊ ĐỀ NGHỊ TRUY TỐ 2 TỘI LIÊN QUAN ĐẾN MA TÚY\n\nCơ quan Cảnh sát điều tra Công an TP.HCM đã hoàn tất kết luận điều tra, đề nghị truy tố ca sĩ Long Nhật (Đinh Long Nhật) về hai tội:\n\n🔴 Tổ chức sử dụng trái phép chất ma túy.\n\n🔴 Tàng trữ trái phép chất ma túy.\n\nTheo kết luận điều tra, Long Nhật bị cáo buộc hai lần cùng những người khác sử dụng ma túy đá tại nơi ở, vào ngày 23 và 26/3/2026.\n\nTối 23/3, nam ca sĩ bị cáo buộc mua 500.000 đồng ma túy đá, sau đó cùng hai người khác sử dụng.\n\nĐến tối 26/3, Long Nhật tiếp tục mua một gói ma túy đá giá 1 triệu đồng và cùng nhóm trên sử dụng. Cơ quan điều tra xác định nam ca sĩ là người cung cấp ma túy và địa điểm sử dụng.\n\nNgày 28/3, khi cơ quan công an làm việc với Long Nhật, kết quả xét nghiệm xác định nam ca sĩ dương tính với ma túy.\n\nKhi khám xét nơi ở của một người liên quan, lực lượng chức năng phát hiện 0,6 g ma túy được cho là phần ma túy Long Nhật giao cất giữ.\n\nNgoài Long Nhật, 8 bị can khác trong vụ án cũng bị đề nghị truy tố về các hành vi liên quan đến mua bán, tàng trữ hoặc tổ chức sử dụng trái phép chất ma túy.\n\n⚠️ Lưu ý: Đây là kết luận điều tra và đề nghị truy tố, chưa phải phán quyết của tòa án.\n\n📰 Nguồn: Cổng Thông tin điện tử Chính phủ\nhttps://tiengchuong.chinhphu.vn/truy-to-ca-si-long-nhat-ve-2-toi-danh-lien-quan-den-ma-tuy-113261007150357348.htm\n\n#HongCungToi #LongNhat #TinNong #PhapLuat #CongAnTPHCM #MaTuy",
+  "registry_path": "group_registry_news_20261003.json",
   "group_urls": [],
   "comments": [],
   "inter_group_delay_seconds": 30,
@@ -12,8 +12,8 @@
   "recycle_page_every": 5,
   "confirm_post": true,
   "exclude_group_ids": [],
-  "category": "Xây dựng / Nhà cửa",
-  "source_group_list": "group_registry_xaydung_20261008.json",
+  "category": "Tin tức tổng hợp",
+  "source_group_list": "group_registry_news_20261003.json",
   "ui_wait_seconds": 25,
   "retry_ui_failures": true
 }
