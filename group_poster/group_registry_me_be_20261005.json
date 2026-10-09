@@ -1,15 +1,9 @@
 {
-  "registry_version": "20261005_v3",
+  "registry_version": "20261009_filtered_v1",
   "source": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261005_V3.xlsx",
   "category": "Mẹ và bé",
-  "count": 19,
+  "count": 13,
   "groups": [
-    {
-      "id": "G073",
-      "name": "Kinh nghiệm nuôi con - Lần đầu làm mẹ",
-      "url": "https://www.facebook.com/groups/nghiencon.gr",
-      "enabled": true
-    },
     {
       "id": "G133",
       "name": "Tâm Sự Mẹ Chăm Con",
@@ -20,12 +14,6 @@
       "id": "G141",
       "name": "MẸO NUÔI CON KHOẺ MẠNH - HỘI MẸ BỈM THÔNG THÁI",
       "url": "https://www.facebook.com/groups/1054212581616363",
-      "enabled": true
-    },
-    {
-      "id": "G142",
-      "name": "HỘI BÀ BẦU",
-      "url": "https://www.facebook.com/groups/hoibabauf",
       "enabled": true
     },
     {
@@ -41,39 +29,15 @@
       "enabled": true
     },
     {
-      "id": "G149",
-      "name": "Tâm Sự Mẹ Bầu",
-      "url": "https://www.facebook.com/groups/354802416845044",
-      "enabled": true
-    },
-    {
       "id": "G152",
       "name": "KINH NGHIỆM CHĂM SÓC TRẺ SƠ SINH VÀ TRẺ NHỎ",
       "url": "https://www.facebook.com/groups/351595895495692",
       "enabled": true
     },
     {
-      "id": "G158",
-      "name": "HỘI MẸ BẦU CHIA SẺ KINH NGHIỆM Ở CỮ SAU SINH và CHĂM CON",
-      "url": "https://www.facebook.com/groups/motchutdameeee",
-      "enabled": true
-    },
-    {
-      "id": "G160",
-      "name": "Hội Mẹ Bỉm Sữa Nuôi Con",
-      "url": "https://www.facebook.com/groups/590639768048047",
-      "enabled": true
-    },
-    {
       "id": "G161",
       "name": "Hội mẹ bầu và em bé",
       "url": "https://www.facebook.com/groups/341431118744789",
-      "enabled": true
-    },
-    {
-      "id": "G169",
-      "name": "KINH NGHIỆM CHĂM SÓC CON NHỎ",
-      "url": "https://www.facebook.com/groups/kinhnghiemchamsocconnho",
       "enabled": true
     },
     {
@@ -118,5 +82,6 @@
       "url": "https://www.facebook.com/groups/1546963972583673",
       "enabled": true
     }
-  ]
+  ],
+  "note": "Filtered 2026-10-09: removed G073,G142,G149,G158,G160,G169 per user review."
 }
