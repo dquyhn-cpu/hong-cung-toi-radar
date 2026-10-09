@@ -1,13 +1,15 @@
 {
-  "updated_at": "2026-10-08T19:41:36+07:00",
+  "updated_at": "2026-10-09T08:15:00+07:00",
   "policy": "Global exclusion list shared by all Group Poster categories. Contains manual exclusions/pending groups plus groups automatically confirmed as NOT_MEMBER. Never auto-join; remove only by explicit user instruction.",
   "groups": [
     "https://www.facebook.com/groups/103421799773301",
     "https://www.facebook.com/groups/1035435866999314",
     "https://www.facebook.com/groups/1132728431108278",
     "https://www.facebook.com/groups/1501143240712883",
+    "https://www.facebook.com/groups/1542199290269092",
     "https://www.facebook.com/groups/1601336573401036",
     "https://www.facebook.com/groups/1673504469489657",
+    "https://www.facebook.com/groups/189555589605037",
     "https://www.facebook.com/groups/2020995378659019",
     "https://www.facebook.com/groups/2325663947564626",
     "https://www.facebook.com/groups/2893151890913313",
@@ -32,10 +34,12 @@
     "https://www.facebook.com/groups/858695981006942",
     "https://www.facebook.com/groups/baomoitintucnong24h",
     "https://www.facebook.com/groups/evaphunuagiadinhthoihiendai",
+    "https://www.facebook.com/groups/radarduongpho",
     "https://www.facebook.com/groups/tinnong360",
     "https://www.facebook.com/groups/tinnongkhaimo24h",
     "https://www.facebook.com/groups/tinnongnhat24h",
-    "https://www.facebook.com/groups/tinnongnhat24hnv"
+    "https://www.facebook.com/groups/tinnongnhat24hnv",
+    "https://www.facebook.com/groups/tinnongtinmoinhat24h"
   ],
   "reasons": {
     "https://www.facebook.com/groups/1601336573401036/": "NOT_MEMBER",
@@ -46,6 +50,10 @@
     "https://www.facebook.com/groups/543448702888645": "NOT_MEMBER",
     "https://www.facebook.com/groups/tinnong360": "NOT_MEMBER",
     "https://www.facebook.com/groups/2020995378659019": "NOT_MEMBER",
-    "https://www.facebook.com/groups/858695981006942": "NOT_MEMBER"
+    "https://www.facebook.com/groups/858695981006942": "NOT_MEMBER",
+    "https://www.facebook.com/groups/189555589605037": "USER_EXCLUDED_2026-10-09",
+    "https://www.facebook.com/groups/1542199290269092": "USER_EXCLUDED_2026-10-09",
+    "https://www.facebook.com/groups/tinnongtinmoinhat24h": "USER_EXCLUDED_2026-10-09",
+    "https://www.facebook.com/groups/radarduongpho": "USER_EXCLUDED_2026-10-09"
   }
 }
