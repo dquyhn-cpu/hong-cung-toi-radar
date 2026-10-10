@@ -1,26 +1,19 @@
 {
   "job_version": 2,
-  "publish_id": "gout_bia_ruou_20261010_v1",
-  "story_id": "gout_bia_ruou_20261010",
+  "publish_id": "bao_hiem_vssid_thieu_thang_20261010_v1",
+  "story_id": "bao_hiem_vssid_thieu_thang_20261010",
   "post_mode": "IMAGE_CAPTION",
-  "message": "Từ ngày bị gout, các bác còn uống bia rượu không?\n\nEm thì trước cũng hay có vài cốc mỗi khi gặp bạn bè. Từ đợt bị đau cổ chân, acid uric lên 470 thì rén hẳn. 😅\n\nNhưng bảo bỏ hoàn toàn thì nhiều lúc đi ăn uống, gặp bạn bè cũng hơi khó xử.\n\nKhông biết các bác giờ kiêng hẳn, hay thỉnh thoảng vẫn làm 1–2 cốc? Có bác nào bỏ bia rượu rồi thấy các cơn gout giảm rõ không?",
-  "registry_path": "group_registry_gout_20261006.json",
-  "group_urls": [
-    "https://www.facebook.com/groups/chuabenhgout/",
-    "https://www.facebook.com/groups/1335511456790151/",
-    "https://www.facebook.com/groups/1429937243684024/",
-    "https://www.facebook.com/groups/655104944692406/",
-    "https://www.facebook.com/groups/1613114878986877/",
-    "https://www.facebook.com/groups/339108902840952/"
-  ],
+  "message": "Mọi người cho em hỏi trường hợp này với ạ.\n\nEm vào VssID kiểm tra thì mới phát hiện bị thiếu mất mấy tháng đóng BHXH ở công ty cũ, trong khi thời gian đó hàng tháng bảng lương vẫn có trừ tiền bảo hiểm.\n\nEm nghỉ công ty đó được một thời gian rồi, giờ mới để ý nên không biết phải liên hệ công ty cũ trước hay lên thẳng cơ quan BHXH để kiểm tra ạ?\n\nNếu công ty đã trừ tiền của người lao động nhưng chưa đóng đủ lên BHXH thì mình có đòi bổ sung lại được không?\n\nAnh chị nào từng bị VssID thiếu tháng đóng BHXH rồi cho em xin kinh nghiệm xử lý với ạ. Cần chuẩn bị những giấy tờ gì để chứng minh thời gian đã làm việc và bị trừ bảo hiểm?",
+  "registry_path": "group_registry_insurance_20261006.json",
+  "group_urls": [],
   "comments": [],
   "inter_group_delay_seconds": 20,
   "delay_between_groups_seconds": 20,
   "recycle_page_every": 5,
   "confirm_post": true,
   "exclude_group_ids": [],
-  "category": "Bệnh gout / Sức khỏe",
-  "source_group_list": "group_registry_gout_20261006.json",
+  "category": "Bảo hiểm",
+  "source_group_list": "group_registry_insurance_20261006.json",
   "ui_wait_seconds": 25,
   "retry_ui_failures": true
 }
