@@ -1,19 +1,26 @@
 {
   "job_version": 2,
-  "publish_id": "news_cuchi_bikich_giadinh_20261010_v1",
-  "story_id": "news_cuchi_bikich_giadinh_20260924",
+  "publish_id": "gout_bia_ruou_20261010_v1",
+  "story_id": "gout_bia_ruou_20261010",
   "post_mode": "IMAGE_CAPTION",
-  "message": "🚨 BI KỊCH TẠI DÃY TRỌ Ở CỦ CHI: HAI CHỊ EM TỬ VONG, HAI NGƯỜI KHÁC BỊ THƯƠNG!\n\nMột vụ án mạng đặc biệt nghiêm trọng xảy ra tại dãy phòng trọ trên đường Hồ Văn Tắng, xã Củ Chi, TP.HCM, chiều 24/9/2026.\n\nTheo thông tin ban đầu từ cơ quan chức năng, khoảng 13h cùng ngày, một nam thanh niên đến dãy trọ nơi vợ đang ở.\n\nTại đây, hai người xảy ra mâu thuẫn, cự cãi. Sau đó, người đàn ông bị cáo buộc dùng dao tấn công những người trong gia đình vợ.\n\n🔴 Hậu quả đau lòng:\n\nNgười vợ và chị gái của vợ tử vong.\n\nHai người khác, gồm cha vợ và một người cháu, bị thương nặng và được đưa đến bệnh viện cấp cứu.\n\nSau khi gây án, nghi phạm bỏ trốn nhưng đã bị lực lượng công an truy xét, bắt giữ.\n\nTheo thông tin ban đầu, nguyên nhân vụ việc được cho là xuất phát từ mâu thuẫn tình cảm. Cơ quan chức năng tiếp tục điều tra làm rõ.\n\n💔 Chỉ vì những mâu thuẫn không được giải quyết, một gia đình phải chịu mất mát quá lớn.\n\nBạo lực không bao giờ là cách giải quyết bất đồng trong hôn nhân.\n\n📷 Ảnh minh họa AI, không phải ảnh hiện trường thực tế.\n\n📰 Nguồn: Báo Tuổi Trẻ, ngày 24/9/2026.\nhttps://tuoitre.vn/bat-nam-thanh-nien-sat-hai-vo-va-chi-vo-o-xa-cu-chi-100260924162641433.htm\n\n#HongCungToi #CuChi #TPHCM #TinPhapLuat #BaoLucGiaDinh",
-  "registry_path": "group_registry_news_20261003.json",
-  "group_urls": [],
+  "message": "Từ ngày bị gout, các bác còn uống bia rượu không?\n\nEm thì trước cũng hay có vài cốc mỗi khi gặp bạn bè. Từ đợt bị đau cổ chân, acid uric lên 470 thì rén hẳn. 😅\n\nNhưng bảo bỏ hoàn toàn thì nhiều lúc đi ăn uống, gặp bạn bè cũng hơi khó xử.\n\nKhông biết các bác giờ kiêng hẳn, hay thỉnh thoảng vẫn làm 1–2 cốc? Có bác nào bỏ bia rượu rồi thấy các cơn gout giảm rõ không?",
+  "registry_path": "group_registry_gout_20261006.json",
+  "group_urls": [
+    "https://www.facebook.com/groups/chuabenhgout/",
+    "https://www.facebook.com/groups/1335511456790151/",
+    "https://www.facebook.com/groups/1429937243684024/",
+    "https://www.facebook.com/groups/655104944692406/",
+    "https://www.facebook.com/groups/1613114878986877/",
+    "https://www.facebook.com/groups/339108902840952/"
+  ],
   "comments": [],
   "inter_group_delay_seconds": 20,
   "delay_between_groups_seconds": 20,
   "recycle_page_every": 5,
   "confirm_post": true,
   "exclude_group_ids": [],
-  "category": "Tin tức tổng hợp",
-  "source_group_list": "group_registry_news_20261003.json",
+  "category": "Bệnh gout / Sức khỏe",
+  "source_group_list": "group_registry_gout_20261006.json",
   "ui_wait_seconds": 25,
   "retry_ui_failures": true
 }
