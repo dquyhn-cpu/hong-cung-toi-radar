@@ -1,10 +1,10 @@
 {
   "job_version": 2,
-  "publish_id": "news_thuyentruong_trove_20261011_v1",
-  "story_id": "news_thuyentruong_trove_20261011",
+  "publish_id": "con_bi_ban_danh_me_be_20261011_v1",
+  "story_id": "con_bi_ban_danh_me_be_20261011",
   "post_mode": "IMAGE_CAPTION",
-  "message": "🚨 TIN VUI TỪ QUẢNG TRỊ: THUYỀN TRƯỞNG MẤT TÍCH SAU VỤ CHÌM TÀU ĐÃ TRỞ VỀ! GẦN 8 GIỜ GIÀNH GIẬT SỰ SỐNG GIỮA BIỂN!\n\n❤️ Hôm qua, nhiều người không khỏi lo lắng khi hay tin một tàu cá chìm tại cửa Gianh, 3 thuyền viên được cứu nhưng thuyền trưởng mất tích.\n\nVà rồi điều kỳ diệu đã xảy ra!\n\nNgười thuyền trưởng ấy là anh Nguyễn Mạnh Cường (40 tuổi), chủ tàu cá QB-93230-TS, ở tỉnh Quảng Trị.\n\nKhoảng 11h55 ngày 9/10, khi tàu đang di chuyển vào cửa Gianh, cách bờ khoảng 3,5 hải lý, phương tiện bất ngờ bị chìm.\n\n🌊 Một tàu cá gần đó kịp thời cứu được 3 người. Riêng anh Cường mất tích giữa biển, khiến gia đình và lực lượng cứu hộ vô cùng lo lắng.\n\nSuốt gần 8 giờ, anh Cường đã cố gắng bơi và trôi dạt giữa sóng nước để tìm đường sống.\n\nĐến khoảng 19h30 cùng ngày, anh may mắn vào được bờ biển xã Đông Trạch, tỉnh Quảng Trị.\n\nNgười dân và chính quyền địa phương nhanh chóng hỗ trợ quần áo, phương tiện đưa anh về nhà.\n\n🙏 Sáng 10/10, Bộ đội Biên phòng xác nhận anh Cường đã trở về an toàn, sức khỏe ổn định.\n\nĐặc biệt xúc động, trong lời kể sau khi thoát nạn, anh cho biết chính suy nghĩ về vợ con đã tiếp thêm động lực để cố gắng bơi vào bờ.\n\n❤️ Một con tàu có thể mất đi, nhưng may mắn nhất là cả 4 con người đều sống sót trở về.\n\nSau những giờ phút tưởng chừng tuyệt vọng, cuối cùng gia đình đã được đoàn tụ.\n\nChúc anh Cường sớm hồi phục hoàn toàn và gia đình sớm ổn định cuộc sống!\n\n📷 Ảnh: Báo Thanh Niên.\n\n📰 Nguồn: Báo Thanh Niên, 10/10/2026\nhttps://thanhnien.vn/thuyen-truong-song-sot-sau-8-gio-mat-tich-tren-bien-185261010075928635.htm\n\n#HongCungToi #QuangTri #TauCaChim #ThuyenTruongTroVe #CuuHoCuuNan #TinVui",
-  "registry_path": "group_registry_news_20261003.json",
+  "message": "Con em hôm qua đi học về cứ im im, hỏi mãi mới bảo bị một bạn trong lớp đánh 😢\n\nEm hỏi: “Thế lúc bạn đánh con, con làm gì?”\nNó bảo: “Con không đánh lại vì cô bảo không được đánh nhau.”\n\nEm nghe vừa thương vừa bực. Chồng em thì nói luôn:\n\n“Lần sau nó đánh con trước thì con đánh lại. Bố không dạy con bắt nạt ai, nhưng cũng không được đứng im cho người khác đánh.”\n\nEm lại không đồng tình lắm. Em sợ dạy con đánh lại rồi hai đứa càng đánh nhau to hơn, cuối cùng con mình cũng thành người có lỗi. Nhưng bảo con cứ tránh đi hoặc mách cô thì chồng lại nói như thế con rất dễ bị bắt nạt tiếp.\n\nHai vợ chồng tranh luận từ tối qua đến giờ vẫn chưa thống nhất được 😥\n\nNếu con mình bị bạn đánh trước ở trường, các bố mẹ sẽ dạy con đánh lại để tự bảo vệ mình hay tuyệt đối không đánh lại ạ?",
+  "registry_path": "group_registry_me_be_20261005.json",
   "group_urls": [],
   "comments": [],
   "inter_group_delay_seconds": 30,
@@ -12,8 +12,8 @@
   "recycle_page_every": 5,
   "confirm_post": true,
   "exclude_group_ids": [],
-  "category": "Tin tức tổng hợp",
-  "source_group_list": "group_registry_news_20261003.json",
+  "category": "Mẹ và bé",
+  "source_group_list": "group_registry_me_be_20261005.json",
   "ui_wait_seconds": 25,
   "retry_ui_failures": true
 }
