@@ -1,10 +1,10 @@
 {
   "job_version": 2,
-  "publish_id": "xaydung_bep_100tr_20261011_v1",
-  "story_id": "xaydung_bep_100tr_20261011",
+  "publish_id": "news_thuyentruong_trove_20261011_v1",
+  "story_id": "news_thuyentruong_trove_20261011",
   "post_mode": "IMAGE_CAPTION",
-  "message": "Các bác xây nhà rồi cho em hỏi thật, bỏ gần 100 triệu làm cái bếp có đáng không ạ? 😅\n\nNhà em đang đến giai đoạn hoàn thiện, cứ nghĩ phần bếp đơn giản thôi, ai ngờ đi hỏi giá tủ bếp trên dưới, mặt đá, kính ốp, chậu vòi với phụ kiện các kiểu, cộng lại gần 100 triệu mà em choáng luôn.\n\nChồng em thì bảo bếp dùng cả chục năm, làm một lần cho đẹp, chắc chắn, sau này khỏi sửa. Còn em nghĩ 100 triệu là cả một khoản lớn, trong khi nhà vẫn còn bao nhiêu thứ phải sắm. Bếp đẹp thì thích thật nhưng ngày nào cũng nấu nướng dầu mỡ, dùng vài năm liệu có còn đẹp như lúc mới làm không?\n\nEm đang tính giảm bớt phụ kiện, chọn vật liệu vừa tiền, dành ngân sách mua đồ điện máy và nội thất khác.\n\nCác bác đã làm bếp rồi cho em hỏi tổng hết bao nhiêu tiền ạ? Nếu được làm lại, các bác sẽ đầu tư mạnh tay cho bếp hay làm vừa đủ dùng thôi?\n\nEm xin ít kinh nghiệm thực tế để đỡ mất tiền oan với ạ. ❤️",
-  "registry_path": "group_registry_xaydung_20261008.json",
+  "message": "🚨 TIN VUI TỪ QUẢNG TRỊ: THUYỀN TRƯỞNG MẤT TÍCH SAU VỤ CHÌM TÀU ĐÃ TRỞ VỀ! GẦN 8 GIỜ GIÀNH GIẬT SỰ SỐNG GIỮA BIỂN!\n\n❤️ Hôm qua, nhiều người không khỏi lo lắng khi hay tin một tàu cá chìm tại cửa Gianh, 3 thuyền viên được cứu nhưng thuyền trưởng mất tích.\n\nVà rồi điều kỳ diệu đã xảy ra!\n\nNgười thuyền trưởng ấy là anh Nguyễn Mạnh Cường (40 tuổi), chủ tàu cá QB-93230-TS, ở tỉnh Quảng Trị.\n\nKhoảng 11h55 ngày 9/10, khi tàu đang di chuyển vào cửa Gianh, cách bờ khoảng 3,5 hải lý, phương tiện bất ngờ bị chìm.\n\n🌊 Một tàu cá gần đó kịp thời cứu được 3 người. Riêng anh Cường mất tích giữa biển, khiến gia đình và lực lượng cứu hộ vô cùng lo lắng.\n\nSuốt gần 8 giờ, anh Cường đã cố gắng bơi và trôi dạt giữa sóng nước để tìm đường sống.\n\nĐến khoảng 19h30 cùng ngày, anh may mắn vào được bờ biển xã Đông Trạch, tỉnh Quảng Trị.\n\nNgười dân và chính quyền địa phương nhanh chóng hỗ trợ quần áo, phương tiện đưa anh về nhà.\n\n🙏 Sáng 10/10, Bộ đội Biên phòng xác nhận anh Cường đã trở về an toàn, sức khỏe ổn định.\n\nĐặc biệt xúc động, trong lời kể sau khi thoát nạn, anh cho biết chính suy nghĩ về vợ con đã tiếp thêm động lực để cố gắng bơi vào bờ.\n\n❤️ Một con tàu có thể mất đi, nhưng may mắn nhất là cả 4 con người đều sống sót trở về.\n\nSau những giờ phút tưởng chừng tuyệt vọng, cuối cùng gia đình đã được đoàn tụ.\n\nChúc anh Cường sớm hồi phục hoàn toàn và gia đình sớm ổn định cuộc sống!\n\n📷 Ảnh: Báo Thanh Niên.\n\n📰 Nguồn: Báo Thanh Niên, 10/10/2026\nhttps://thanhnien.vn/thuyen-truong-song-sot-sau-8-gio-mat-tich-tren-bien-185261010075928635.htm\n\n#HongCungToi #QuangTri #TauCaChim #ThuyenTruongTroVe #CuuHoCuuNan #TinVui",
+  "registry_path": "group_registry_news_20261003.json",
   "group_urls": [],
   "comments": [],
   "inter_group_delay_seconds": 30,
@@ -12,8 +12,8 @@
   "recycle_page_every": 5,
   "confirm_post": true,
   "exclude_group_ids": [],
-  "category": "Xây dựng / Nhà cửa",
-  "source_group_list": "group_registry_xaydung_20261008.json",
+  "category": "Tin tức tổng hợp",
+  "source_group_list": "group_registry_news_20261003.json",
   "ui_wait_seconds": 25,
   "retry_ui_failures": true
 }
