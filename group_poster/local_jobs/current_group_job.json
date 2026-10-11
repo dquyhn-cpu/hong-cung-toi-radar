@@ -1,10 +1,10 @@
 {
   "job_version": 2,
-  "publish_id": "be_dat_xuong_la_tinh_me_be_20261011_v1",
-  "story_id": "be_dat_xuong_la_tinh_me_be_20261011",
+  "publish_id": "venkheo_giobo_phongbi_20261011_v1",
+  "story_id": "venkheo_giobo_phongbi_20261011",
   "post_mode": "IMAGE_CAPTION",
-  "message": "Không hiểu các bé có cái cảm biến gì ở lưng không các mẹ ạ 😭\n\nCon nhà em bế trên tay thì ngủ ngon lành, miệng còn chúm chím, tay chân mềm nhũn. Em ngồi ôm thêm một lúc cho chắc ăn, thấy ngủ say lắm rồi mới từ từ đặt xuống giường.\n\nẤy thế mà người vừa chạm đệm được tí là bắt đầu cựa 😂\nMẹ rút tay ra một cái là mở mắt.\nChậm thêm tí nữa là khóc.\n\nBế lên thì… lại ngủ 😭\n\nCó hôm em lặp đi lặp lại 4–5 lần, cuối cùng mỏi quá lại ngồi ôm con ngủ luôn.\n\nCác mẹ có con nhỏ từng trải qua cảnh này chưa ạ? Có cách nào đặt con xuống mà bé vẫn ngủ ngon không, hay lớn thêm chút nữa tự khắc hết ạ?",
-  "registry_path": "group_registry_me_be_20261005.json",
+  "message": "Các chị ơi, em có nên nói thẳng với chị dâu chuyện tiền phong bì giỗ bố chồng không ạ? 😔\n\nNhà chồng em có 3 anh em, chồng em là út. Năm nay giỗ bố chồng, anh chị đều ở xa, kêu bận công việc không về sớm lo liệu được nên vợ chồng em đứng ra làm 12 mâm cỗ, hết gần 15 triệu. Từ đi chợ, thuê người nấu đến dọn dẹp, hai vợ chồng tự xoay xở hết.\n\nHôm giỗ, khách của vợ chồng em đến khá đông, nhiều người đi phong bì 500k, 1 triệu, có người 2 triệu.\n\nVậy mà khách vừa về, chị dâu cả gom hết phong bì, bảo tiền giỗ bố thì anh cả phải giữ để lo việc chung.\n\nEm có ý xin lại phần phong bì của khách nhà em để bù tiền cỗ thì chị bảo: \"Làm giỗ bố mà còn tính chuyện thu hồi vốn à? Làm dâu thế mất hết phúc!\"\n\nChồng em lại bảo thôi, đừng vì tiền mà mất tình cảm anh em. Nhưng em nghĩ mãi vẫn thấy ấm ức. Tiền cỗ vợ chồng em bỏ, khách cũng là khách nhà em, sao cuối cùng chị dâu lại giữ hết?\n\nGiờ em nên nói với chị dâu thế nào cho vừa phải phép mà không chịu thiệt các chị nhỉ? 🥹",
+  "registry_path": "group_registry_venkheo_20261008.json",
   "group_urls": [],
   "comments": [],
   "inter_group_delay_seconds": 30,
@@ -12,8 +12,8 @@
   "recycle_page_every": 5,
   "confirm_post": true,
   "exclude_group_ids": [],
-  "category": "Mẹ và bé",
-  "source_group_list": "group_registry_me_be_20261005.json",
+  "category": "Vén khéo",
+  "source_group_list": "group_registry_venkheo_20261008.json",
   "ui_wait_seconds": 25,
   "retry_ui_failures": true
 }
