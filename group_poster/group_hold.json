@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-11T12:44:03+07:00",
+  "updated_at": "2026-10-15T11:49:24+07:00",
   "policy": "Global exclusion list shared by all Group Poster categories. Contains manual exclusions/pending groups plus groups automatically confirmed as NOT_MEMBER. Never auto-join; remove only by explicit user instruction.",
   "groups": [
     "https://www.facebook.com/groups/103421799773301",
@@ -12,6 +12,7 @@
     "https://www.facebook.com/groups/189555589605037",
     "https://www.facebook.com/groups/2020995378659019",
     "https://www.facebook.com/groups/2325663947564626",
+    "https://www.facebook.com/groups/2407091713049870",
     "https://www.facebook.com/groups/2893151890913313",
     "https://www.facebook.com/groups/289828632400848",
     "https://www.facebook.com/groups/305987303176789",
@@ -54,6 +55,7 @@
     "https://www.facebook.com/groups/189555589605037": "USER_EXCLUDED_2026-10-09",
     "https://www.facebook.com/groups/1542199290269092": "USER_EXCLUDED_2026-10-09",
     "https://www.facebook.com/groups/tinnongtinmoinhat24h": "USER_EXCLUDED_2026-10-09",
-    "https://www.facebook.com/groups/radarduongpho": "USER_EXCLUDED_2026-10-09"
+    "https://www.facebook.com/groups/radarduongpho": "USER_EXCLUDED_2026-10-09",
+    "https://www.facebook.com/groups/2407091713049870": "NOT_MEMBER"
   }
 }
