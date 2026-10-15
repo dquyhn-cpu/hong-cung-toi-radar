@@ -1,0 +1,85 @@
+{
+  "version": 4,
+  "effective_date": "2026-10-15",
+  "generated_from": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261015_V4_HOLD(1).xlsx",
+  "category": "Chỉnh sửa ảnh",
+  "groups": [
+    {
+      "id": "G137",
+      "name": "SỬA ẢNH",
+      "url": "https://www.facebook.com/groups/2216051509145244",
+      "enabled": true,
+      "category": "Chỉnh sửa ảnh"
+    },
+    {
+      "id": "G138",
+      "name": "ghép ảnh",
+      "url": "https://www.facebook.com/groups/2407091713049870",
+      "enabled": true,
+      "category": "Chỉnh sửa ảnh"
+    },
+    {
+      "id": "G146",
+      "name": "Hội chỉnh sửa ảnh có tâm MIỄN PHÍ",
+      "url": "https://www.facebook.com/groups/HoichinhsuaanhcotamMienPhi",
+      "enabled": true,
+      "category": "Chỉnh sửa ảnh"
+    },
+    {
+      "id": "G153",
+      "name": "Phục Chế Ảnh Cũ- Chỉnh Sửa Ảnh PHOTOSHOP",
+      "url": "https://www.facebook.com/groups/515688179096250",
+      "enabled": true,
+      "category": "Chỉnh sửa ảnh"
+    },
+    {
+      "id": "G156",
+      "name": "Chỉnh sửa ảnh FREE",
+      "url": "https://www.facebook.com/groups/csafree",
+      "enabled": true,
+      "category": "Chỉnh sửa ảnh"
+    },
+    {
+      "id": "G159",
+      "name": "Ghép ảnh và video miễn phí",
+      "url": "https://www.facebook.com/groups/846108156287316",
+      "enabled": true,
+      "category": "Chỉnh sửa ảnh"
+    },
+    {
+      "id": "G167",
+      "name": "chỉnh sửa ảnh",
+      "url": "https://www.facebook.com/groups/3619256238386628",
+      "enabled": true,
+      "category": "Chỉnh sửa ảnh"
+    },
+    {
+      "id": "G168",
+      "name": "Chỉnh sửa ảnh Có Tâm",
+      "url": "https://www.facebook.com/groups/photoshopcotam",
+      "enabled": true,
+      "category": "Chỉnh sửa ảnh"
+    },
+    {
+      "id": "G206",
+      "name": "Photoshop - Chỉnh Sửa Ảnh Free",
+      "url": "https://www.facebook.com/groups/409633842986171",
+      "enabled": true,
+      "category": "Chỉnh sửa ảnh"
+    },
+    {
+      "id": "G208",
+      "name": "Cộng Đồng Phục Hồi Ảnh Cũ-Phục Chế Ảnh Cũ-Chỉnh Sửa Ảnh Có Tâm",
+      "url": "https://www.facebook.com/groups/congdongphucheanhcu",
+      "enabled": true,
+      "category": "Chỉnh sửa ảnh"
+    },
+    {
+      "id": "G216",
+      "name": "Chỉnh Sửa Ảnh Lấy Liền - Photoshop Giá Rẻ",
+      "url": "https://www.facebook.com/groups/1864568304272103",
+      "enabled": true,
+      "category": "Chỉnh sửa ảnh"
+    }
+  ]
+}
