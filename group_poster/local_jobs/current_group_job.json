@@ -1,10 +1,10 @@
 {
-  "job_version": 2,
-  "publish_id": "be_dat_xuong_la_tinh_me_be_20261011_v2",
-  "story_id": "be_dat_xuong_la_tinh_me_be_20261011",
+  "job_version": 4,
+  "publish_id": "photo_restore_father_20261015_v1",
+  "story_id": "photo_restore_father_20261015",
   "post_mode": "IMAGE_CAPTION",
-  "message": "Không hiểu các bé có cái cảm biến gì ở lưng không các mẹ ạ 😭\n\nCon nhà em bế trên tay thì ngủ ngon lành, miệng còn chúm chím, tay chân mềm nhũn. Em ngồi ôm thêm một lúc cho chắc ăn, thấy ngủ say lắm rồi mới từ từ đặt xuống giường.\n\nẤy thế mà người vừa chạm đệm được tí là bắt đầu cựa 😂\nMẹ rút tay ra một cái là mở mắt.\nChậm thêm tí nữa là khóc.\n\nBế lên thì… lại ngủ 😭\n\nCó hôm em lặp đi lặp lại 4–5 lần, cuối cùng mỏi quá lại ngồi ôm con ngủ luôn.\n\nCác mẹ có con nhỏ từng trải qua cảnh này chưa ạ? Có cách nào đặt con xuống mà bé vẫn ngủ ngon không, hay lớn thêm chút nữa tự khắc hết ạ?",
-  "registry_path": "group_registry_me_be_20261005.json",
+  "message": "Các bác có tâm cứu giúp em tấm ảnh này với ạ 🙏\n\nĐây là ảnh của bố em hồi còn trẻ. Ảnh để lâu quá, trước bị ẩm rồi bong tróc gần hết, giờ nhìn mặt bố cũng không còn rõ nữa.\n\nEm không biết ảnh hỏng thế này còn phục hồi được đến mức nào. Nhờ các bác phục chế lại khuôn mặt, tóc, quần áo và phần ảnh bị mất giúp em với ạ. Nếu được thì giữ nét tự nhiên, đúng kiểu ảnh ngày xưa, đừng làm trẻ đẹp quá thành người khác là được ạ 😅\n\nEm muốn sửa lại để in một tấm mới giữ làm kỷ niệm cho bố.\n\nCảm ơn các bác rất nhiều ❤️",
+  "registry_path": "group_registry_chinh_sua_anh_20261015.json",
   "group_urls": [],
   "comments": [],
   "inter_group_delay_seconds": 30,
@@ -12,8 +12,8 @@
   "recycle_page_every": 5,
   "confirm_post": true,
   "exclude_group_ids": [],
-  "category": "Mẹ và bé",
-  "source_group_list": "group_registry_me_be_20261005.json",
+  "category": "Chỉnh sửa ảnh",
+  "source_group_list": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261015_V4_HOLD(1).xlsx",
   "ui_wait_seconds": 25,
   "retry_ui_failures": true
 }
