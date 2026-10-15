@@ -5,14 +5,10 @@
   "post_mode": "IMAGE_CAPTION",
   "message": "Có 400m² đất mà em đang đau đầu không biết nên xây nhà kiểu gì các bác ạ. 😅\n\nNhà em có lô đất vuông 20 × 20m, đang tính xây nhà để ở lâu dài nhưng hiện phân vân giữa 2 phương án:\n\nPhương án 1: Xây biệt thự nhà vườn ở giữa đất, xung quanh chừa sân, trồng cây, làm tiểu cảnh. Nhìn tổng thể sẽ thoáng, đẹp và đúng chất biệt thự nhà vườn.\n\nPhương án 2: Xây nhà mặt tiền khoảng 10m về một bên đất, 10m còn lại để làm vườn, trồng rau, cây ăn quả. Sau này nếu có nhu cầu tài chính thì vẫn có thể tính chuyện tách phần đất vườn ra bán, nếu đủ điều kiện.\n\nEm thích phương án 1 vì nhìn đúng chất biệt thự nhà vườn, nhưng nghĩ đến lâu dài thì phương án 2 lại có vẻ linh hoạt hơn.\n\nNếu là các bác, các bác chọn nhà nằm giữa đất cho đẹp hay xây lệch một bên để giữ lại 200m² đất dự phòng?\n\nBác nào có mẫu thiết kế tương tự cho em xin tham khảo với ạ. ❤️",
   "group_urls": [
-    "https://www.facebook.com/groups/2452696811497163",
     "https://www.facebook.com/groups/1611658382833111",
     "https://www.facebook.com/groups/kienthuc365.info",
     "https://www.facebook.com/groups/thietkenhadanang",
-    "https://www.facebook.com/groups/294446965607749",
-    "https://www.facebook.com/groups/kientrucvhouse",
-    "https://www.facebook.com/groups/kenhnhadep",
-    "https://www.facebook.com/groups/www.happynest.vn"
+    "https://www.facebook.com/groups/kientrucvhouse"
   ],
   "comments": [],
   "inter_group_delay_seconds": 35,
@@ -22,5 +18,6 @@
   "exclude_group_ids": [],
   "category": "Thiết kế nhà",
   "ui_wait_seconds": 25,
-  "retry_ui_failures": true
+  "retry_ui_failures": true,
+  "source_group_list": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261015_V4_HOLD(2).xlsx"
 }
