@@ -1,0 +1,19 @@
+{
+  "effective_date": "2026-10-15",
+  "canonical_source": "DANH_SACH_GROUP_DA_PHAN_LOAI_20261015_V4_HOLD(1).xlsx",
+  "supersedes_all_older_group_lists": true,
+  "total_groups": 76,
+  "category_counts": {
+    "Ẩm thực / Mẹo vặt": 9,
+    "Bệnh gout / Sức khỏe": 6,
+    "Chỉnh sửa ảnh": 11,
+    "Giáo dục": 1,
+    "Mẹ và bé": 9,
+    "Thiết kế nhà": 4,
+    "Tin tức tổng hợp": 17,
+    "Vén khéo": 6,
+    "Xây dựng / Nhà cửa": 13
+  },
+  "hold_in_sheet": 5,
+  "rule": "All HCT project chats must use this V4 list for future posting jobs; never fall back to older group lists. Always apply central group_hold.json in addition to V4 status."
+}
